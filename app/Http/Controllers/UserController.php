@@ -6,26 +6,33 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Partner;
 use App\Traits\Response;
+use App\Repositories\Interfaces\UserRepositoryInterface;
+
 class UserController extends Controller
 {
 
     use Response;
+    public $repository;
+
+    public function __construct(UserRepositoryInterface $repository){
+        $this->repository = $repository;
+    }
 
     public function onboard(Request $request){
-        $validated = $request->validate([
-            'partner' => 'required|string',
-        ]);
-
-        $partner = Partner::find($validated['partner']);
-
-        if (exists($partner)){
-            return $this->success('User Onboarded successfully', $partner, 200);
-        }else{
-            return $this->error(true, "Partner doesn't exist" , 400);
-        }
-
-
+        return $this->repository->onboard($request);
     }
+
+    public function profile(Request $request){
+    }
+
+    public function login(){}
+
+    public function order(Request $request){}
+
+    public function saveAddress(Request $request){}
+
+
+
 
 
 }
