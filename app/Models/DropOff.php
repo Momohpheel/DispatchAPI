@@ -5,11 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Address extends Model
+class DropOff extends Model
 {
     use HasFactory;
-
-    public function user(){
-        return $this->belongsTo(User::class);
+    public function order(){
+        return $this->belongsToMany(Order::class, 'order_dropoffs');
     }
 }

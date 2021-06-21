@@ -23,13 +23,20 @@ class UserController extends Controller
     }
 
     public function profile(Request $request){
+        return $this->repository->profile($request);
     }
 
-    public function login(){}
+    public function login(Request $request){
+        return $this->repository->login($request);
+    }
 
-    public function order(Request $request){}
+    public function order(Request $request){
+        return $this->repository->order($request);
+    }
 
-    public function saveAddress(Request $request){}
+    public function saveAddress(Request $request){
+        return $this->repository->saveAddress($request);
+    }
 
 
 
