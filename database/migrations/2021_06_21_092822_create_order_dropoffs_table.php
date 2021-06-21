@@ -15,6 +15,8 @@ class CreateOrderDropoffsTable extends Migration
     {
         Schema::create('order_dropoffs', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('order_id')->constrained('orders');
+            $table->foreignId('dropoff_id')->constrained('drop_offs');
             $table->timestamps();
         });
     }
