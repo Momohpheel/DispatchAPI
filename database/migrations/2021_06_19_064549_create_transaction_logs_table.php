@@ -15,6 +15,7 @@ class CreateTransactionLogsTable extends Migration
     {
         Schema::create('transaction_logs', function (Blueprint $table) {
             $table->id();
+            $table->text('logs');
             $table->timestamps();
         });
     }

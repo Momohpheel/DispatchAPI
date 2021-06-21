@@ -110,7 +110,7 @@ class UserRepository{
                 $dropoff->quantity = $dropoff['quantity'];
                 $dropoff->save();
 
-                $order->attach($dropoff);
+                $order->droppoff()->attach($dropoff);
             }
 
             return $this->success("Order created", $order, 200);
