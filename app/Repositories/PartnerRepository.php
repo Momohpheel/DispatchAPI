@@ -109,28 +109,29 @@ class PartnerRepository{
     }
 
     public function assignOrder(Request $request){
+
         try{
-        $validated = $request->validate([
-            'rider_id' => 'required',
-            'dropoff_id' => 'required'
-        ]);
+            $validated = $request->validate([
+                'rider_id' => 'required',
+                'dropoff_id' => 'required'
+            ]);
 
-        $order = DropOff::where('id', $validated['dropoff_id'])->where('partner_id', 1)->first();
-        $rider = Rider::where('id', $validated['rider_id'])->where('partner_id', 1)->first();
-        if ($order){
+            $order = DropOff::where('id', $validated['dropoff_id'])->where('partner_id', 1)->first();
+            $rider = Rider::where('id', $validated['rider_id'])->where('partner_id', 1)->first();
+            if ($order){
 
-            if ($order->status == 'no response yet'){
-                $order->rider_id = $validated['rider_id'];
-                $order->save();
+                if ($order->status == 'no response yet'){
+                    $order->rider_id = $validated['rider_id'];
+                    $order->save();
 
-                return $this->success("Order has been successfully assigned to ". $rider->name, $order, 200);
-            }else{
-                return $this->success("Order is ".$order->status, $order, 400);
+                    return $this->success("Order has been successfully assigned to ". $rider->name, $order, 200);
+                }else{
+                    return $this->success("Order is ".$order->status, $order, 400);
+                }
             }
+        }catch(Exception $e){
+            return $this->error(true, "Error assigning order to rider", 400);
         }
-    }catch(Exception $e){
-        return $this->error(true, "Error assigning order to rider", 400);
-    }
     }
 
     public function getRiders(){

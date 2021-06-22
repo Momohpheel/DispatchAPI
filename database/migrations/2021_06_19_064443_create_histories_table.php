@@ -16,9 +16,9 @@ class CreateHistoriesTable extends Migration
         Schema::create('histories', function (Blueprint $table) {
             $table->id();
             $table->text('history')->nullable();
-            $table->foreignId('user_id')->constrained();
-            $table->foreignId('rider_id')->constrained();
-            $table->foreignId('partner_id')->constrained();
+            $table->foreignId('user_id')->constrained()->nullable();
+            $table->foreignId('rider_id')->constrained()->nullable();
+            $table->foreignId('partner_id')->constrained()->nullable();
             $table->timestamps();
         });
     }
