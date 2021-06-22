@@ -76,6 +76,15 @@ class UserRepository{
     }
 
     public function order(Request $request){
+        //partnerId should be passed to this route so
+        //we can know who we are sending the payments to
+
+
+        //check partner operating time to see if they're active
+
+        //check partner order_count_per_day to see if they can still take orders
+
+        //
         try{
             $validated = $request->validate([
                 'o_address' => "required|string",
@@ -118,6 +127,16 @@ class UserRepository{
             return $this->error(true, "Error creating order", 400);
         }
     }
+
+    public function calculatePrice(){}
+
+    public function chargeUser(){}
+
+    public function getUserHistory(){}
+
+    public function rateRider(){}
+
+    public function ratePartner(){}
 
     public function saveAddress(Request $request){
         try{

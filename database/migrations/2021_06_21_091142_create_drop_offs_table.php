@@ -16,8 +16,8 @@ class CreateDropOffsTable extends Migration
         Schema::create('drop_offs', function (Blueprint $table) {
             $table->id();
             $table->text('d_address')->nullable();
-            $table->decimal('d_latitude', 11,7);
-            $table->decimal('d_longitude', 11,7);
+            $table->decimal('d_latitude', 11,7)->nullable();
+            $table->decimal('d_longitude', 11,7)->nullable();
             $table->string('product_name')->nullable();
             $table->string('receiver_name')->nullable();
             $table->string('receiver_phone')->nullable();
@@ -26,8 +26,8 @@ class CreateDropOffsTable extends Migration
             $table->foreignId('rider_id')->constrained();
             $table->timestamp('started_time')->nullable();
             $table->timestamp('ended_time')->nullable();
-            $table->string('price');
-            $table->string('status', ['done', 'pending']);
+            $table->string('price')->nullable();
+            $table->enum('status', ['done', 'pending']);
             $table->timestamps();
         });
     }
