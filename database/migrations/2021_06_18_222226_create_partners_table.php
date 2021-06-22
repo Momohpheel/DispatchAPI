@@ -24,6 +24,7 @@ class CreatePartnersTable extends Migration
             $table->enum('subscription_status', ['paid', 'not paid']);
             $table->integer('order_count_per_day');
             $table->boolean('is_enabled')->default(false);
+            $table->boolean('is_paused')->default(false);
             $table->timestamps();
         });
     }

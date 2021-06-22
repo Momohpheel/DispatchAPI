@@ -18,6 +18,8 @@ class CreateOrdersTable extends Migration
             $table->text('o_address')->nullable();
             $table->decimal('o_latitude', 11,7)->nullable();
             $table->decimal('o_longitude', 11,7)->nullable();
+            $table->foreignId('partner_id')->constrained();
+            $table->foreignId('user_id')->constrained();
             $table->timestamps();
         });
     }

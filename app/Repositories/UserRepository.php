@@ -75,7 +75,7 @@ class UserRepository{
         }
     }
 
-    public function order(Request $request){
+    public function order(Request $request, $id){
         //partnerId should be passed to this route so
         //we can know who we are sending the payments to
 
@@ -84,7 +84,9 @@ class UserRepository{
 
         //check partner order_count_per_day to see if they can still take orders
 
-        //
+        //reduce partner order_count_per_day based on the number of orders being made here
+
+        //check if partner's account has been paused or diabled
         try{
             $validated = $request->validate([
                 'o_address' => "required|string",
@@ -100,11 +102,13 @@ class UserRepository{
                 'dropoff.quantity.*' => "required|string",
             ]);
 
+            $partner = Partner::where('id', $id)->first();
             $order = new Order;
             $order->o_address = $validated['o_address'];
             $order->o_latitude = $validated['o_latitude'];
             $order->o_longitude = $validated['o_longitude'];
             $order->user_id = 1;//auth()->user->id
+            $order->partner_id = 1; //$partner->id
             $order->save();
 
             foreach($validated['dropoff'] as $dropoff ){
@@ -117,6 +121,7 @@ class UserRepository{
                 $dropoff->receiver_phone = $dropoff['receiver_phone'];
                 $dropoff->receiver_email = $dropoff['receiver_email'];
                 $dropoff->quantity = $dropoff['quantity'];
+                $dropoff->partner_id = 1; //$partner->id
                 $dropoff->save();
 
                 $order->droppoff()->attach($dropoff);

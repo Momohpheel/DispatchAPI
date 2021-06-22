@@ -85,7 +85,15 @@ class PartnerRepository{
 
     public function profile(Request $request){}
 
-    public function getOrders(){}
+    public function getOrders(){
+        try{
+            $orders = Order::where('partner_id', 1)->load('dropoff');
+
+            return $this->success("Orders", $orders, 200);
+        }catch(Exception $e){
+            return $this->error(true, "Error fetching orders", 400);
+        }
+    }
 
     public function disableRider($id){
         try{
@@ -100,7 +108,30 @@ class PartnerRepository{
 
     }
 
-    public function assignOrder(){}
+    public function assignOrder(Request $request){
+        try{
+        $validated = $request->validate([
+            'rider_id' => 'required',
+            'dropoff_id' => 'required'
+        ]);
+
+        $order = DropOff::where('id', $validated['dropoff_id'])->where('partner_id', 1)->first();
+        $rider = Rider::where('id', $validated['rider_id'])->where('partner_id', 1)->first();
+        if ($order){
+
+            if ($order->status == 'no response yet'){
+                $order->rider_id = $validated['rider_id'];
+                $order->save();
+
+                return $this->success("Order has been successfully assigned to ". $rider->name, $order, 200);
+            }else{
+                return $this->success("Order is ".$order->status, $order, 400);
+            }
+        }
+    }catch(Exception $e){
+        return $this->error(true, "Error assigning order to rider", 400);
+    }
+    }
 
     public function getRiders(){
         try{
@@ -109,6 +140,19 @@ class PartnerRepository{
             return $this->success("Riders", $riders, 200);
         }catch(Exception $e){
             return $this->error(true, "Error fetching riders", 400);
+        }
+
+    }
+
+    public function pauseAccount(){
+        try{
+            $partner = Partner::find(1); //auth->user()->id
+            $partner->is_paused = true;
+            $partner->save();
+
+            return $this->success("Partner has been paused from operating", $partner, 200);
+        }catch(Exception $e){
+            return $this->error(true, "Error pausing partner", 400);
         }
 
     }
