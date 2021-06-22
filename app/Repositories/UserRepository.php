@@ -76,6 +76,7 @@ class UserRepository{
     }
 
     public function order(Request $request, $id){
+
         //partnerId should be passed to this route so
         //we can know who we are sending the payments to
 
@@ -88,6 +89,13 @@ class UserRepository{
 
         //check if partner's account has been paused or diabled
         try{
+            $partner = Partner::where('id', $id)->first();
+
+            if ($partner->order_count_per_day == 0){}
+            if ($partner->is_paused == true){}
+            if ($partner->is_enabled == false){}
+
+
             $validated = $request->validate([
                 'o_address' => "required|string",
                 'dropoff.d_address.*' => "required|string",
@@ -102,7 +110,7 @@ class UserRepository{
                 'dropoff.quantity.*' => "required|string",
             ]);
 
-            $partner = Partner::where('id', $id)->first();
+
             $order = new Order;
             $order->o_address = $validated['o_address'];
             $order->o_latitude = $validated['o_latitude'];
@@ -127,6 +135,10 @@ class UserRepository{
                 $order->droppoff()->attach($dropoff);
             }
 
+            if ($partner->order_count_by_id != 'unlimited'){
+               $partner->order_count_by_id--;
+               $partner->save();
+            }
             return $this->success("Order created", $order, 200);
         }catch(Excption $e){
             return $this->error(true, "Error creating order", 400);

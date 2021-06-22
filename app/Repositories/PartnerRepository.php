@@ -163,6 +163,8 @@ class PartnerRepository{
 
     public function updateOperatingHours(){}
 
+    public function getPartnerHistory(){}
 
+    public function makeTopPartner(){}
 
 }
