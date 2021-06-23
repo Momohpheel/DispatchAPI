@@ -19,4 +19,5 @@ class AdminRepository{
     public function getAllOrders(){}
 
     public function disablePartner(){}
+    
 }
