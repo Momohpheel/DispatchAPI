@@ -151,7 +151,9 @@ class UserRepository{
         }
     }
 
-    public function calculatePrice(){}
+    public function calculatePrice(Request $request){
+        $calculation = (($distance_rnd * $fuel_cost) + $rider_salary + ($distance_rnd * $bike_fund )) * $ops_fee * $easy_log * $easy_disp;
+    }
 
     public function payment(){}
 

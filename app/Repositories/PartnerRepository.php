@@ -7,6 +7,7 @@ use App\Models\Partner;
 use App\Models\Rider;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Order;
+use App\Models\routeCosting as RouteCosting;
 use App\Models\DropOff;
 use App\Models\Address;
 use App\Models\History;
@@ -172,7 +173,67 @@ class PartnerRepository{
 
     }
 
-    public function setRouteCosting(){}
+    public function setRouteCosting(Request $request){
+        try{
+            $validated = $request->validate([
+                'fuel_cost' => "required",
+                'bike_fund' => "required",
+                'ops_fee' => "required",
+                'easy_log' => "required",
+                'easy_disp' => "required",
+                'express' => "required",
+                'max_km' => "required",
+                'min_km' => "required",
+            ]);
+
+            $route_costing = new RouteCosting;
+            $route_costing->fuel_cost = $validated['fuel_cost'];
+            $route_costing->bike_fund = $validated['bike_fund'];
+            $route_costing->ops_fee = $validated['ops_fee'];
+            $route_costing->easy_log = $validated['easy_log'];
+            $route_costing->easy_disp = $validated['easy_disp'];
+            $route_costing->express = $validated['express'];
+            $route_costing->min_km = $validated['min_km'];
+            $route_costing->max_km = $validated['max_km'];
+            $route_costing->partner_id = 1; //auth()->user()->id;
+            $route_costing->save();
+
+            return $this->success("Route-Costing Added", $route_costing,200);
+        }catch(Exception $e){
+            return $this->error(true, "Error occured", 400);
+        }
+    }
+
+    public function updateRouteCosting(Request $request, $id){
+        try{
+            $validated = $request->validate([
+                'fuel_cost' => "required",
+                'bike_fund' => "required",
+                'ops_fee' => "required",
+                'easy_log' => "required",
+                'easy_disp' => "required",
+                'express' => "required",
+                'max_km' => "required",
+                'min_km' => "required",
+            ]);
+
+            $route_costing = RouteCosting::where('id', $id)->where('partner_id', 1)->first();
+
+            $route_costing->fuel_cost = $validated['fuel_cost'] ?? $route_costing->fuel_cost;
+            $route_costing->bike_fund = $validated['bike_fund'] ?? $route_costing->bike_fund;
+            $route_costing->ops_fee = $validated['ops_fee'] ?? $route_costing->ops_fee;
+            $route_costing->easy_log = $validated['easy_log'] ?? $route_costing->easy_log;
+            $route_costing->easy_disp = $validated['easy_disp'] ?? $route_costing->easy_disp;
+            $route_costing->express = $validated['express'] ?? $route_costing->express;
+            $route_costing->min_km = $validated['min_km'] ?? $route_costing->min_km;
+            $route_costing->max_km = $validated['max_km'] ?? $route_costing->max_km;
+            $route_costing->save();
+       
+            return $this->success("Route-Costing Updating", $route_costing, 200);
+        }catch(Exception $e){
+            return $this->error(true, "Error occured", 400);
+        }
+    }
 
     public function subscribe(Request $request){
         $validated = $request->validate([
@@ -192,7 +253,7 @@ class PartnerRepository{
         }
     }
 
-    public function updateOperatingHours(){}
+    public function updateOperatingHours(Request $request, $rider){}
 
     public function getPartnerHistory(){
         try{
