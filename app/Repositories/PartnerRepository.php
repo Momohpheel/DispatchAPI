@@ -5,10 +5,19 @@ namespace App\Repositories;
 use App\Traits\Response;
 use App\Models\Partner;
 use App\Models\Rider;
+use Illuminate\Support\Facades\Hash;
+use App\Models\Order;
+use App\Models\DropOff;
+use App\Models\Address;
+use App\Models\History;
 
 class PartnerRepository{
 
     use Response;
+
+    public function __construct(){
+
+    }
 
     public function signup(Request $request){
         try{
@@ -66,16 +75,21 @@ class PartnerRepository{
                 'password' => 'required|string'
             ]);
 
-            $rider = new Rider;
-            $rider->name = $validated['name'];
-            $rider->phone = $validated['phone'];
-            $rider->workname = $validated['workname'];
-            $rider->code_name = $validated['code_name'];
-            $rider->password = Hash::make($validated['password']);
-            $rider->partner_id = 1; //auth()->user()->id;
-            $rider->save();
+            $rider = Rider::where('workname', $validated['workname'])->where('phone', $validated['phone'])->where('partner_id', $partner->id)->first();
+            if (!$rider){
+                $rider = new Rider;
+                $rider->name = $validated['name'];
+                $rider->phone = $validated['phone'];
+                $rider->workname = $validated['workname'];
+                $rider->code_name = $validated['code_name'];
+                $rider->password = Hash::make($validated['password']);
+                $rider->partner_id = 1; //auth()->user()->id;
+                $rider->save();
 
-            return $this->success("Rider registered", $rider, 200);
+                return $this->success("Rider registered", $rider, 200);
+            }else{
+                return $this->error(true, "Rider with given workname or phone number exists", 400);
+            }
         }catch(Exception $e){
             return $this->error(true, "Error creating rider", 400);
         }
@@ -160,12 +174,50 @@ class PartnerRepository{
 
     public function setRouteCosting(){}
 
-    public function subscribe(){}
+    public function subscribe(Request $request){
+        $validated = $request->validate([
+            'subscription_id' => 'required'
+        ]);
+
+        $subs = Subscription::find($validated['subscription_id']);
+        if ($subs){
+            //check if partner has enogh in her wallet
+            //take money from partner wallet
+
+            $partner = Partner::find(1);
+            $partner->subscription_id = $subs->id;
+            $partner->subscription_status = 'paid';
+            $partner->order_count_per_day = 2; //check what type of subscription and input appropiately here
+            $partner->save();
+        }
+    }
 
     public function updateOperatingHours(){}
 
-    public function getPartnerHistory(){}
+    public function getPartnerHistory(){
+        try{
+            $id = 1; //auth()->user()->id;
+            $history = History::where('partner_id', $id)->get();
 
-    public function makeTopPartner(){}
+            return $this->success("Partner history", $history, 200);
+
+        }catch(Exception $e){
+            return $this->error(true, "Couldn't find partner history", 400);
+        }
+    }
+
+    public function makeTopPartner(){
+        try{
+            //pay to ba a top partner
+            $partner = Partner::find($id);
+            $partner->is_top_partner = true;
+            $partner->top_partner_pay_date = now();
+            $partner->save();
+
+            return $this->success("Partner has been made a top partner", $partner, 200);
+        }catch(Exception $e){
+            return $this->error(true, "Error occured", 400);
+        }
+    }
 
 }

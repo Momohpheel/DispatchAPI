@@ -25,8 +25,8 @@ class CreateDropOffsTable extends Migration
             $table->string('quantity')->nullable();
             $table->foreignId('rider_id')->constrained();
             $table->foreignId('partner_id')->constrained();
-            $table->timestamp('started_time')->nullable();
-            $table->timestamp('ended_time')->nullable();
+            $table->timestamp('start_time')->nullable();
+            $table->timestamp('end_time')->nullable();
             $table->string('price')->nullable();
             $table->enum('status', ['done', 'ongoing', 'no response yet']);
             $table->timestamps();

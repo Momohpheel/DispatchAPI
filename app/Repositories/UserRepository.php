@@ -5,6 +5,8 @@ namespace App\Repositories;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Partner;
+use App\Models\History;
+use Illuminate\Support\Facades\Hash;
 use App\Models\Order;
 use App\Models\DropOff;
 use App\Models\Address;
@@ -13,6 +15,10 @@ use App\Traits\Response;
 class UserRepository{
 
     use Response;
+
+    public function __construct(){
+        
+    }
 
     public function onboard(Request $request){
         $validated = $request->validate([
@@ -147,9 +153,21 @@ class UserRepository{
 
     public function calculatePrice(){}
 
-    public function chargeUser(){}
+    public function payment(){}
 
-    public function getUserHistory(){}
+    public function getUserHistory(){
+        try{
+            $id = 1; //auth()->user()->id;
+            $history = History::where('user_id', $id)->get();
+
+            return $this->success("User history", $history, 200);
+
+        }catch(Exception $e){
+            return $this->error(true, "Couldn't find user history", 400);
+        }
+
+
+    }
 
     public function rateRider(){}
 
@@ -175,6 +193,18 @@ class UserRepository{
             return $this->error(true, "Address couldn't save", 400);
         }
 
+    }
+
+    public function getSavedAddresses(){
+        try{
+            $id = 1; //auth()->user()->id;
+            $addresses = Address::where('user_id', $id)->get();
+
+            return $this->success("User saved addresses", $addresses, 200);
+
+        }catch(Exception $e){
+            return $this->error(true, "Couldn't find user's addresses", 400);
+        }
     }
 
 

@@ -22,11 +22,13 @@ class CreatePartnersTable extends Migration
             $table->string('code_name')->unique();
             $table->foreignId('subscription_id')->constrained()->default(1);
             $table->enum('subscription_status', ['paid', 'not paid']);
+            $table->date('subscription_date');
             $table->integer('order_count_per_day');
+            $table->integer('rating');
             $table->boolean('is_enabled')->default(false);
             $table->boolean('is_paused')->default(false);
             $table->boolean('is_top_partner')->default(false);
-            $table->enum('top_partner_charge_status', ['paid', 'not paid'])->nullable();
+            $table->date('top_partner_pay_date');
             $table->timestamps();
         });
     }
