@@ -44,7 +44,7 @@ class RiderRepository{
 
     public function start_order(Request $request, $id){
         try{
-            $order = DropOff::where('id', $id)->where('rider_id', 1)->first();
+            $order = DropOff::where('id', $id)->where('rider_id', 1)->where('payment_status', 'paid')->first();
             $order->start_time = now();
             $order->save();
             return $this->success("Rider has initiated order", $order, 200);
