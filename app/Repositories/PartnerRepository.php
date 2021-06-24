@@ -67,13 +67,220 @@ class PartnerRepository{
         }
     }
 
+    public function kyc(){}
+
+    public function profile(Request $request){
+        
+        try{
+            $validated = $request->validate([
+                'image' => "required|image|mimes:jpg,png,jpeg|max:2000",
+            ]);
+
+            if (request()->hasFile('image')){
+                $image_name = request()->file()->getClientOriginalName();
+                $image_ext = pathfile($image_name);
+                
+                
+            }
+            $partner = Partner::find(1);
+            $partner->image = $image;
+            $partner->save();
+    
+        }catch(Exception $e){
+
+        }
+    }
+
+    public function updateProfile(Request $request){
+        try{
+            $validated = $request->validate([
+                'image' => "required|image|mimes:jpg,png,jpeg|max:2000",
+            ]);
+
+            if (request()->hasFile('image')){
+                $image_name = request()->file()->getClientOriginalName();
+                $image_ext = pathfile($image_name);
+                
+                
+            }
+            $partner = Partner::find(1);
+            $partner->image = $image;
+            $partner->save();
+    
+        }catch(Exception $e){
+
+        }
+    }
+
+    public function addVehicle(Request $request){
+        try{
+            $validated = $request->validate([
+                'name' => 'required|string',
+                'plate_number' => 'required|string',
+                'color' => 'required|string',
+                'model' => 'required|string',
+                'type' => 'string'
+            ]);
+
+            $vehicle = Vehicle::where('plate_number', $validated['plate_number'])->where('partner_id', $partner->id)->first();
+            if (!$vehicle){
+                $vehicle = new Vehicle;
+                $vehicle->name = $validated['name'];
+                $vehicle->plate_number = $validated['plate_number'];
+                $vehicle->color = $validated['color'];
+                $vehicle->model = $validated['model'];
+                $vehicle->partner_id = 1; //auth()->user()->id;
+                $vehicle->type = $validated['type'];
+                $vehicle->save();
+
+                return $this->success("vehicle registered", $vehicle, 200);
+            }else{
+                return $this->error(true, "vehicle with given plate number exists", 400);
+            }
+        }catch(Exception $e){
+            return $this->error(true, "Error creating vehicle", 400);
+        }
+
+    }
+
+    public function updateVehicle(Request $request, $id){
+        try{
+            $validated = $request->validate([
+                'name' => 'string',
+                'plate_number' => 'string',
+                'color' => 'string',
+                'model' => 'string',
+                'type' => 'string'
+            ]);
+
+            $vehicle = Vehicle::where('plate_number', $validated['plate_number'])->where('partner_id', $partner->id)->first();
+            if ($vehicle){
+                $vehicle->name = $validated['name'] ?? $vehicle->name;
+                $vehicle->plate_number = $validated['plate_number'] ?? $vehicle->plate_number;
+                $vehicle->color = $validated['color'] ?? $vehicle->color;
+                $vehicle->model = $validated['model'] ?? $vehicle->model;
+                $vehicle->type = $validated['type'] ?? $vehicle->type;
+                $vehicle->partner_id = 1 ?? $vehicle->partner_id; //auth()->user()->id;
+                $vehicle->save();
+
+                return $this->success("vehicle updated", $vehicle, 200);
+            }else{
+                return $this->error(true, "vehicle with given plate number doesn't exists", 400);
+            }
+        }catch(Exception $e){
+            return $this->error(true, "Error updating vehicle", 400);
+        }
+
+    }
+
+    public function disableVehicle($id){
+        try{
+
+            $partner_id = 1; //auth()->user()->id
+            $vehicle = Vehicle::where('id', $id)->where('partner_id', $partner_id)->first();
+            if ($vehicle){
+                $vehicle->is_enabled = !($vehicle->is_enabled);
+                $vehicle->save();
+
+                if ($vehicle->is_enabled == false){return $this->success("vehicle enabled", $vehicle, 200);}
+                else{return $this->success("vehicle disabled", $vehicle, 200);}
+                
+            }else{
+                return $this->error(true, "vehicle with given plate number doesn't exists", 400);
+            }
+        }catch(Exception $e){
+            return $this->error(true, "Error occured", 400);
+        }
+    }
+
+    public function getVehicles(){
+        try{
+
+            $vehicles = Vehicle::where('partner_id', $partner_id)->get();
+
+            return $this->success("Vehicles fetched", $vehicles, 200);
+                
+        }catch(Exception $e){
+            return $this->error(true, "Error occured", 400);
+        }
+    }
+
+    public function getVehicle($id){
+        try{
+
+            $vehicle = Vehicle::where('id', $id)->where('partner_id', $partner_id)->first();
+
+            return $this->success("Vehicle fetched", $vehicle, 200);
+                
+        }catch(Exception $e){
+            return $this->error(true, "Error occured", 400);
+        }
+    }
+
+    
+
+    public function dismissRider($id){
+        try{
+            $partner_id = 1; //auth()->user()->id
+            $rider = Rider::where('id', $id)->where('partner_id', $partner_id)->first();
+            $rider->is_dismissed = true;
+            $rider->save();
+
+            return $this->success("Rider has been disabled", $rider, 200);
+        }catch(Exception $e){
+            return $this->error(true, "Error disabling rider", 400);
+        }
+    }
+    public function updateRider(Request $request, $id){
+        try{
+            $validated = $request->validate([
+                'name' => 'string',
+                'workname' => 'string',
+                'phone' => 'string',
+                'password' => 'string',
+                'image' => 'image|mimes:png,jpeg,jpg|max:2000'
+            ]);
+
+            $rider = Rider::where('workname', $validated['workname'])->where('phone', $validated['phone'])->where('partner_id', $partner->id)->first();
+            if ($rider){
+                $rider->name = $validated['name'] ?? $rider->name;
+                $rider->phone = $validated['phone'] ?? $rider->phone;
+                $rider->workname = $validated['workname'] ?? $rider->workname;
+                $rider->code_name = $validated['code_name'] ?? $rider->code_name;
+                $rider->image = $validated['image'] ?? $rider->image;
+                $rider->password = Hash::make($validated['password']) ?? $rider->password;
+                //$rider->partner_id = 1; //auth()->user()->id;
+                $rider->save();
+
+                return $this->success("Rider profile updated", $rider, 200);
+            }else{
+                return $this->error(true, "Rider with given workname or phone number  doesn't exist", 400);
+            }
+        }catch(Exception $e){
+            return $this->error(true, "Error updating rider", 400);
+        }
+    }
+
+    public function ordersDoneByRider($id){
+        try{
+
+            $orders = DropOff::where('rider_id', $id)->where('partner_id', $partner->id)->load('order');
+            
+            return $this->success("Orders done by the rider", $orders, 200);
+        
+        }catch(Exception $e){
+            return $this->error(true, "Error occured", 400);
+        }
+    }
+
     public function createRider(Request $request){
         try{
             $validated = $request->validate([
                 'name' => 'required|string',
                 'workname' => 'required|string',
                 'phone' => 'required|string',
-                'password' => 'required|string'
+                'password' => 'required|string',
+                'image' => 'required|image|mimes:png,jpeg,jpg|max:2000'
             ]);
 
             $rider = Rider::where('workname', $validated['workname'])->where('phone', $validated['phone'])->where('partner_id', $partner->id)->first();
@@ -83,6 +290,7 @@ class PartnerRepository{
                 $rider->phone = $validated['phone'];
                 $rider->workname = $validated['workname'];
                 $rider->code_name = $validated['code_name'];
+                $rider->image = $validated['image'];
                 $rider->password = Hash::make($validated['password']);
                 $rider->partner_id = 1; //auth()->user()->id;
                 $rider->save();
@@ -98,7 +306,7 @@ class PartnerRepository{
 
     }
 
-    public function profile(Request $request){}
+
 
     public function getOrders(){
         try{
@@ -112,7 +320,8 @@ class PartnerRepository{
 
     public function disableRider($id){
         try{
-            $rider = Rider::where('id', $id)->where('partner_id', 1)->first();
+            $partner_id = 1; //auth()->user()->id
+            $rider = Rider::where('id', $id)->where('partner_id', $partner_id)->first();
             $rider->is_enabled = false;
             $rider->save();
 
@@ -165,7 +374,7 @@ class PartnerRepository{
             $partner = Partner::find(1); //auth->user()->id
             $partner->is_paused = true;
             $partner->save();
-
+            //disable all riders under partner
             return $this->success("Partner has been paused from operating", $partner, 200);
         }catch(Exception $e){
             return $this->error(true, "Error pausing partner", 400);
@@ -253,7 +462,7 @@ class PartnerRepository{
         }
     }
 
-    public function updateOperatingHours(Request $request, $rider){}
+    public function updateOperatingHours(Request $request){}
 
     public function getPartnerHistory(){
         try{
