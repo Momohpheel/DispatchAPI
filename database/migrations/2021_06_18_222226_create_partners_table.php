@@ -23,6 +23,7 @@ class CreatePartnersTable extends Migration
             $table->foreignId('subscription_id')->constrained()->default(1);
             $table->enum('subscription_status', ['paid', 'not paid']);
             $table->date('subscription_date');
+            $table->date('subscription_expiry_date');
             $table->integer('order_count_per_day');
             $table->integer('rating');
             $table->boolean('is_enabled')->default(false);

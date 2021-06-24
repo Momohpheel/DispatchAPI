@@ -20,6 +20,17 @@ class PartnerRepository{
 
     }
 
+
+
+
+
+    /*
+    *
+    *
+    *   PARTNER AUTHENTICATION 
+    *   (signup, login)
+    *
+    */
     public function signup(Request $request){
         try{
             $validated = $request->validate([
@@ -67,6 +78,17 @@ class PartnerRepository{
         }
     }
 
+
+
+
+
+    /*
+    *
+    *
+    *   PARTNER PROFILE SETUP & FUNCTIONS
+    *   (kyc, addProfile, updateProfile, pauseAccount, )
+    *
+    */
     public function kyc(){}
 
     public function profile(Request $request){
@@ -91,6 +113,19 @@ class PartnerRepository{
         }
     }
 
+    public function pauseAccount(){
+        try{
+            $partner = Partner::find(1); //auth->user()->id
+            $partner->is_paused = true;
+            $partner->save();
+            //disable all riders under partner
+            return $this->success("Partner has been paused from operating", $partner, 200);
+        }catch(Exception $e){
+            return $this->error(true, "Error pausing partner", 400);
+        }
+
+    }
+
     public function updateProfile(Request $request){
         try{
             $validated = $request->validate([
@@ -112,6 +147,15 @@ class PartnerRepository{
         }
     }
 
+
+
+
+    /*
+    *
+    * ENDPOINTS RELATING TO VEHICLES 
+    *(addVehicle, updateVehicle, disableVehicle, getAllVehicle, getOneVehicle)
+    *
+    **/
     public function addVehicle(Request $request){
         try{
             $validated = $request->validate([
@@ -219,6 +263,15 @@ class PartnerRepository{
 
     
 
+    /**
+    *
+    *
+    *ENDPOINS RELATING TO THE PARTNER'S RIDERS
+    * (createRiderProfile, updateRiderProfile, getAllRiders, getOneRider,
+    *disableRider, dismissRider, ordersByRider, assignOrder)
+    *
+    *
+    */
     public function dismissRider($id){
         try{
             $partner_id = 1; //auth()->user()->id
@@ -239,6 +292,7 @@ class PartnerRepository{
                 'phone' => 'string',
                 'password' => 'string',
                 'image' => 'image|mimes:png,jpeg,jpg|max:2000'
+                'vehicle_id' => 'string'
             ]);
 
             $rider = Rider::where('workname', $validated['workname'])->where('phone', $validated['phone'])->where('partner_id', $partner->id)->first();
@@ -248,6 +302,7 @@ class PartnerRepository{
                 $rider->workname = $validated['workname'] ?? $rider->workname;
                 $rider->code_name = $validated['code_name'] ?? $rider->code_name;
                 $rider->image = $validated['image'] ?? $rider->image;
+                $rider->vehicle_id = $validated['vehicle_id'] ?? $rider->vehicle_id; 
                 $rider->password = Hash::make($validated['password']) ?? $rider->password;
                 //$rider->partner_id = 1; //auth()->user()->id;
                 $rider->save();
@@ -281,6 +336,7 @@ class PartnerRepository{
                 'phone' => 'required|string',
                 'password' => 'required|string',
                 'image' => 'required|image|mimes:png,jpeg,jpg|max:2000'
+                'vehicle_id' => 'required'
             ]);
 
             $rider = Rider::where('workname', $validated['workname'])->where('phone', $validated['phone'])->where('partner_id', $partner->id)->first();
@@ -290,6 +346,7 @@ class PartnerRepository{
                 $rider->phone = $validated['phone'];
                 $rider->workname = $validated['workname'];
                 $rider->code_name = $validated['code_name'];
+                $rider->vehicle_id = $validated['vehicle_id'];
                 $rider->image = $validated['image'];
                 $rider->password = Hash::make($validated['password']);
                 $rider->partner_id = 1; //auth()->user()->id;
@@ -306,18 +363,6 @@ class PartnerRepository{
 
     }
 
-
-
-    public function getOrders(){
-        try{
-            $orders = Order::where('partner_id', 1)->load('dropoff');
-
-            return $this->success("Orders", $orders, 200);
-        }catch(Exception $e){
-            return $this->error(true, "Error fetching orders", 400);
-        }
-    }
-
     public function disableRider($id){
         try{
             $partner_id = 1; //auth()->user()->id
@@ -328,6 +373,17 @@ class PartnerRepository{
             return $this->success("Rider has been disabled", $rider, 200);
         }catch(Exception $e){
             return $this->error(true, "Error disabling rider", 400);
+        }
+
+    }
+
+    public function getRiders(){
+        try{
+            $riders = Rider::where('partner_id', 1)->get();
+
+            return $this->success("Riders", $riders, 200);
+        }catch(Exception $e){
+            return $this->error(true, "Error fetching riders", 400);
         }
 
     }
@@ -358,29 +414,42 @@ class PartnerRepository{
         }
     }
 
-    public function getRiders(){
+
+
+
+
+
+    /*
+    *
+    *
+    * ORDERS RELATED TO PARTNERS
+    * (getOrders, getOneOrder)
+    *
+     */
+    public function getOrders(){
         try{
-            $riders = Rider::where('partner_id', 1)->get();
+            $orders = Order::where('partner_id', 1)->load('dropoff');
 
-            return $this->success("Riders", $riders, 200);
+            return $this->success("Orders", $orders, 200);
         }catch(Exception $e){
-            return $this->error(true, "Error fetching riders", 400);
+            return $this->error(true, "Error fetching orders", 400);
         }
-
     }
 
-    public function pauseAccount(){
+    public function getOneOrder($id){
         try{
-            $partner = Partner::find(1); //auth->user()->id
-            $partner->is_paused = true;
-            $partner->save();
-            //disable all riders under partner
-            return $this->success("Partner has been paused from operating", $partner, 200);
-        }catch(Exception $e){
-            return $this->error(true, "Error pausing partner", 400);
-        }
 
+            $order = Order::where('id', $id)->where('partner_id', 1)->load('dropoff');
+
+            return $this->success("Orders", $order, 200);
+        }catch(Exception $e){
+            return $this->error(true, "Error fetching order", 400);
+        }
     }
+
+  
+
+  
 
     public function setRouteCosting(Request $request){
         try{
@@ -462,7 +531,48 @@ class PartnerRepository{
         }
     }
 
-    public function updateOperatingHours(Request $request){}
+    public function addOperatingHours(Request $request){
+        try{
+            $validate = $request->validate([
+                'day' => 'required|string',
+                'start_time' => 'required|string',
+                'end_time' => 'required|string'
+            ]);
+
+            $operating_hours = new OperatingHours;
+            $operating_hours->day = $validated['day'];
+            $operating_hours->start_time = $validated['start_time'];
+            $operating_hours->end_time = $validated['end_time'];
+            $operating_hours->partner_id = 1; //auth()->user()->id;
+            $operating_hours->save();
+
+            return $this->success("Operating Hours added", $operating_hours, 200);
+        }catch(Exception $e){
+            return $this->error(true, "Couldn't add operating hours", 400);
+        }
+    }
+
+    public function updateOperatingHours(Request $request, $id){
+        try{
+            $validate = $request->validate([
+                'day' => 'required|string',
+                'start_time' => 'required|string',
+                'end_time' => 'required|string'
+            ]);
+
+            $operating_hours = OperatingHours::where('id', $id)->where('partner_id', 1)->first();
+            $operating_hours->day = $validated['day'] ?? $operating_hours->day;
+            $operating_hours->start_time = $validated['start_time'] ?? $operating_hours->start_time;
+            $operating_hours->end_time = $validated['end_time'] ?? $operating_hours->end_time;
+            //$operating_hours->partner_id = 1; //auth()->user()->id;
+            $operating_hours->save();
+
+            return $this->success("Operating Hours updated", $operating_hours, 200);
+        }catch(Exception $e){
+            return $this->error(true, "Couldn't update operating hours", 400);
+        }
+    }
+
 
     public function getPartnerHistory(){
         try{
@@ -489,5 +599,9 @@ class PartnerRepository{
             return $this->error(true, "Error occured", 400);
         }
     }
+
+
+    //wallet transactions
+
 
 }

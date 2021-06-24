@@ -125,6 +125,8 @@ class UserRepository{
             $order->partner_id = 1; //$partner->id
             $order->save();
 
+            //pair with rider who is under the partner 
+            //and is not disabled or dismissed
             foreach($validated['dropoff'] as $dropoff ){
                 $dropoff = new DropOff;
                 $dropoff->d_address = $dropoff['d_address'];

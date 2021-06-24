@@ -20,6 +20,7 @@ class CreateRidersTable extends Migration
             $table->string('phone')->nullable();
             $table->foreignId('partner_id')->constrained();
             $table->string('password');
+            $table->string('earnings');
             $table->integer('rating');
             $table->boolean('is_enabled')->default(true);
             $table->timestamps();
