@@ -42,10 +42,22 @@ return [
         ],
 
         'api' => [
-            'driver' => 'token',
+            'driver' => 'passport',
             'provider' => 'users',
             'hash' => false,
         ],
+
+        'partner' => [
+            'driver' => 'passport',
+            'provider' => 'partners',
+            'hash' => false,
+        ],
+        
+        'rider' => [
+            'driver' => 'passport',
+            'provider' => 'riders',
+            'hash' => false,
+        ]
     ],
 
     /*
@@ -69,6 +81,14 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,
+        ],
+        'partners' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Partner::class,
+        ],
+        'riders' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Rider::class,
         ],
 
         // 'users' => [

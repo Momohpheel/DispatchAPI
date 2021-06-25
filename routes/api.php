@@ -31,7 +31,7 @@ Route::prefix('auth')->group(function () {
         });
 
     });
-
+});
 
     // Route::prefix('rider')->group(function () {
     //     Route::post('signup', [App\Http\Controllers\UserController::class, 'onboard']);
@@ -60,14 +60,14 @@ Route::prefix('auth')->group(function () {
             Route::prefix('profile')->group(function () {
                 Route::post('/', [App\Http\Controllers\UserController::class, 'profile']);
                 Route::post('update', [App\Http\Controllers\UserController::class, 'updateProfile']);
-            }
+            });
             Route::prefix('vehicle')->group(function () {
                 Route::post('add', [App\Http\Controllers\UserController::class, 'addVehicle']);
                 Route::get('update', [App\Http\Controllers\UserController::class, 'updateVehicle']);
                 Route::post('disable', [App\Http\Controllers\UserController::class, 'disableVehicle']);
                 Route::get('/', [App\Http\Controllers\UserController::class, 'getVehicles']);
                 Route::get('/{id}', [App\Http\Controllers\UserController::class, 'getVehicle']);
-            }
+            });
             Route::prefix('rider')->group(function () {
                 Route::post('dismiss/{id}', [App\Http\Controllers\UserController::class, 'dismissRider']);
                 Route::post('update/{id}', [App\Http\Controllers\UserController::class, 'updateRider']);
@@ -76,16 +76,16 @@ Route::prefix('auth')->group(function () {
                 Route::post('disable/{id}', [App\Http\Controllers\UserController::class, 'disableRider']);
                 Route::get('/', [App\Http\Controllers\UserController::class, 'getRiders']);
                 Route::post('assign/{id}', [App\Http\Controllers\UserController::class, 'assignOrder']);
-            }
+            });
             Route::prefix('order')->group(function () {
                 Route::get('/all', [App\Http\Controllers\UserController::class, 'getOrders']);
                 Route::get('{id}', [App\Http\Controllers\UserController::class, 'getOneOrder']);
-            }
+            });
 
             Route::prefix('route')->group(function () {
                 Route::post('/set', [App\Http\Controllers\UserController::class, 'setRouteCosting']);
                 Route::post('/update/{id}', [App\Http\Controllers\UserController::class, 'updateRouteCosting']);
-            }
+            });
             
             Route::post('subscribe', [App\Http\Controllers\UserController::class, 'subscribe']);
             Route::post('ophours/add', [App\Http\Controllers\UserController::class, 'addOperatingHours']);
@@ -96,4 +96,4 @@ Route::prefix('auth')->group(function () {
     });
 
 
-});
+

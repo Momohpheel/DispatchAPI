@@ -22,18 +22,28 @@ class CreateSubscriptionsTable extends Migration
 
         DB::table('subscriptions')->insert(
             array(
+                'id' => 1,
                 'name' => 'Free',
                 'price' => 0
             ),
+        );
+        DB::table('subscriptions')->insert(
             array(
+                'id' => 2,
                 'name' => 'Starter',
                 'price' => 17000
             ),
+        );
+        DB::table('subscriptions')->insert(
             array(
+                'id' => 3,
                 'name' => 'Business',
                 'price' => 30000
             ),
+        );
+        DB::table('subscriptions')->insert(
             array(
+                'id' => 4,
                 'name' => 'Enterprise',
                 'price' => 75000
             )
