@@ -31,6 +31,7 @@ class RiderRepository implements RiderRepositoryInterface{
                 if ($rider){
                     $check = Hash::check($validated['password'], $rider->password);
                     if ($check){
+                        $access_token = $rider->createToken('authToken')->accessToken;
                         return $this->success("rider found", $rider, 200);
                     }else{
                         return $this->error(true, "Error logging rider", 400);

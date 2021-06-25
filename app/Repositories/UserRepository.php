@@ -53,6 +53,8 @@ class UserRepository implements UserRepositoryInterface{
             $user->password = Hash::make($validated['password']);
             $user->save();
 
+            $access_token = $user->createToken('authToken')->accessToken;
+
             return $this->success("User created", $user, 200);
         }catch(Exception $e){
             return $this->error(true, "Error creating user", 400);
@@ -71,6 +73,7 @@ class UserRepository implements UserRepositoryInterface{
             if ($user){
                 $check = Hash::check($validated['password'], $user->password);
                 if ($check){
+                    $access_token = $user->createToken('authToken')->accessToken;
                     return $this->success("User found", $user, 200);
                 }else{
                     return $this->error(true, "Error logging user", 400);
@@ -98,10 +101,10 @@ class UserRepository implements UserRepositoryInterface{
         try{
             $partner = Partner::where('id', $id)->first();
 
-            if ($partner->order_count_per_day == 0){}
-            if ($partner->is_paused == true){}
-            if ($partner->is_enabled == false){}
-            
+            if ($partner->order_count_per_day > 0){}
+            if ($partner->is_paused == false){}
+            if ($partner->is_enabled == true){}
+
 
             $validated = $request->validate([
                 'o_address' => "required|string",

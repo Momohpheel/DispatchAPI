@@ -51,7 +51,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
             $partner->code_name = $validated['code_name'];
             $partner->password = Hash::make($validated['password']);
             $partner->save();
-
+            $access_token = $partner->createToken('authToken')->accessToken;
             return $this->success("Partner registered", $partner, 200);
         }catch(Exception $e){
             return $this->error(true, "Error creating partner", 400);
@@ -70,6 +70,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
             if ($partner){
                 $check = Hash::check($validated['password'], $partner->password);
                 if ($check){
+                    $access_token = $partner->createToken('authToken')->accessToken;
                     return $this->success("Partner found", $partner, 200);
                 }else{
                     return $this->error(true, "Error logging partner", 400);
