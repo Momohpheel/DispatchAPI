@@ -30,7 +30,7 @@ class PartnerController extends Controller
     }
 
     public function profile(Request $request){
-        return $this->repository->profile();
+        return $this->repository->profile($request);
     }
 
     public function pauseAccount(){
@@ -38,44 +38,44 @@ class PartnerController extends Controller
     }
 
     public function updateProfile(Request $request){
-        return $this->repository->updateProfile();
+        return $this->repository->updateProfile($request);
     }
 
     public function addVehicle(Request $request){
-        return $this->repository->addVehicle();
+        return $this->repository->addVehicle($request);
     }
 
     public function updateVehicle(Request $request, $id){
-        return $this->repository->updateVehicle();
+        return $this->repository->updateVehicle($request, $id);
     }
     public function disableVehicle($id){
-        return $this->repository->disableVehicle();
+        return $this->repository->disableVehicle($id);
     }
     public function getVehicles(){
         return $this->repository->getVehicles();
     }
     public function getVehicle($id){
-        return $this->repository->getVehicle();
+        return $this->repository->getVehicle($id);
     }
 
     public function dismissRider($id){
-        return $this->repository->dismissRider();
+        return $this->repository->dismissRider($id);
     }
 
     public function updateRider(Request $request, $id){
-        return $this->repository->updateRider();
+        return $this->repository->updateRider($request, $id);
     }
 
     public function ordersDoneByRider($id){
-        return $this->repository->ordersDoneByRider();
+        return $this->repository->ordersDoneByRider($id);
     }
 
     public function createRider(Request $request){
-        return $this->repository->createRider();
+        return $this->repository->createRider($request);
     }
 
     public function disableRider($id){
-        return $this->repository->disableRider();
+        return $this->repository->disableRider($id);
     }
 
     public function getRiders(){
@@ -83,7 +83,7 @@ class PartnerController extends Controller
     }
 
     public function assignOrder(Request $request){
-        return $this->repository->assignOrder();
+        return $this->repository->assignOrder($request);
     }
 
     public function getOrders(){
@@ -95,23 +95,23 @@ class PartnerController extends Controller
     }
 
     public function setRouteCosting(Request $request){
-        return $this->repository->setRouteCosting();
+        return $this->repository->setRouteCosting($request);
     }
 
     public function updateRouteCosting(Request $request, $id){
-        return $this->repository->updateRouteCosting();
+        return $this->repository->updateRouteCosting($request, $id);
     }
 
     public function subscribe(Request $request){
-        return $this->repository->subscribe();
+        return $this->repository->subscribe($request);
     }
 
     public function addOperatingHours(Request $request){
-        return $this->repository->addOperatingHours();
+        return $this->repository->addOperatingHours($request);
     }
 
     public function updateOperatingHours(Request $request, $id){
-        return $this->repository->updateOperatingHours();
+        return $this->repository->updateOperatingHours($request, $id);
     }
 
     public function getPartnerHistory(){
