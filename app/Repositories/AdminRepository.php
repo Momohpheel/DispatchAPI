@@ -2,7 +2,9 @@
 
 namespace App\Repositories;
 
-class AdminRepository{
+use App\Repositories\Interfaces\AdminRepositoryInterface;
+
+class AdminRepository implements AdminRepositoryInterface{
 
     public function login(){}
 
@@ -19,5 +21,5 @@ class AdminRepository{
     public function getAllOrders(){}
 
     public function disablePartner(){}
-    
+
 }

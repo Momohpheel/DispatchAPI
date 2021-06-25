@@ -10,8 +10,10 @@ use App\Models\History;
 use App\Models\Order;
 use App\Models\DropOff;
 use App\Models\Address;
+use App\Repositories\Interfaces\RiderRepositoryInterface;
 
-class RiderRepository{
+
+class RiderRepository implements RiderRepositoryInterface{
 
     use Response;
 
@@ -36,7 +38,7 @@ class RiderRepository{
                 }
 
             }
-            
+
         }catch(Exception $e){
             return $this->error(true, "Error logging partner", 400);
         }
@@ -91,10 +93,10 @@ class RiderRepository{
             $validated = $request->validate([
                 'phone' => 'required|string'
             ]);
-    
+
             $id = auth()->user()->id;
             $rider = Rider::find($id);
-        
+
             $rider->phone = $validated['phone'];
             $rider->save();
 
@@ -102,7 +104,7 @@ class RiderRepository{
         }catch(Exception $e){
             return $this->error(true, "Error Occured while updating rider's phone number", 400);
         }
-        
+
     }
 
 }

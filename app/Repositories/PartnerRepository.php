@@ -11,8 +11,11 @@ use App\Models\routeCosting as RouteCosting;
 use App\Models\DropOff;
 use App\Models\Address;
 use App\Models\History;
+use App\Repositories\Interfaces\PartnerRepositoryInterface;
 
-class PartnerRepository{
+
+class PartnerRepository implements PartnerRepositoryInterface{
+
 
     use Response;
 
@@ -27,7 +30,7 @@ class PartnerRepository{
     /*
     *
     *
-    *   PARTNER AUTHENTICATION 
+    *   PARTNER AUTHENTICATION
     *   (signup, login)
     *
     */
@@ -92,7 +95,7 @@ class PartnerRepository{
     public function kyc(){}
 
     public function profile(Request $request){
-        
+
         try{
             $validated = $request->validate([
                 'image' => "required|image|mimes:jpg,png,jpeg|max:2000",
@@ -101,13 +104,13 @@ class PartnerRepository{
             if (request()->hasFile('image')){
                 $image_name = request()->file()->getClientOriginalName();
                 $image_ext = pathfile($image_name);
-                
-                
+
+
             }
             $partner = Partner::find(1);
             $partner->image = $image;
             $partner->save();
-    
+
         }catch(Exception $e){
 
         }
@@ -135,13 +138,13 @@ class PartnerRepository{
             if (request()->hasFile('image')){
                 $image_name = request()->file()->getClientOriginalName();
                 $image_ext = pathfile($image_name);
-                
-                
+
+
             }
             $partner = Partner::find(1);
             $partner->image = $image;
             $partner->save();
-    
+
         }catch(Exception $e){
 
         }
@@ -152,7 +155,7 @@ class PartnerRepository{
 
     /*
     *
-    * ENDPOINTS RELATING TO VEHICLES 
+    * ENDPOINTS RELATING TO VEHICLES
     *(addVehicle, updateVehicle, disableVehicle, getAllVehicle, getOneVehicle)
     *
     **/
@@ -228,7 +231,7 @@ class PartnerRepository{
 
                 if ($vehicle->is_enabled == false){return $this->success("vehicle enabled", $vehicle, 200);}
                 else{return $this->success("vehicle disabled", $vehicle, 200);}
-                
+
             }else{
                 return $this->error(true, "vehicle with given plate number doesn't exists", 400);
             }
@@ -243,7 +246,7 @@ class PartnerRepository{
             $vehicles = Vehicle::where('partner_id', $partner_id)->get();
 
             return $this->success("Vehicles fetched", $vehicles, 200);
-                
+
         }catch(Exception $e){
             return $this->error(true, "Error occured", 400);
         }
@@ -255,13 +258,13 @@ class PartnerRepository{
             $vehicle = Vehicle::where('id', $id)->where('partner_id', $partner_id)->first();
 
             return $this->success("Vehicle fetched", $vehicle, 200);
-                
+
         }catch(Exception $e){
             return $this->error(true, "Error occured", 400);
         }
     }
 
-    
+
 
     /**
     *
@@ -291,7 +294,7 @@ class PartnerRepository{
                 'workname' => 'string',
                 'phone' => 'string',
                 'password' => 'string',
-                'image' => 'image|mimes:png,jpeg,jpg|max:2000'
+                'image' => 'image|mimes:png,jpeg,jpg|max:2000',
                 'vehicle_id' => 'string'
             ]);
 
@@ -302,7 +305,7 @@ class PartnerRepository{
                 $rider->workname = $validated['workname'] ?? $rider->workname;
                 $rider->code_name = $validated['code_name'] ?? $rider->code_name;
                 $rider->image = $validated['image'] ?? $rider->image;
-                $rider->vehicle_id = $validated['vehicle_id'] ?? $rider->vehicle_id; 
+                $rider->vehicle_id = $validated['vehicle_id'] ?? $rider->vehicle_id;
                 $rider->password = Hash::make($validated['password']) ?? $rider->password;
                 //$rider->partner_id = 1; //auth()->user()->id;
                 $rider->save();
@@ -320,9 +323,9 @@ class PartnerRepository{
         try{
 
             $orders = DropOff::where('rider_id', $id)->where('partner_id', $partner->id)->load('order');
-            
+
             return $this->success("Orders done by the rider", $orders, 200);
-        
+
         }catch(Exception $e){
             return $this->error(true, "Error occured", 400);
         }
@@ -335,7 +338,7 @@ class PartnerRepository{
                 'workname' => 'required|string',
                 'phone' => 'required|string',
                 'password' => 'required|string',
-                'image' => 'required|image|mimes:png,jpeg,jpg|max:2000'
+                'image' => 'required|image|mimes:png,jpeg,jpg|max:2000',
                 'vehicle_id' => 'required'
             ]);
 
@@ -447,9 +450,9 @@ class PartnerRepository{
         }
     }
 
-  
 
-  
+
+
 
     public function setRouteCosting(Request $request){
         try{
@@ -506,7 +509,7 @@ class PartnerRepository{
             $route_costing->min_km = $validated['min_km'] ?? $route_costing->min_km;
             $route_costing->max_km = $validated['max_km'] ?? $route_costing->max_km;
             $route_costing->save();
-       
+
             return $this->success("Route-Costing Updating", $route_costing, 200);
         }catch(Exception $e){
             return $this->error(true, "Error occured", 400);

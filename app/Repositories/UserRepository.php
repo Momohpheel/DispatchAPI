@@ -11,13 +11,14 @@ use App\Models\Order;
 use App\Models\DropOff;
 use App\Models\Address;
 use App\Traits\Response;
+use App\Repositories\Interfaces\UserRepositoryInterface;
 
-class UserRepository{
+class UserRepository implements UserRepositoryInterface{
 
     use Response;
 
     public function __construct(){
-        
+
     }
 
     public function onboard(Request $request){
@@ -27,7 +28,7 @@ class UserRepository{
 
         $partner = Partner::find($validated['partner']);
 
-        if (exists($partner)){
+        if (exist($partner)){
             return $this->success('User Onboarded successfully', $partner, 200);
         }else{
             return $this->error(true, "Partner doesn't exist" , 400);
@@ -125,7 +126,7 @@ class UserRepository{
             $order->partner_id = 1; //$partner->id
             $order->save();
 
-            //pair with rider who is under the partner 
+            //pair with rider who is under the partner
             //and is not disabled or dismissed
             foreach($validated['dropoff'] as $dropoff ){
                 $dropoff = new DropOff;
@@ -154,7 +155,7 @@ class UserRepository{
     }
 
     public function calculatePrice(Request $request){
-        $calculation = (($distance_rnd * $fuel_cost) + $rider_salary + ($distance_rnd * $bike_fund )) * $ops_fee * $easy_log * $easy_disp;
+        //$calculation = (($distance_rnd * $fuel_cost) + $rider_salary + ($distance_rnd * $bike_fund )) * $ops_fee * $easy_log * $easy_disp;
     }
 
     public function payment(){}

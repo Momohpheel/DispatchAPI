@@ -34,11 +34,34 @@ class UserController extends Controller
         return $this->repository->order($request);
     }
 
+    public function calculatePrice(Request $request){
+        return $this->repository->calculatePrice($request);
+    }
+
+    public function payment(){
+        return $this->repository->payment($request);
+    }
+
+    public function getUserHistory(){
+        return $this->repository->getUserHistory($request);
+    }
+
+    public function rateRider(){
+        return $this->repository->rateRider($request);
+    }
+
+    public function ratePartner(){
+        return $this->repository->ratePartner($request);
+    }
+
     public function saveAddress(Request $request){
         return $this->repository->saveAddress($request);
     }
 
 
+    public function getSavedAddresses(){
+        return $this->repository->getSavedAddresses();
+    }
 
 
 
