@@ -15,7 +15,7 @@ class CreateSubscriptionsTable extends Migration
     {
         Schema::create('subscriptions', function (Blueprint $table) {
             $table->id();
-            $table->string('name', ['Free', 'Starter', 'Business', 'Enterprise']);
+            $table->enum('name', ['Free', 'Starter', 'Business', 'Enterprise']);
             $table->string('price');
             $table->timestamps();
         });
@@ -24,22 +24,28 @@ class CreateSubscriptionsTable extends Migration
             array(
                 'id' => 1,
                 'name' => 'Free',
-                'price' => '0'
+                'price' => 0
             ),
+        );
+        DB::table('subscriptions')->insert(
             array(
                 'id' => 2,
                 'name' => 'Starter',
-                'price' => '17000'
+                'price' => 17000
             ),
+        );
+        DB::table('subscriptions')->insert(
             array(
                 'id' => 3,
                 'name' => 'Business',
-                'price' => '30000'
+                'price' => 30000
             ),
+        );
+        DB::table('subscriptions')->insert(
             array(
                 'id' => 4,
                 'name' => 'Enterprise',
-                'price' => '75000'
+                'price' => 75000
             )
         );
     }

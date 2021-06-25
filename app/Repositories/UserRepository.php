@@ -101,7 +101,7 @@ class UserRepository implements UserRepositoryInterface{
             if ($partner->order_count_per_day == 0){}
             if ($partner->is_paused == true){}
             if ($partner->is_enabled == false){}
-
+            
 
             $validated = $request->validate([
                 'o_address' => "required|string",

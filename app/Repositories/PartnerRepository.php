@@ -229,8 +229,11 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 $vehicle->is_enabled = !($vehicle->is_enabled);
                 $vehicle->save();
 
-                if ($vehicle->is_enabled == false){return $this->success("vehicle enabled", $vehicle, 200);}
-                else{return $this->success("vehicle disabled", $vehicle, 200);}
+                if ($vehicle->is_enabled == false){
+                    return $this->success("vehicle enabled", $vehicle, 200);
+                }else{
+                    return $this->success("vehicle disabled", $vehicle, 200);
+                }
 
             }else{
                 return $this->error(true, "vehicle with given plate number doesn't exists", 400);
@@ -370,10 +373,16 @@ class PartnerRepository implements PartnerRepositoryInterface{
         try{
             $partner_id = 1; //auth()->user()->id
             $rider = Rider::where('id', $id)->where('partner_id', $partner_id)->first();
-            $rider->is_enabled = false;
+            $rider->is_enabled = !($rider->is_enabled);
             $rider->save();
 
-            return $this->success("Rider has been disabled", $rider, 200);
+            
+            if ($vehicle->is_enabled == true){
+                return $this->success("Rider has been disabled", $rider, 200);
+            }else{
+                return $this->success("Rider has been enabled", $rider, 200);
+            }
+            
         }catch(Exception $e){
             return $this->error(true, "Error disabling rider", 400);
         }

@@ -21,15 +21,15 @@ class CreatePartnersTable extends Migration
             $table->string('password');
             $table->string('code_name')->unique();
             $table->foreignId('subscription_id')->constrained('subscriptions')->default(1);
-            $table->enum('subscription_status', ['paid', 'not paid']);
-            $table->date('subscription_date');
-            $table->date('subscription_expiry_date');
-            $table->integer('order_count_per_day');
-            $table->integer('rating');
+            $table->enum('subscription_status', ['paid', 'not paid'])->nullable();
+            $table->date('subscription_date')->nullable();
+            $table->date('subscription_expiry_date')->nullable();
+            $table->integer('order_count_per_day')->nullable();
+            $table->integer('rating')->nullable();
             $table->boolean('is_enabled')->default(false);
             $table->boolean('is_paused')->default(false);
             $table->boolean('is_top_partner')->default(false);
-            $table->date('top_partner_pay_date');
+            $table->date('top_partner_pay_date')->nullable();
             $table->timestamps();
         });
     }

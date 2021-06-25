@@ -14,24 +14,28 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
+    Route::middleware('auth:api')->get('/user', function (Request $request) {
+        return $request->user();
+    });
 
-Route::prefix('auth')->group(function () {
+    Route::prefix('auth')->group(function () {
+        Route::prefix('user')->group(function () {
+            Route::post('onboard', [App\Http\Controllers\UserController::class, 'onboard']);
+            Route::post('register', [App\Http\Controllers\UserController::class, 'profile']);
+            Route::post('login', [App\Http\Controllers\UserController::class, 'login']);
+
+        });
+    });
+
     Route::prefix('user')->group(function () {
-        Route::post('onboard', [App\Http\Controllers\UserController::class, 'onboard']);
-        Route::post('register', [App\Http\Controllers\UserController::class, 'profile']);
-        Route::post('login', [App\Http\Controllers\UserController::class, 'login']);
-        Route::post('order', [App\Http\Controllers\UserController::class, 'order']);
-        Route::middleware(['auth'])->group(function () {
-            Route::get('history', [App\Http\Controllers\UserController::class, 'getUserHistory']);
+        Route::middleware(['auth:api'])->group(function () {
+            Route::post('order', [App\Http\Controllers\UserController::class, 'order']);
+            Route::get('history', [App\Http\Controllers\UserController::class, 'getUserHistory']);          
             Route::post('address', [App\Http\Controllers\UserController::class, 'saveAddress']);
             Route::get('address', [App\Http\Controllers\UserController::class, 'getSavedAddresses']);
         });
-
     });
-});
+
 
     // Route::prefix('rider')->group(function () {
     //     Route::post('signup', [App\Http\Controllers\UserController::class, 'onboard']);
@@ -52,7 +56,7 @@ Route::prefix('auth')->group(function () {
         Route::post('signup', [App\Http\Controllers\UserController::class, 'signup']);
         Route::post('login', [App\Http\Controllers\UserController::class, 'login']);
 
-        Route::middleware(['auth'])->group(function () {
+        Route::middleware(['auth:partner'])->group(function () {
             Route::post('pause-account', [App\Http\Controllers\UserController::class, 'pauseAccount']);
             Route::get('history', [App\Http\Controllers\UserController::class, 'getPartnerHistory']);
             Route::post('top-partner', [App\Http\Controllers\UserController::class, 'makeTopPartner']);
