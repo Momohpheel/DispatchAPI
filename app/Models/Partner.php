@@ -12,4 +12,13 @@ use Laravel\Passport\HasApiTokens;
 class Partner extends Authenticatable
 {
     use HasFactory, HasApiTokens;
+
+
+    public function vehicles(){
+        return $this->hasMany(Vehicle::class);
+    }
+
+    public function riders(){
+        return $this->hasMany(Rider::class);
+    }
 }

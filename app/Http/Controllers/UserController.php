@@ -30,8 +30,8 @@ class UserController extends Controller
         return $this->repository->login($request);
     }
 
-    public function order(Request $request){
-        return $this->repository->order($request);
+    public function order(Request $request, $id){
+        return $this->repository->order($request, $id);
     }
 
     public function calculatePrice(Request $request){
@@ -43,7 +43,7 @@ class UserController extends Controller
     }
 
     public function getUserHistory(){
-        return $this->repository->getUserHistory($request);
+        return $this->repository->getUserHistory();
     }
 
     public function rateRider(){

@@ -5,10 +5,12 @@ namespace App\Repositories;
 use App\Traits\Response;
 use App\Models\Partner;
 use App\Models\Rider;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Order;
 use App\Models\routeCosting as RouteCosting;
 use App\Models\DropOff;
+use App\Models\Vehicle;
 use App\Models\Address;
 use App\Models\History;
 use App\Repositories\Interfaces\PartnerRepositoryInterface;
@@ -43,16 +45,26 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 "password" => "required|string",
                 "code_name" => "required|string"
             ]);
-
+//check if partner with email and code_name exists in the db already
             $partner = new Partner;
             $partner->name = $validated['name'];
             $partner->phone = $validated['phone'];
             $partner->email = $validated['email'];
             $partner->code_name = $validated['code_name'];
             $partner->password = Hash::make($validated['password']);
+            $partner->subscription_id = 1;
             $partner->save();
             $access_token = $partner->createToken('authToken')->accessToken;
-            return $this->success("Partner registered", $partner, 200);
+
+            $data = [
+                "name" => $partner->name,
+                "phone" => $partner->phone,
+                "email" => $partner->email,
+                "id" => $partner->id,
+                "code_name" => $partner->image,
+                "access_token" => $access_token
+            ];
+            return $this->success("Partner registered", $data, 200);
         }catch(Exception $e){
             return $this->error(true, "Error creating partner", 400);
         }
@@ -70,8 +82,17 @@ class PartnerRepository implements PartnerRepositoryInterface{
             if ($partner){
                 $check = Hash::check($validated['password'], $partner->password);
                 if ($check){
+
                     $access_token = $partner->createToken('authToken')->accessToken;
-                    return $this->success("Partner found", $partner, 200);
+                    $data = [
+                        "name" => $partner->name,
+                        "phone" => $partner->phone,
+                        "email" => $partner->email,
+                        "id" => $partner->id,
+                        "code_name" => $partner->image,
+                        "access_token" => $access_token
+                    ];
+                    return $this->success("Partner found", $data, 200);
                 }else{
                     return $this->error(true, "Error logging partner", 400);
                 }
@@ -169,15 +190,15 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 'model' => 'required|string',
                 'type' => 'string'
             ]);
-
-            $vehicle = Vehicle::where('plate_number', $validated['plate_number'])->where('partner_id', $partner->id)->first();
+            $id = auth()->user()->id;
+            $vehicle = Vehicle::where('plate_number', $validated['plate_number'])->where('partner_id', $id)->first();
             if (!$vehicle){
                 $vehicle = new Vehicle;
                 $vehicle->name = $validated['name'];
                 $vehicle->plate_number = $validated['plate_number'];
                 $vehicle->color = $validated['color'];
                 $vehicle->model = $validated['model'];
-                $vehicle->partner_id = 1; //auth()->user()->id;
+                $vehicle->partner_id = $id;
                 $vehicle->type = $validated['type'];
                 $vehicle->save();
 
@@ -200,15 +221,15 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 'model' => 'string',
                 'type' => 'string'
             ]);
-
-            $vehicle = Vehicle::where('plate_number', $validated['plate_number'])->where('partner_id', $partner->id)->first();
+            $id = auth()->user()->id;
+            $vehicle = Vehicle::where('plate_number', $validated['plate_number'])->where('partner_id', $id)->first();
             if ($vehicle){
                 $vehicle->name = $validated['name'] ?? $vehicle->name;
                 $vehicle->plate_number = $validated['plate_number'] ?? $vehicle->plate_number;
                 $vehicle->color = $validated['color'] ?? $vehicle->color;
                 $vehicle->model = $validated['model'] ?? $vehicle->model;
                 $vehicle->type = $validated['type'] ?? $vehicle->type;
-                $vehicle->partner_id = 1 ?? $vehicle->partner_id; //auth()->user()->id;
+                $vehicle->partner_id = $id ?? $vehicle->partner_id; //auth()->user()->id;
                 $vehicle->save();
 
                 return $this->success("vehicle updated", $vehicle, 200);
@@ -224,16 +245,16 @@ class PartnerRepository implements PartnerRepositoryInterface{
     public function disableVehicle($id){
         try{
 
-            $partner_id = 1; //auth()->user()->id
+            $partner_id = auth()->user()->id;
             $vehicle = Vehicle::where('id', $id)->where('partner_id', $partner_id)->first();
             if ($vehicle){
                 $vehicle->is_enabled = !($vehicle->is_enabled);
                 $vehicle->save();
 
                 if ($vehicle->is_enabled == false){
-                    return $this->success("vehicle enabled", $vehicle, 200);
-                }else{
                     return $this->success("vehicle disabled", $vehicle, 200);
+                }else{
+                    return $this->success("vehicle enabled", $vehicle, 200);
                 }
 
             }else{
@@ -246,8 +267,8 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
     public function getVehicles(){
         try{
-
-            $vehicles = Vehicle::where('partner_id', $partner_id)->get();
+            $id = auth()->user()->id;
+            $vehicles = Vehicle::with('partner')->where('partner_id', $id)->get();
 
             return $this->success("Vehicles fetched", $vehicles, 200);
 
@@ -258,8 +279,8 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
     public function getVehicle($id){
         try{
-
-            $vehicle = Vehicle::where('id', $id)->where('partner_id', $partner_id)->first();
+            $id = auth()->user()->id;
+            $vehicle = Vehicle::with('partner')->where('id', $id)->where('partner_id', $id)->first();
 
             return $this->success("Vehicle fetched", $vehicle, 200);
 
@@ -342,21 +363,22 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 'workname' => 'required|string',
                 'phone' => 'required|string',
                 'password' => 'required|string',
-                'image' => 'required|image|mimes:png,jpeg,jpg|max:2000',
+                //'image' => 'required|image|mimes:png,jpeg,jpg|max:2000',
                 'vehicle_id' => 'required'
             ]);
-
-            $rider = Rider::where('workname', $validated['workname'])->where('phone', $validated['phone'])->where('partner_id', $partner->id)->first();
+            $id = auth()->user()->id;
+            $partner = Partner::find($id);
+            $rider = Rider::where('workname', $validated['workname'])->where('phone', $validated['phone'])->where('partner_id', $id)->first();
             if (!$rider){
                 $rider = new Rider;
                 $rider->name = $validated['name'];
                 $rider->phone = $validated['phone'];
                 $rider->workname = $validated['workname'];
-                $rider->code_name = $validated['code_name'];
+                $rider->code_name = $partner->code_name;
                 $rider->vehicle_id = $validated['vehicle_id'];
-                $rider->image = $validated['image'];
+                $rider->image = 'sample image'; //$validated['image'];
                 $rider->password = Hash::make($validated['password']);
-                $rider->partner_id = 1; //auth()->user()->id;
+                $rider->partner_id = auth()->user()->id;
                 $rider->save();
 
                 return $this->success("Rider registered", $rider, 200);
@@ -377,13 +399,13 @@ class PartnerRepository implements PartnerRepositoryInterface{
             $rider->is_enabled = !($rider->is_enabled);
             $rider->save();
 
-            
+
             if ($vehicle->is_enabled == true){
                 return $this->success("Rider has been disabled", $rider, 200);
             }else{
                 return $this->success("Rider has been enabled", $rider, 200);
             }
-            
+
         }catch(Exception $e){
             return $this->error(true, "Error disabling rider", 400);
         }

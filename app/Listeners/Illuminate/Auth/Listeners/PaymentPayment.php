@@ -2,11 +2,11 @@
 
 namespace App\Listeners\Illuminate\Auth\Listeners;
 
-use Illuminate\Auth\Events\History;
+use Illuminate\Auth\Events\PartnerPayment;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
-class WalletLogs
+class PaymentPayment
 {
     /**
      * Create the event listener.
@@ -21,10 +21,10 @@ class WalletLogs
     /**
      * Handle the event.
      *
-     * @param  History  $event
+     * @param  PartnerPayment  $event
      * @return void
      */
-    public function handle(History $event)
+    public function handle(PartnerPayment $event)
     {
         //
     }

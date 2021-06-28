@@ -20,6 +20,7 @@ class CreateVehiclesTable extends Migration
             $table->string('color')->nullable();
             $table->string('plate_number');
             $table->string('type');
+            $table->boolean('is_enabled')->default(true);
             $table->foreignId('partner_id')->constrained();
             $table->timestamps();
         });

@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Listeners\Illuminate\Auth\Listeners;
+namespace App\Listeners\Illuminate\Auth\Events;
 
-use Illuminate\Auth\Events\History;
+use Illuminate\Auth\Events\UserPayment;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
-class TransactionLogs
+class UserPayment
 {
     /**
      * Create the event listener.
@@ -21,10 +21,10 @@ class TransactionLogs
     /**
      * Handle the event.
      *
-     * @param  History  $event
+     * @param  UserPayment  $event
      * @return void
      */
-    public function handle(History $event)
+    public function handle(UserPayment $event)
     {
         //
     }

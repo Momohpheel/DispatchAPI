@@ -2,15 +2,17 @@
 
 namespace App\Repositories\Interfaces;
 
+use Illuminate\Http\Request;
+
 interface UserRepositoryInterface{
 
-    public function onboard($request);
+    public function onboard(Request $request);
 
-    public function profile($request);
+    public function profile(Request $request);
 
-    public function login($request);
+    public function login(Request $request);
 
-    public function order($request);
+    public function order(Request $request, $id);
 
     public function calculatePrice(Request $request);
 
@@ -22,7 +24,7 @@ interface UserRepositoryInterface{
 
     public function ratePartner();
 
-    public function saveAddress($request);
+    public function saveAddress(Request $request);
 
     public function getSavedAddresses();
 

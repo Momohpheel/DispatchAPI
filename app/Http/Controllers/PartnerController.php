@@ -9,7 +9,7 @@ use App\Repositories\Interfaces\PartnerRepositoryInterface;
 
 class PartnerController extends Controller
 {
-    use Response;
+    
     public $repository;
 
     public function __construct(PartnerRepositoryInterface $repository){

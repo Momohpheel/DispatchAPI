@@ -29,7 +29,7 @@ class CreateDropOffsTable extends Migration
             $table->timestamp('end_time')->nullable();
             $table->string('price')->nullable();
             $table->enum('payment_status', ['paid', 'not paid'])->nullable();
-            $table->enum('status', ['done', 'ongoing', 'no response yet']);
+            $table->enum('status', ['not taken', 'failed', 'ongoing', 'completed']);
             $table->timestamps();
         });
     }

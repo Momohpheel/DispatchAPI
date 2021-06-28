@@ -2,6 +2,8 @@
 
 namespace App\Repositories\Interfaces;
 
+use Illuminate\Http\Request;
+
 interface PartnerRepositoryInterface{
 
     public function signup(Request $request);
