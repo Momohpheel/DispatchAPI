@@ -45,26 +45,31 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 "password" => "required|string",
                 "code_name" => "required|string"
             ]);
-//check if partner with email and code_name exists in the db already
-            $partner = new Partner;
-            $partner->name = $validated['name'];
-            $partner->phone = $validated['phone'];
-            $partner->email = $validated['email'];
-            $partner->code_name = $validated['code_name'];
-            $partner->password = Hash::make($validated['password']);
-            $partner->subscription_id = 1;
-            $partner->save();
-            $access_token = $partner->createToken('authToken')->accessToken;
 
-            $data = [
-                "name" => $partner->name,
-                "phone" => $partner->phone,
-                "email" => $partner->email,
-                "id" => $partner->id,
-                "code_name" => $partner->image,
-                "access_token" => $access_token
-            ];
-            return $this->success("Partner registered", $data, 200);
+            $partner = Partner::where('code_name', $validated['code_name'])->where('name', $validated['name'])->first();
+            if (!$partner){
+                $partner = new Partner;
+                $partner->name = $validated['name'];
+                $partner->phone = $validated['phone'];
+                $partner->email = $validated['email'];
+                $partner->code_name = $validated['code_name'];
+                $partner->password = Hash::make($validated['password']);
+                $partner->subscription_id = 1;
+                $partner->save();
+                $access_token = $partner->createToken('authToken')->accessToken;
+
+                $data = [
+                    "name" => $partner->name,
+                    "phone" => $partner->phone,
+                    "email" => $partner->email,
+                    "id" => $partner->id,
+                    "code_name" => $partner->image,
+                    "access_token" => $access_token
+                ];
+                return $this->success("Partner registered", $data, 200);
+            }else{
+                return $this->success(true, "Partner exists", 400);
+            }
         }catch(Exception $e){
             return $this->error(true, "Error creating partner", 400);
         }
@@ -332,7 +337,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 $rider->image = $validated['image'] ?? $rider->image;
                 $rider->vehicle_id = $validated['vehicle_id'] ?? $rider->vehicle_id;
                 $rider->password = Hash::make($validated['password']) ?? $rider->password;
-                //$rider->partner_id = 1; //auth()->user()->id;
+                $rider->partner_id = auth()->user()->id;
                 $rider->save();
 
                 return $this->success("Rider profile updated", $rider, 200);
@@ -435,7 +440,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
             $rider = Rider::where('id', $validated['rider_id'])->where('partner_id', 1)->first();
             if ($order){
 
-                if ($order->status == 'no response yet'){
+                if ($order->status != 'completed'){
                     $order->rider_id = $validated['rider_id'];
                     $order->save();
 
@@ -463,7 +468,8 @@ class PartnerRepository implements PartnerRepositoryInterface{
      */
     public function getOrders(){
         try{
-            $orders = Order::where('partner_id', 1)->load('dropoff');
+            $partner_id = auth()->user()->id;
+            $orders = Order::where('partner_id', $partner_id)->load('dropoff');
 
             return $this->success("Orders", $orders, 200);
         }catch(Exception $e){
@@ -473,8 +479,8 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
     public function getOneOrder($id){
         try{
-
-            $order = Order::where('id', $id)->where('partner_id', 1)->load('dropoff');
+            $partner_id = auth()->user()->id;
+            $order = Order::where('id', $id)->where('partner_id', $partner_id)->load('dropoff');
 
             return $this->success("Orders", $order, 200);
         }catch(Exception $e){
@@ -508,7 +514,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
             $route_costing->express = $validated['express'];
             $route_costing->min_km = $validated['min_km'];
             $route_costing->max_km = $validated['max_km'];
-            $route_costing->partner_id = 1; //auth()->user()->id;
+            $route_costing->partner_id = auth()->user()->id;
             $route_costing->save();
 
             return $this->success("Route-Costing Added", $route_costing,200);
@@ -529,8 +535,8 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 'max_km' => "required",
                 'min_km' => "required",
             ]);
-
-            $route_costing = RouteCosting::where('id', $id)->where('partner_id', 1)->first();
+            $partner_id = auth()->user()->id;
+            $route_costing = RouteCosting::where('id', $id)->where('partner_id', $partner_id)->first();
 
             $route_costing->fuel_cost = $validated['fuel_cost'] ?? $route_costing->fuel_cost;
             $route_costing->bike_fund = $validated['bike_fund'] ?? $route_costing->bike_fund;
@@ -555,13 +561,20 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
         $subs = Subscription::find($validated['subscription_id']);
         if ($subs){
-            //check if partner has enogh in her wallet
+            //check if partner has enough in her wallet
             //take money from partner wallet
-
-            $partner = Partner::find(1);
+            $partner_id = auth()->user()->id;
+            $partner = Partner::find($partner_id);
             $partner->subscription_id = $subs->id;
             $partner->subscription_status = 'paid';
-            $partner->order_count_per_day = 2; //check what type of subscription and input appropiately here
+            if ($subs->name == 'FREE'){
+                $partner->order_count_per_day = 5;
+            }else if ($subs->name == 'STARTER'){
+                $partner->order_count_per_day = 20;
+            }else {
+                $partner->order_count_per_day = 'unlimited';
+            }
+             //check what type of subscription and input appropiately here
             $partner->save();
         }
     }

@@ -10,8 +10,9 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\Order;
 use App\Models\DropOff;
 use App\Models\Address;
+use App\Models\OperatingHours as OpHour;
 use App\Traits\Response;
-use App\Events\Illuminate\Auth\Events\History;
+use App\Events\Illuminate\Auth\Events\History as UserHistory;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use Carbon\Carbon;
 
@@ -85,11 +86,11 @@ class UserRepository implements UserRepositoryInterface{
     public function login(Request $request){
         try{
             $validated = $request->validate([
-                'phone' => "required|string",
+                'email' => "required|string",
                 "password" => "required|string"
             ]);
 
-            $user = User::where('phone', $validated['phone'])->first();
+            $user = User::where('email', $validated['email'])->first();
             if ($user){
                 $check = Hash::check($validated['password'], $user->password);
                 if ($check){
@@ -107,7 +108,7 @@ class UserRepository implements UserRepositoryInterface{
                     return $this->error(true, "Incorrect Password", 400);
                 }
             }else{
-                return $this->error(true, "User with Phone number not found", 400);
+                return $this->error(true, "User with email not found", 400);
             }
 
         }catch(Exception $e){
@@ -120,9 +121,11 @@ class UserRepository implements UserRepositoryInterface{
             $partner = Partner::where('id', $id)->first();
             $now = Carbon::now();
             $day = $now->format('l');
-            $time =  $now->format('h A');  
+            $time =  $now->format('h A');
 
-            //check if order is place within partner's operating hours 
+            //check if order is place within partner's operating hours
+            $hours = OpHour::where('partner_id', $partner->id)->get();
+
 
             if ($partner->is_paused == false){
                 if ($partner->is_enabled == true){
@@ -142,9 +145,9 @@ class UserRepository implements UserRepositoryInterface{
             }else{
                 return $this->error(true, "Partner is not active", 400);
             }
-            
-            
-            
+
+
+
 
 
             $validated = $request->validate([
@@ -189,7 +192,7 @@ class UserRepository implements UserRepositoryInterface{
 
                 $order->droppoff()->attach($dropoff);
 
-                event(new History($order));
+                event(new UserHistory($order));
 
                 //reduce partner order count
                 if ($partner->order_count_by_id != 'unlimited'){
@@ -198,7 +201,7 @@ class UserRepository implements UserRepositoryInterface{
                  }
             }
 
-            
+
 
             return $this->success("Order created", $order, 200);
         }catch(Excption $e){
@@ -254,8 +257,13 @@ class UserRepository implements UserRepositoryInterface{
         }
     }
 
+    public function count(){
 
-    
+        // $data = [
+        //     "orders" => 2,
+        // ]
+    }
+
     public function calculatePrice(Request $request){
         //$calculation = (($distance_rnd * $fuel_cost) + $rider_salary + ($distance_rnd * $bike_fund )) * $ops_fee * $easy_log * $easy_disp;
     }
