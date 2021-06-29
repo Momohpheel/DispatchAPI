@@ -25,6 +25,7 @@ class CreateRidersTable extends Migration
             $table->decimal('longitude', 11,7)->nullable();
             $table->integer('rating');
             $table->boolean('is_enabled')->default(true);
+            $table->boolean('is_available')->default(true);
             $table->timestamps();
         });
     }

@@ -123,8 +123,23 @@ class UserRepository implements UserRepositoryInterface{
             $time =  $now->format('h A');
 
             //check if order is place within partner's operating hours
-            $hours = OpHour::where('partner_id', $partner->id)->get();
 
+            // $dayTime = OpHour::where('partner_id', $partner->id)->get();
+            // $current_day = strtolower($day);
+
+            $dayTime = ['sunday', 'monday', 'friday'];
+            $current_day = 'sunday';
+            //if current time is greater that start time and less than current time
+            foreach ($dayTime as $day){
+                if ($current_day == $day->day){
+                    // $time = OpHour::where('day', $day->day)->where('partner_id', $partner->id)->first();
+                    // if ($time->start_time is less than $time and $time is greater than $time->end_time){
+
+                    // }
+                    return "start";
+                }
+            }
+                    return "end";
 
             if ($partner->is_paused == false){
                 if ($partner->is_enabled == true){
@@ -187,7 +202,7 @@ class UserRepository implements UserRepositoryInterface{
                 $dropoff->partner_id = $partner->id;
                 //rider id
 
-                $riders = Rider::where('partner_id', $partner->id)->where('is_enabled', true)->get();
+                $riders = Rider::where('partner_id', $partner->id)->where('is_available', true)->get();
                 foreach ($riders as $rider){
                     $rider_lat = $rider->latitude;
                     $rider_long = $rider->longitude;
@@ -203,7 +218,12 @@ class UserRepository implements UserRepositoryInterface{
                     }
                 }
 
-                $dropoff->rider_id = null;
+                if (isset($getrider)){
+                    $dropoff->rider_id = $getrider->id;
+                }else{
+                    return $this->error(true, 'Sorry all our riders are fully booked and are unable to fulfill your orders at the moment, please try again', 400);
+                }
+
                 $dropoff->save();
 
                 $order->droppoff()->attach($dropoff);
@@ -218,11 +238,46 @@ class UserRepository implements UserRepositoryInterface{
 
 
 
-            return $this->success("Order created", $order, 200);
+            return $this->success("Order created! You are successfully paired with a rider", $order, 200);
         }catch(Excption $e){
-            return $this->error(true, "Error creating order", 400);
+            return $this->error(true, "Error occured while creating order", 400);
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public function getUserHistory(){
         try{

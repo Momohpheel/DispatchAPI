@@ -4,7 +4,7 @@ namespace App\Traits;
 
 use App\Models\History;
 
-class Logs{
+trait Logs{
 
     public function walletLogs(){
 
