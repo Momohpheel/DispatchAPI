@@ -5,20 +5,19 @@ namespace App\Repositories;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Partner;
-use App\Models\History;
+use App\Traits\Logs;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Order;
 use App\Models\DropOff;
 use App\Models\Address;
 use App\Models\OperatingHours as OpHour;
 use App\Traits\Response;
-use App\Events\Illuminate\Auth\Events\History as UserHistory;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use Carbon\Carbon;
 
 class UserRepository implements UserRepositoryInterface{
 
-    use Response;
+    use Response, Logs;
 
     public function __construct(){
 
@@ -172,7 +171,7 @@ class UserRepository implements UserRepositoryInterface{
             $order->user_id = auth()->user()->id;
             $order->partner_id = $partner->id;
             $order->save();
-
+            $min = 200;
             //pair with rider who is under the partner
             //and is not disabled or dismissed and nearby
             foreach($validated['dropoff'] as $dropoff ){
@@ -187,12 +186,28 @@ class UserRepository implements UserRepositoryInterface{
                 $dropoff->quantity = $dropoff['quantity'];
                 $dropoff->partner_id = $partner->id;
                 //rider id
+
+                $riders = Rider::where('partner_id', $partner->id)->where('is_enabled', true)->get();
+                foreach ($riders as $rider){
+                    $rider_lat = $rider->latitude;
+                    $rider_long = $rider->longitude;
+                    $url = file_get_contents("https://maps.googleapis.com/maps/api/directions/json?origin=".$rider_lat.",".$rider_long."&destination=".$order->o_latitude.",".$order->o_longitude."&sensor=false&key=AIzaSyDiUJ5BCTHX1UG9SbCrcwNYbIxODhg1Fl8");
+                    $url = json_decode($url);
+
+                    $meters = $url->{'routes'}[0]->{'legs'}[0]->{'distance'}->{'value'};
+                    $time = $url->{'routes'}[0]->{'legs'}[0]->{'duration'}->{'value'};
+                    $distance = $meters/1000;
+                    if ($distance < $min) {
+                        $min = $distance;
+                        $getrider = $rider;
+                    }
+                }
+
                 $dropoff->rider_id = null;
                 $dropoff->save();
 
                 $order->droppoff()->attach($dropoff);
 
-                event(new UserHistory($order));
 
                 //reduce partner order count
                 if ($partner->order_count_by_id != 'unlimited'){

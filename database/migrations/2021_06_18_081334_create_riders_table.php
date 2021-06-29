@@ -21,6 +21,8 @@ class CreateRidersTable extends Migration
             $table->foreignId('partner_id')->constrained();
             $table->string('password');
             $table->string('earnings');
+            $table->decimal('latitude', 11,7)->nullable();
+            $table->decimal('longitude', 11,7)->nullable();
             $table->integer('rating');
             $table->boolean('is_enabled')->default(true);
             $table->timestamps();

@@ -12,14 +12,14 @@ use App\Models\routeCosting as RouteCosting;
 use App\Models\DropOff;
 use App\Models\Vehicle;
 use App\Models\Address;
-use App\Models\History;
+use App\Traits\Logs;
 use App\Repositories\Interfaces\PartnerRepositoryInterface;
 
 
 class PartnerRepository implements PartnerRepositoryInterface{
 
 
-    use Response;
+    use Response, Logs;
 
     public function __construct(){
 

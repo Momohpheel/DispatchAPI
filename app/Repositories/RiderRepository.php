@@ -6,7 +6,7 @@ use App\Traits\Response;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Models\Partner;
-use App\Models\History;
+use App\Traits\Logs;
 use App\Models\Order;
 use App\Models\DropOff;
 use App\Models\Address;
@@ -15,7 +15,7 @@ use App\Repositories\Interfaces\RiderRepositoryInterface;
 
 class RiderRepository implements RiderRepositoryInterface{
 
-    use Response;
+    use Response, Logs;
 
     public function login(Request $request){
         try{
