@@ -153,13 +153,16 @@ class UserRepository implements UserRepositoryInterface{
 
 
                     }else{
-                        return $this->error(true, "Partner has exceeded her order limit", 400);
+                        throw new Exception("Partner has exceeded her order limit");
+                        //return $this->error(true, "Partner has exceeded her order limit", 400);
                     }
                 }else{
-                    return $this->error(true, "Partner is disabled", 400);
+                    throw new Exception("Partner is disabled");
+                    //return $this->error(true, "Partner is disabled", 400);
                 }
             }else{
-                return $this->error(true, "Partner is not active", 400);
+                throw new Exception("Partner is not active");
+                //return $this->error(true, "Partner is not active", 400);
             }
 
 
@@ -246,7 +249,9 @@ class UserRepository implements UserRepositoryInterface{
 
             return $this->success("Order created! You are successfully paired with a rider", $order, 200);
         }catch(Excption $e){
-            return $this->error(true, "Error occured while creating order", 400);
+            $this->history('Jobs', auth()->user()->name." couldnt make ".$dropoff->count()." orders", auth()->user()->id, 'user');
+            $message = $e->getMessage() ? $e->getMessage : "Error occured!";
+            return $this->error(true, $message , 400);
         }
     }
 

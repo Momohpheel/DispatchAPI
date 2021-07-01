@@ -19,8 +19,10 @@ trait Logs{
             $history->user_id = $id;
         }else if ($user == 'rider'){
             $history->rider_id = $id;
-        }else {
+        }else if ($user == 'partner'){
             $history->partner_id = $id;
+        }else{
+            throw new Exception('No User Specified!');
         }
 
         $history->save();
