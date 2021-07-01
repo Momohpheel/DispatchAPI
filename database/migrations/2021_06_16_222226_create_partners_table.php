@@ -20,7 +20,7 @@ class CreatePartnersTable extends Migration
             $table->string('phone')->nullable();
             $table->string('password');
             $table->string('code_name')->unique();
-            $table->foreignId('subscription_id')->constrained('subscriptions')->default(1);
+            $table->foreignId('subscription_id')->constrained('subscriptions')->nullable();
             $table->enum('subscription_status', ['paid', 'not paid'])->nullable();
             $table->date('subscription_date')->nullable();
             $table->date('subscription_expiry_date')->nullable();

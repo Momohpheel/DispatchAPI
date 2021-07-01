@@ -122,23 +122,24 @@ class UserRepository implements UserRepositoryInterface{
             $partner = Partner::where('id', $id)->first();
             $now = Carbon::now();
             $day = $now->format('l');
-            $time =  $now->format('h A');
+            $c_time =  Carbon::parse($now->format('h:i:s'));
 
             //check if order is place within partner's operating hours
 
-            // $dayTime = OpHour::where('partner_id', $partner->id)->get();
-            // $current_day = strtolower($day);
+            $dayTime = OpHour::where('partner_id', $partner->id)->get();
+            $current_day = strtolower($day);
 
-            $dayTime = ['sunday', 'monday', 'friday'];
-            $current_day = 'sunday';
             //if current time is greater that start time and less than current time
             foreach ($dayTime as $day){
                 if ($current_day == $day->day){
-                    // $time = OpHour::where('day', $day->day)->where('partner_id', $partner->id)->first();
-                    // if ($time->start_time is less than $time and $time is greater than $time->end_time){
+                    $time = OpHour::where('day', $day->day)->where('partner_id', $partner->id)->first();
+                    $stime = Carbon::parse($time->start_time);
+                    $etime = Carbon::parse($time->end_time);
 
-                    // }
-                    return "start";
+                    if ($stime->gt($c_time) && $c_time->lessThan($etime)){
+                        return "start";
+                    }
+
                 }
             }
                     return "end";
@@ -254,38 +255,6 @@ class UserRepository implements UserRepositoryInterface{
             return $this->error(true, $message , 400);
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
