@@ -177,6 +177,30 @@ class PartnerRepository implements PartnerRepositoryInterface{
         }
     }
 
+    public function getProfile(){
+        try{
+            $partner_id = auth()->user()->id;
+            $partner = Partner::find($partner_id);
+
+            $data = [
+                'name' => $partner->name,
+                'email' => $partner->email,
+                'rating' => $partner->rating,
+                'phone' => $partner->phone,
+                'code_name' => $partner->code_name,
+                'earnings' => $partner->earnings,
+                'subscription_date' => $partner->subscription_date,
+                'subscription_type' => $partner->subscription()->name,
+                'subscription_expiry_date' => $partner->subscription_expiry_date,
+                'order_count_per_day' => $partner->order_count_per_day
+
+            ];
+
+            return $this->success("Profile", $data, 200);
+        }catch(Exception $e){
+            return $this->error(true, "Error getting rider profile", 400);
+        }
+    }
 
 
 

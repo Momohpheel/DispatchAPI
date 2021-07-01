@@ -45,6 +45,24 @@ class RiderRepository implements RiderRepositoryInterface{
         }
     }
 
+    public function getProfile(){
+        try{
+            $rider_id = auth()->user()->id;
+            $rider = Rider::find($rider_id);
+
+            $data = [
+                'name' => $rider->name,
+                'workname' => $rider->workname,
+                'rating' => $rider->rating,
+                'phone' => $rider->phone,
+                'earnings' => $rider->earnings,
+            ];
+
+            return $this->success("Profile", $data, 200);
+        }catch(Exception $e){
+            return $this->error(true, "Error getting rider profile", 400);
+        }
+    }
     public function start_order(Request $request, $id){
         try{
             $order = DropOff::where('id', $id)->where('rider_id', 1)->where('payment_status', 'paid')->first();

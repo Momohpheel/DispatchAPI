@@ -374,6 +374,19 @@ class UserRepository implements UserRepositoryInterface{
                 $rating->save();
             }
 
+            $rider = Rider::find($validated['rider_id']);
+            $rider_rating = Rating::where('rider_id', $validated['rider_id'])->get();
+            $num = $rider_rating->count();
+            //$sums = $rider_rating->sum('rating');
+            $zero = 0;
+            foreach ($rider_rating as $rate){
+                $zero = $zero + $rate;
+            }
+
+            $ratings = $zero/$num;
+
+            $rider->rating = $ratings;
+            $rider->save();
 
             return $this->success("Rider rating successful", $rating, 200);
 
@@ -391,13 +404,27 @@ class UserRepository implements UserRepositoryInterface{
                 $rating = new Rating;
                 $rating->rating = $validated['rating'];
                 $rating->user_id = $userId;
-                $rating->partner_id = $validated['rider_id'];
+                $rating->partner_id = $validated['partner_id'];
                 $rating->save();
             }else{
                 $rating->rating = $validated['rating'];
-                $rating->partner_id = $validated['rider_id'];
+                $rating->partner_id = $validated['partner_id'];
                 $rating->save();
             }
+
+            $partner = Partner::find($validated['partner_id']);
+            $partner_rating = Rating::where('partner_id', $validated['partner_id'])->get();
+            $num = $partner_rating->count();
+            //$sums = $partner_rating->sum('rating');
+            $zero = 0;
+            foreach ($partner_rating as $rate){
+                $zero = $zero + $rate;
+            }
+
+            $ratings = $zero/$num;
+
+            $partner->rating = $ratings;
+            $partner->save();
 
             return $this->success("Partner rating successful", $rating, 200);
 
