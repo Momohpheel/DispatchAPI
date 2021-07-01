@@ -75,6 +75,7 @@ class UserRepository implements UserRepositoryInterface{
                 "image" => $user->image,
                 "access_token" => $access_token
             ];
+            $this->history('Profile', $data['name']." created their profile", $data['id'], 'user');
 
             return $this->success("User created", $data, 200);
         }catch(Exception $e){
@@ -227,7 +228,10 @@ class UserRepository implements UserRepositoryInterface{
 
                 $dropoff->save();
 
+
                 $order->droppoff()->attach($dropoff);
+
+                $this->history('Jobs', auth()->user()->name." ordered a dispatch from ".$order->o_address." to ". $dropoff->d_address, auth()->user()->id, 'user');
 
 
                 //reduce partner order count
@@ -238,6 +242,7 @@ class UserRepository implements UserRepositoryInterface{
             }
 
 
+            $this->history('Jobs', auth()->user()->name." made ".$dropoff->count()." orders", auth()->user()->id, 'user');
 
             return $this->success("Order created! You are successfully paired with a rider", $order, 200);
         }catch(Excption $e){
@@ -308,6 +313,8 @@ class UserRepository implements UserRepositoryInterface{
             $address->longitude = $validated['longitude'];
             $address->user_id = auth()->user()->id;
             $address->save();
+
+            $this->history('Save Address', auth()->user()->name." saved ".$address->name." as one of their frequently used addresses", auth()->user()->id, 'user');
 
             return $this->success("Address saved", $address, 200);
         }catch(Exception $e){
