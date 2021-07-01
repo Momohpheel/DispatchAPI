@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\Order;
 use App\Models\DropOff;
 use App\Models\Address;
+use App\Models\Rating;
 use App\Models\OperatingHours as OpHour;
 use App\Traits\Response;
 use App\Repositories\Interfaces\UserRepositoryInterface;
@@ -329,9 +330,25 @@ class UserRepository implements UserRepositoryInterface{
 
     public function count(){
 
-        // $data = [
-        //     "orders" => 2,
-        // ]
+        try{
+            $orders = Dropoff::where('user_id', auth()->user()->id)->get();
+            $pending = Dropoff::where('user_id', auth()->user()->id)->where('status', 'pending')->get();
+            $pickedUp = Dropoff::where('user_id', auth()->user()->id)->where('status', 'pickedUp')->get();
+            $delivered = Dropoff::where('user_id', auth()->user()->id)->where('status', 'delivered')->get();
+
+            $data = [
+                "orders" => $orders->count(),
+                "pending" => $pending->count(),
+                "pickedUp" => $pickedUp->count(),
+                "delivered" => $delivered->count(),
+            ];
+
+            return $this->success("User count orders", $data, 200);
+
+        }catch(Exception $e){
+            return $this->error(true, "ERROR!", 400);
+        }
+
     }
 
     public function calculatePrice(Request $request){
@@ -340,8 +357,53 @@ class UserRepository implements UserRepositoryInterface{
 
     public function payment(){}
 
-    public function rateRider(){}
+    public function rateRider(){
 
-    public function ratePartner(){}
+        try{
+            $userId = auth()->user()->id;
+            $rated = Rating::where('user_id', $userId)->where('rider_id', $validated['rider_id'])->first();
+            if (!$rated){
+                $rating = new Rating;
+                $rating->rating = $validated['rating'];
+                $rating->user_id = $userId;
+                $rating->rider_id = $validated['rider_id'];
+                $rating->save();
+            }else{
+                $rating->rating = $validated['rating'];
+                $rating->rider_id = $validated['rider_id'];
+                $rating->save();
+            }
+
+
+            return $this->success("Rider rating successful", $rating, 200);
+
+        }catch(Exception $e){
+            return $this->error(true, "Error occured!", 400);
+        }
+
+    }
+
+    public function ratePartner(){
+        try{
+            $userId = auth()->user()->id;
+            $rated = Rating::where('user_id', $userId)->where('partner_id', $validated['rider_id'])->first();
+            if (!$rated){
+                $rating = new Rating;
+                $rating->rating = $validated['rating'];
+                $rating->user_id = $userId;
+                $rating->partner_id = $validated['rider_id'];
+                $rating->save();
+            }else{
+                $rating->rating = $validated['rating'];
+                $rating->partner_id = $validated['rider_id'];
+                $rating->save();
+            }
+
+            return $this->success("Partner rating successful", $rating, 200);
+
+        }catch(Exception $e){
+            return $this->error(true, "Error occured!", 400);
+        }
+    }
 
 }
