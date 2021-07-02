@@ -8,6 +8,7 @@ use App\Models\Partner;
 use App\Traits\Logs;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Order;
+use Exception;
 use App\Models\DropOff;
 use App\Models\Address;
 use App\Models\Rating;
@@ -120,7 +121,10 @@ class UserRepository implements UserRepositoryInterface{
     public function order(Request $request, $id){
         try{
             $partner = Partner::where('id', $id)->first();
-            $now = Carbon::now();
+            if (!$partner){
+                throw new \Exception("Partner not found!");
+            }
+            $now = Carbon::now()->addHour();
             $day = $now->format('l');
             $c_time =  Carbon::parse($now->format('h:i:s'));
 
@@ -135,129 +139,127 @@ class UserRepository implements UserRepositoryInterface{
                     $time = OpHour::where('day', $day->day)->where('partner_id', $partner->id)->first();
                     $stime = Carbon::parse($time->start_time);
                     $etime = Carbon::parse($time->end_time);
+                    //try to format to 23:00 format and test again
+                    if ($c_time->gt($stime) && $c_time->lessThan($etime)){
 
-                    if ($stime->gt($c_time) && $c_time->lessThan($etime)){
-                        return "start";
+                        if ($partner->is_paused == false){
+                            if ($partner->is_enabled == true){
+                                if ($partner->order_count_per_day > 0){
+
+
+                                        ///make order
+                                        return $this->job($request);
+
+
+                                }else{
+                                    throw new Exception("Partner has exceeded her order limit");
+                                    //return $this->error(true, "Partner has exceeded her order limit", 400);
+                                }
+                            }else{
+                                throw new Exception("Partner is disabled");
+                                //return $this->error(true, "Partner is disabled", 400);
+                            }
+                        }else{
+                            throw new Exception("Partner is not active");
+                            //return $this->error(true, "Partner is not active", 400);
+                        }
                     }
 
                 }
             }
-                    return "end";
-
-            if ($partner->is_paused == false){
-                if ($partner->is_enabled == true){
-                    if ($partner->order_count_per_day > 0){
-
-
-                            ///make order
+                    return $this->error(true, "Partner is closed for the day, try reschedule your order tomorrow!", 400);
 
 
 
-                    }else{
-                        throw new Exception("Partner has exceeded her order limit");
-                        //return $this->error(true, "Partner has exceeded her order limit", 400);
-                    }
-                }else{
-                    throw new Exception("Partner is disabled");
-                    //return $this->error(true, "Partner is disabled", 400);
-                }
-            }else{
-                throw new Exception("Partner is not active");
-                //return $this->error(true, "Partner is not active", 400);
-            }
-
-
-
-
-
-            $validated = $request->validate([
-                'o_address' => "required|string",
-                'dropoff.d_address.*' => "required|string",
-                'o_latitude' => "required",
-                'o_longitude' => "required",
-                'dropoff.d_latitude.*' => "required",
-                'dropoff.d_longitude.*' => "required",
-                'dropoff.product_name.*' => "required|string",
-                'dropoff.receiver_name.*' => "required|string",
-                'dropoff.receiver_phone.*' => "required|string",
-                'dropoff.receiver_email.*' => "required|string",
-                'dropoff.quantity.*' => "required|string",
-            ]);
-
-
-            $order = new Order;
-            $order->o_address = $validated['o_address'];
-            $order->o_latitude = $validated['o_latitude'];
-            $order->o_longitude = $validated['o_longitude'];
-            $order->user_id = auth()->user()->id;
-            $order->partner_id = $partner->id;
-            $order->save();
-            $min = 200;
-            //pair with rider who is under the partner
-            //and is not disabled or dismissed and nearby
-            foreach($validated['dropoff'] as $dropoff ){
-                $dropoff = new DropOff;
-                $dropoff->d_address = $dropoff['d_address'];
-                $dropoff->d_latitude = $dropoff['d_latitude'];
-                $dropoff->d_longitude = $dropoff['d_longitude'];
-                $dropoff->product_name = $dropoff['product_name'];
-                $dropoff->receiver_name = $dropoff['receiver_name'];
-                $dropoff->receiver_phone = $dropoff['receiver_phone'];
-                $dropoff->receiver_email = $dropoff['receiver_email'];
-                $dropoff->quantity = $dropoff['quantity'];
-                $dropoff->partner_id = $partner->id;
-                //rider id
-
-                $riders = Rider::where('partner_id', $partner->id)->where('is_available', true)->get();
-                foreach ($riders as $rider){
-                    $rider_lat = $rider->latitude;
-                    $rider_long = $rider->longitude;
-                    $url = file_get_contents("https://maps.googleapis.com/maps/api/directions/json?origin=".$rider_lat.",".$rider_long."&destination=".$order->o_latitude.",".$order->o_longitude."&sensor=false&key=AIzaSyDiUJ5BCTHX1UG9SbCrcwNYbIxODhg1Fl8");
-                    $url = json_decode($url);
-
-                    $meters = $url->{'routes'}[0]->{'legs'}[0]->{'distance'}->{'value'};
-                    $time = $url->{'routes'}[0]->{'legs'}[0]->{'duration'}->{'value'};
-                    $distance = $meters/1000;
-                    if ($distance < $min) {
-                        $min = $distance;
-                        $getrider = $rider;
-                    }
-                }
-
-                if (isset($getrider)){
-                    $dropoff->rider_id = $getrider->id;
-                }else{
-                    return $this->error(true, 'Sorry all our riders are fully booked and are unable to fulfill your orders at the moment, please try again', 400);
-                }
-
-                $dropoff->save();
-
-
-                $order->droppoff()->attach($dropoff);
-
-                $this->history('Jobs', auth()->user()->name." ordered a dispatch from ".$order->o_address." to ". $dropoff->d_address, auth()->user()->id, 'user');
-
-
-                //reduce partner order count
-                if ($partner->order_count_by_id != 'unlimited'){
-                    $partner->order_count_by_id--;
-                    $partner->save();
-                 }
-            }
-
-
-            $this->history('Jobs', auth()->user()->name." made ".$dropoff->count()." orders", auth()->user()->id, 'user');
-
-            return $this->success("Order created! You are successfully paired with a rider", $order, 200);
         }catch(Excption $e){
             $this->history('Jobs', auth()->user()->name." couldnt make ".$dropoff->count()." orders", auth()->user()->id, 'user');
-            $message = $e->getMessage() ? $e->getMessage : "Error occured!";
+            $message = $e->getMessage(); //? $e->getMessage : "Error occured!";
             return $this->error(true, $message , 400);
         }
     }
 
 
+    public function job($request){
+        $validated = $request->validate([
+            'o_address' => "required|string",
+            'dropoff.d_address.*' => "required|string",
+            'o_latitude' => "required",
+            'o_longitude' => "required",
+            'dropoff.d_latitude.*' => "required",
+            'dropoff.d_longitude.*' => "required",
+            'dropoff.product_name.*' => "required|string",
+            'dropoff.receiver_name.*' => "required|string",
+            'dropoff.receiver_phone.*' => "required|string",
+            'dropoff.receiver_email.*' => "required|string",
+            'dropoff.quantity.*' => "required|string",
+        ]);
 
+
+        $order = new Order;
+        $order->o_address = $validated['o_address'];
+        $order->o_latitude = $validated['o_latitude'];
+        $order->o_longitude = $validated['o_longitude'];
+        $order->user_id = auth()->user()->id;
+        $order->partner_id = $partner->id;
+        $order->save();
+        $min = 200;
+        //pair with rider who is under the partner
+        //and is not disabled or dismissed and nearby
+        foreach($validated['dropoff'] as $dropoff ){
+            $dropoff = new DropOff;
+            $dropoff->d_address = $dropoff['d_address'];
+            $dropoff->d_latitude = $dropoff['d_latitude'];
+            $dropoff->d_longitude = $dropoff['d_longitude'];
+            $dropoff->product_name = $dropoff['product_name'];
+            $dropoff->receiver_name = $dropoff['receiver_name'];
+            $dropoff->receiver_phone = $dropoff['receiver_phone'];
+            $dropoff->receiver_email = $dropoff['receiver_email'];
+            $dropoff->quantity = $dropoff['quantity'];
+            $dropoff->partner_id = $partner->id;
+            //rider id
+
+            $riders = Rider::where('partner_id', $partner->id)->where('is_available', true)->get();
+            foreach ($riders as $rider){
+                $rider_lat = $rider->latitude;
+                $rider_long = $rider->longitude;
+                $url = file_get_contents("https://maps.googleapis.com/maps/api/directions/json?origin=".$rider_lat.",".$rider_long."&destination=".$order->o_latitude.",".$order->o_longitude."&sensor=false&key=AIzaSyDiUJ5BCTHX1UG9SbCrcwNYbIxODhg1Fl8");
+                $url = json_decode($url);
+
+                $meters = $url->{'routes'}[0]->{'legs'}[0]->{'distance'}->{'value'};
+                $time = $url->{'routes'}[0]->{'legs'}[0]->{'duration'}->{'value'};
+                $distance = $meters/1000;
+                if ($distance < $min) {
+                    $min = $distance;
+                    $getrider = $rider;
+                }
+            }
+
+            if (isset($getrider)){
+                $dropoff->rider_id = $getrider->id;
+            }else{
+                return $this->error(true, 'Sorry all our riders are fully booked and are unable to fulfill your orders at the moment, please try again', 400);
+            }
+
+            $dropoff->save();
+
+
+            $order->droppoff()->attach($dropoff);
+
+            $this->history('Jobs', auth()->user()->name." ordered a dispatch from ".$order->o_address." to ". $dropoff->d_address, auth()->user()->id, 'user');
+
+
+            //reduce partner order count
+            if ($partner->order_count_by_id != 'unlimited'){
+                $partner->order_count_by_id--;
+                $partner->save();
+             }
+        }
+
+
+        $this->history('Jobs', auth()->user()->name." made ".$dropoff->count()." orders", auth()->user()->id, 'user');
+
+        return $this->success("Order created! You are successfully paired with a rider", $order, 200);
+    }
 
     public function getUserHistory(){
         try{
@@ -332,8 +334,17 @@ class UserRepository implements UserRepositoryInterface{
 
     }
 
-    public function calculatePrice(Request $request){
-        //$calculation = (($distance_rnd * $fuel_cost) + $rider_salary + ($distance_rnd * $bike_fund )) * $ops_fee * $easy_log * $easy_disp;
+    public function calculatePrice($distance, $id){
+        try{
+
+            $partner = Partner::find($id);
+            $route_cost = RouteCosting::where('partner_id', $id)->get();
+            $calculation = (($distance * $fuel_cost) + $rider_salary + ($distance * $bike_fund )) * $ops_fee * $easy_log * $easy_disp;
+
+        }catch(Exception $e){
+            return $this->error(true, "", 400);
+        }
+
     }
 
     public function payment(){}
