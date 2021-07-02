@@ -157,16 +157,16 @@ class UserRepository implements UserRepositoryInterface{
 
 
                                 }else{
-                                    throw new Exception("Partner has exceeded her order limit");
-                                    //return $this->error(true, "Partner has exceeded her order limit", 400);
+                                    //throw new Exception("Partner has exceeded her order limit");
+                                    return $this->error(true, "Partner has exceeded her order limit", 400);
                                 }
                             }else{
-                                throw new Exception("Partner is disabled");
-                                //return $this->error(true, "Partner is disabled", 400);
+                                //throw new Exception("Partner is disabled");
+                                return $this->error(true, "Partner is disabled", 400);
                             }
                         }else{
-                            throw new Exception("Partner is not active");
-                            //return $this->error(true, "Partner is not active", 400);
+                            //throw new Exception("Partner is not active");
+                            return $this->error(true, "Partner is not active", 400);
                         }
                     }
 
@@ -178,8 +178,8 @@ class UserRepository implements UserRepositoryInterface{
 
         }catch(Excption $e){
             $this->history('Jobs', auth()->user()->name." couldnt make ".$dropoff->count()." orders", auth()->user()->id, 'user');
-            $message = $e->getMessage(); //? $e->getMessage : "Error occured!";
-            return $this->error(true, $message , 400);
+
+            return $this->error(true, "Error occured!" , 400);
         }
     }
 
@@ -190,13 +190,13 @@ class UserRepository implements UserRepositoryInterface{
             'dropoff.d_address.*' => "required|string",
             'o_latitude' => "required",
             'o_longitude' => "required",
-            'dropoff.d_latitude.*' => "required",
-            'dropoff.d_longitude.*' => "required",
-            'dropoff.product_name.*' => "required|string",
-            'dropoff.receiver_name.*' => "required|string",
-            'dropoff.receiver_phone.*' => "required|string",
-            'dropoff.receiver_email.*' => "required|string",
-            'dropoff.quantity.*' => "required|string",
+            'dropoff.*.d_latitude' => "required",
+            'dropoff.*.d_longitude' => "required",
+            'dropoff.*.product_name' => "required|string",
+            'dropoff.*.receiver_name' => "required|string",
+            'dropoff.*.receiver_phone' => "required|string",
+            'dropoff.*.receiver_email' => "required|string",
+            'dropoff.*.quantity' => "required|string",
             'dropoff.*' => "required"
         ]);
 
@@ -211,17 +211,18 @@ class UserRepository implements UserRepositoryInterface{
         $min = 200;
         //pair with rider who is under the partner
         //and is not disabled or dismissed and nearby
+        //dd($validated['dropoff'][0]);
         foreach($validated['dropoff'] as $dropoff ){
-            $dropoff = new DropOff;
-            $dropoff->d_address = $dropoff['d_address'];
-            $dropoff->d_latitude = $dropoff['d_latitude'];
-            $dropoff->d_longitude = $dropoff['d_longitude'];
-            $dropoff->product_name = $dropoff['product_name'];
-            $dropoff->receiver_name = $dropoff['receiver_name'];
-            $dropoff->receiver_phone = $dropoff['receiver_phone'];
-            $dropoff->receiver_email = $dropoff['receiver_email'];
-            $dropoff->quantity = $dropoff['quantity'];
-            $dropoff->partner_id = $id;
+            $newdropoff = new DropOff;
+            $newdropoff->d_address = $dropoff['d_address'];
+            $newdropoff->d_latitude = $dropoff['d_latitude'];
+            $newdropoff->d_longitude = $dropoff['d_longitude'];
+            $newdropoff->product_name = $dropoff['product_name'];
+            $newdropoff->receiver_name = $dropoff['receiver_name'];
+            $newdropoff->receiver_phone = $dropoff['receiver_phone'];
+            $newdropoff->receiver_email = $dropoff['receiver_email'];
+            $newdropoff->quantity = $dropoff['quantity'];
+            $newdropoff->partner_id = $id;
             //rider id
 
             // $riders = Rider::where('partner_id', $partner->id)->where('is_available', true)->get();
@@ -241,17 +242,17 @@ class UserRepository implements UserRepositoryInterface{
             // }
 
             // if (isset($getrider)){
-            //     $dropoff->rider_id = $getrider->id;
+            //     $newdropoff->rider_id = $getrider->id;
             // }else{
             //     return $this->error(true, 'Sorry all our riders are fully booked and are unable to fulfill your orders at the moment, please try again', 400);
             // }
 
-            $dropoff->save();
+            $newdropoff->save();
 
 
-            $order->dropoff()->attach($dropoff);
+            $order->dropoff()->attach($newdropoff);
 
-            $this->history('Jobs', auth()->user()->name." ordered a dispatch from ".$order->o_address." to ". $dropoff->d_address, auth()->user()->id, 'user');
+            $this->history('Jobs', auth()->user()->name." ordered a dispatch from ".$order->o_address." to ". $newdropoff->d_address, auth()->user()->id, 'user');
 
                 $partner = Partner::find($id);
             //reduce partner order count
@@ -262,7 +263,7 @@ class UserRepository implements UserRepositoryInterface{
         }
 
 
-        $this->history('Jobs', auth()->user()->name." made ".$dropoff->count()." orders", auth()->user()->id, 'user');
+        $this->history('Jobs', auth()->user()->name." made ".$newdropoff->count()." orders", auth()->user()->id, 'user');
 
         return $this->success("Order created! You are successfully paired with a rider", $order, 200);
     }
