@@ -58,11 +58,21 @@ class UserController extends Controller
         return $this->repository->saveAddress($request);
     }
 
+    public function count(){
+        return $this->repository->count();
+    }
 
     public function getSavedAddresses(){
         return $this->repository->getSavedAddresses();
     }
 
+    public function updateProfile(Request $request){
+        return $this->repository->updateProfile($request);
+    }
+
+    public function getProfile(){
+        return $this->repository->getProfile();
+    }
 
 
 }

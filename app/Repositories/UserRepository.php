@@ -12,6 +12,7 @@ use App\Models\Order;
 use App\Models\DropOff;
 use App\Models\Address;
 use App\Models\Rating;
+use App\Models\History;
 use App\Models\OperatingHours as OpHour;
 use App\Traits\Response;
 use App\Repositories\Interfaces\UserRepositoryInterface;
@@ -21,9 +22,7 @@ class UserRepository implements UserRepositoryInterface{
 
     use Response, Logs;
 
-    public function __construct(){
 
-    }
 
     public function onboard(Request $request){
         $validated = $request->validate([
@@ -120,6 +119,48 @@ class UserRepository implements UserRepositoryInterface{
 
         }catch(Exception $e){
             return $this->error(true, "Error logging user", 400);
+        }
+    }
+
+    public function updateProfile(Request $request){
+        try{
+            $validated = $request->validated([
+                'name' => "string",
+                'phone' => "string",
+            ]);
+            $check_user = User::where('id', auth()->user()->id)->first();
+            if ($check_user){
+                $check_user->name = $validated['name'] ?? $check_user->name;
+                $check_user->phone = $validated['phone'] ?? $check_user->name;
+                $check_user->save();
+
+                return $this->success("user profile updated", $check_user, 200);
+            }else{
+                return $this->error(true, "Unauthenticated", 400);
+            }
+        }catch(Exception $e){
+            return $this->error(true, "Error occured", 400);
+        }
+    }
+
+    public function getProfile(){
+        try{
+
+            $profile = User::where('id', auth()->user()->id)->first();
+            if ($profile){
+
+                $data = [
+                    "name" => $profile->name,
+                    "phone" => $profile->phone,
+                    "email" => $profile->email,
+                    "image" => $profile->image,
+                ];
+                return $this->success("user profile", $data, 200);
+            }else{
+                return $this->error(true, "Unauthenticated", 400);
+            }
+        }catch(Exception $e){
+            return $this->error(true, "Error occured", 400);
         }
     }
 
@@ -321,16 +362,16 @@ class UserRepository implements UserRepositoryInterface{
     public function count(){
 
         try{
-            $orders = Dropoff::where('user_id', auth()->user()->id)->get();
-            $pending = Dropoff::where('user_id', auth()->user()->id)->where('status', 'pending')->get();
-            $pickedUp = Dropoff::where('user_id', auth()->user()->id)->where('status', 'pickedUp')->get();
-            $delivered = Dropoff::where('user_id', auth()->user()->id)->where('status', 'delivered')->get();
-
+            $orders = Order::where('user_id', auth()->user()->id)->first();
+            $pending = Order::where('user_id', auth()->user()->id)->get(); //->where('status', 'pending')
+            $pickedUp = Order::where('user_id', auth()->user()->id)->get(); //->where('status', 'pickedUp')
+            $delivered = Order::where('user_id', auth()->user()->id)->get(); //->where('status', 'delivered')
+            return $orders->dropoff;
             $data = [
-                "orders" => $orders->count(),
-                "pending" => $pending->count(),
-                "pickedUp" => $pickedUp->count(),
-                "delivered" => $delivered->count(),
+                "orders" => $orders->dropoff()->count(),
+                "pending" => $pending->dropoff()->count(),
+                "pickedUp" => $pickedUp->dropoff()->count(),
+                "delivered" => $delivered->dropoff()->count(),
             ];
 
             return $this->success("User count orders", $data, 200);

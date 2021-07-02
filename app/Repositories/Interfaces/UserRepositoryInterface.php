@@ -10,6 +10,10 @@ interface UserRepositoryInterface{
 
     public function profile(Request $request);
 
+    public function getProfile();
+
+    public function updateProfile(Request $request);
+
     public function login(Request $request);
 
     public function order(Request $request, $id);
@@ -21,6 +25,8 @@ interface UserRepositoryInterface{
     public function getUserHistory();
 
     public function rateRider();
+
+    public function count();
 
     public function ratePartner();
 
