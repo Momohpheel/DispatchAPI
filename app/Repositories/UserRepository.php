@@ -77,7 +77,8 @@ class UserRepository implements UserRepositoryInterface{
                     "image" => $user->image,
                     "access_token" => $access_token
                 ];
-                //$this->history('Profile', $data['name']." created their profile", $data['id'], 'user');
+
+                $this->history('Profile', $data['name']." created their profile", $data['id'], 'user');
 
                 return $this->success("User created", $data, 200);
             }else{
@@ -309,6 +310,7 @@ class UserRepository implements UserRepositoryInterface{
         return $this->success("Order created! You are successfully paired with a rider", $order, 200);
     }
 
+
     public function getUserHistory(){
         try{
             $id = auth()->user()->id;
@@ -359,19 +361,64 @@ class UserRepository implements UserRepositoryInterface{
         }
     }
 
+
     public function count(){
 
         try{
-            $orders = Order::where('user_id', auth()->user()->id)->first();
-            $pending = Order::where('user_id', auth()->user()->id)->get(); //->where('status', 'pending')
+            $orders = Order::where('user_id', auth()->user()->id)->get();
+            $pendings = Order::where('user_id', auth()->user()->id)->get(); //->where('status', 'pending')
             $pickedUp = Order::where('user_id', auth()->user()->id)->get(); //->where('status', 'pickedUp')
             $delivered = Order::where('user_id', auth()->user()->id)->get(); //->where('status', 'delivered')
-            return $orders->dropoff;
+            $data = [];
+            $p_data = [];
+            $d_data = [];
+            $pu_data = [];
+            foreach ($orders as $order){
+               $datum = $order->load('dropoff');
+                foreach ($datum->dropoff as $dro){
+                    array_push($data, $dro);
+                }
+            }
+
+            foreach ($pendings as $pending){
+                $p_datum = $pending->load('dropoff');
+                 foreach ($p_datum->dropoff as $dro){
+                     if ($dro->status == 'pending'){
+                        array_push($p_data, $dro);
+                     }
+
+
+                 }
+            }
+
+            foreach ($pendings as $pending){
+                $d_datum = $pending->load('dropoff');
+                 foreach ($d_datum->dropoff as $dro){
+                     if ($dro->status == 'delivered'){
+                        array_push($d_data, $dro);
+                     }
+
+
+                 }
+            }
+
+            foreach ($pendings as $pending){
+                $pu_datum = $pending->load('dropoff');
+                 foreach ($pu_datum->dropoff as $dro){
+                     if ($dro->status == 'pickedUp'){
+                        array_push($pu_data, $dro);
+                     }
+
+
+                 }
+            }
+
+
             $data = [
-                "orders" => $orders->dropoff()->count(),
-                "pending" => $pending->dropoff()->count(),
-                "pickedUp" => $pickedUp->dropoff()->count(),
-                "delivered" => $delivered->dropoff()->count(),
+                "orders" => count($data),
+                "pending" => count($p_data), //$pending->dropoff()->count(),
+                "pickedUp" => count($pu_data), //$pickedUp->dropoff()->count(),
+                "delivered" => count($d_data), // $delivered->dropoff()->count(),
             ];
 
             return $this->success("User count orders", $data, 200);
@@ -381,6 +428,8 @@ class UserRepository implements UserRepositoryInterface{
         }
 
     }
+
+
 
     public function calculatePrice($distance, $id){
         try{
