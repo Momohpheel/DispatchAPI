@@ -8,7 +8,6 @@ use App\Models\Partner;
 use App\Traits\Logs;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Order;
-
 use App\Models\DropOff;
 use App\Models\Address;
 use App\Models\Rating;
