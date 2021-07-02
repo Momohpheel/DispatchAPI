@@ -28,12 +28,12 @@ use Illuminate\Support\Facades\Route;
     });
 
     Route::prefix('user')->group(function () {
-        // Route::middleware(['auth:api'])->group(function () {
+        Route::middleware(['auth:api'])->group(function () {
             Route::post('order/{id}', [App\Http\Controllers\UserController::class, 'order']);
             Route::get('history', [App\Http\Controllers\UserController::class, 'getUserHistory']);
             Route::post('address', [App\Http\Controllers\UserController::class, 'saveAddress']);
             Route::get('address', [App\Http\Controllers\UserController::class, 'getSavedAddresses']);
-        // });
+        });
     });
 
 

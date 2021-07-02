@@ -25,7 +25,7 @@ trait Logs{
             throw new Exception('No User Specified!');
         }
 
-        $history->save();
+        return $history->save();
 
     }
 

@@ -8,7 +8,7 @@ use App\Models\Partner;
 use App\Traits\Logs;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Order;
-use Exception;
+
 use App\Models\DropOff;
 use App\Models\Address;
 use App\Models\Rating;
@@ -53,32 +53,37 @@ class UserRepository implements UserRepositoryInterface{
 
     public function profile(Request $request){
         try{
+
             $validated = $request->validate([
                 'name' => "required|string",
                 'phone' => "required|string",
                 'email' => "required|string",
                 "password" => "required|string"
             ]);
+            $check_user = User::where('email', $validated['email'])->where('phone', $validated['phone'])->first();
+            if (!$check_user){
+                $user = new User;
+                $user->name = $validated['name'];
+                $user->phone = $validated['phone'];
+                $user->email = $validated['email'];
+                $user->password = Hash::make($validated['password']);
+                $user->save();
 
-            $user = new User;
-            $user->name = $validated['name'];
-            $user->phone = $validated['phone'];
-            $user->email = $validated['email'];
-            $user->password = Hash::make($validated['password']);
-            $user->save();
+                $access_token = $user->createToken('authToken')->accessToken;
+                $data = [
+                    "name" => $user->name,
+                    "phone" => $user->phone,
+                    "email" => $user->email,
+                    "id" => $user->id,
+                    "image" => $user->image,
+                    "access_token" => $access_token
+                ];
+                //$this->history('Profile', $data['name']." created their profile", $data['id'], 'user');
 
-            $access_token = $user->createToken('authToken')->accessToken;
-            $data = [
-                "name" => $user->name,
-                "phone" => $user->phone,
-                "email" => $user->email,
-                "id" => $user->id,
-                "image" => $user->image,
-                "access_token" => $access_token
-            ];
-            $this->history('Profile', $data['name']." created their profile", $data['id'], 'user');
-
-            return $this->success("User created", $data, 200);
+                return $this->success("User created", $data, 200);
+            }else{
+                return $this->error(true, "User exists", 400);
+            }
         }catch(Exception $e){
             return $this->error(true, "Error creating user", 400);
         }
@@ -148,7 +153,7 @@ class UserRepository implements UserRepositoryInterface{
 
 
                                         ///make order
-                                        return $this->job($request);
+                                        return $this->job($request, $id);
 
 
                                 }else{
@@ -179,7 +184,7 @@ class UserRepository implements UserRepositoryInterface{
     }
 
 
-    public function job($request){
+    public function job($request, $id){
         $validated = $request->validate([
             'o_address' => "required|string",
             'dropoff.d_address.*' => "required|string",
@@ -192,6 +197,7 @@ class UserRepository implements UserRepositoryInterface{
             'dropoff.receiver_phone.*' => "required|string",
             'dropoff.receiver_email.*' => "required|string",
             'dropoff.quantity.*' => "required|string",
+            'dropoff.*' => "required"
         ]);
 
 
@@ -200,7 +206,7 @@ class UserRepository implements UserRepositoryInterface{
         $order->o_latitude = $validated['o_latitude'];
         $order->o_longitude = $validated['o_longitude'];
         $order->user_id = auth()->user()->id;
-        $order->partner_id = $partner->id;
+        $order->partner_id = $id;
         $order->save();
         $min = 200;
         //pair with rider who is under the partner
@@ -215,42 +221,42 @@ class UserRepository implements UserRepositoryInterface{
             $dropoff->receiver_phone = $dropoff['receiver_phone'];
             $dropoff->receiver_email = $dropoff['receiver_email'];
             $dropoff->quantity = $dropoff['quantity'];
-            $dropoff->partner_id = $partner->id;
+            $dropoff->partner_id = $id;
             //rider id
 
-            $riders = Rider::where('partner_id', $partner->id)->where('is_available', true)->get();
-            foreach ($riders as $rider){
-                $rider_lat = $rider->latitude;
-                $rider_long = $rider->longitude;
-                $url = file_get_contents("https://maps.googleapis.com/maps/api/directions/json?origin=".$rider_lat.",".$rider_long."&destination=".$order->o_latitude.",".$order->o_longitude."&sensor=false&key=AIzaSyDiUJ5BCTHX1UG9SbCrcwNYbIxODhg1Fl8");
-                $url = json_decode($url);
+            // $riders = Rider::where('partner_id', $partner->id)->where('is_available', true)->get();
+            // foreach ($riders as $rider){
+            //     $rider_lat = $rider->latitude;
+            //     $rider_long = $rider->longitude;
+            //     $url = file_get_contents("https://maps.googleapis.com/maps/api/directions/json?origin=".$rider_lat.",".$rider_long."&destination=".$order->o_latitude.",".$order->o_longitude."&sensor=false&key=AIzaSyDiUJ5BCTHX1UG9SbCrcwNYbIxODhg1Fl8");
+            //     $url = json_decode($url);
 
-                $meters = $url->{'routes'}[0]->{'legs'}[0]->{'distance'}->{'value'};
-                $time = $url->{'routes'}[0]->{'legs'}[0]->{'duration'}->{'value'};
-                $distance = $meters/1000;
-                if ($distance < $min) {
-                    $min = $distance;
-                    $getrider = $rider;
-                }
-            }
+            //     $meters = $url->{'routes'}[0]->{'legs'}[0]->{'distance'}->{'value'};
+            //     $time = $url->{'routes'}[0]->{'legs'}[0]->{'duration'}->{'value'};
+            //     $distance = $meters/1000;
+            //     if ($distance < $min) {
+            //         $min = $distance;
+            //         $getrider = $rider;
+            //     }
+            // }
 
-            if (isset($getrider)){
-                $dropoff->rider_id = $getrider->id;
-            }else{
-                return $this->error(true, 'Sorry all our riders are fully booked and are unable to fulfill your orders at the moment, please try again', 400);
-            }
+            // if (isset($getrider)){
+            //     $dropoff->rider_id = $getrider->id;
+            // }else{
+            //     return $this->error(true, 'Sorry all our riders are fully booked and are unable to fulfill your orders at the moment, please try again', 400);
+            // }
 
             $dropoff->save();
 
 
-            $order->droppoff()->attach($dropoff);
+            $order->dropoff()->attach($dropoff);
 
             $this->history('Jobs', auth()->user()->name." ordered a dispatch from ".$order->o_address." to ". $dropoff->d_address, auth()->user()->id, 'user');
 
-
+                $partner = Partner::find($id);
             //reduce partner order count
-            if ($partner->order_count_by_id != 'unlimited'){
-                $partner->order_count_by_id--;
+            if ($partner->order_count_per_day != 'unlimited'){
+                $partner->order_count_per_day--;
                 $partner->save();
              }
         }
