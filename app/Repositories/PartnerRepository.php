@@ -21,10 +21,6 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
     use Response, Logs;
 
-
-
-
-
     /*
     *
     *
