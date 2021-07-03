@@ -1,3 +1,4 @@
+
 <?php
 
 namespace App\Repositories;
@@ -77,7 +78,7 @@ class UserRepository implements UserRepositoryInterface{
                     "image" => $user->image,
                     "access_token" => $access_token
                 ];
-                //$this->history('Profile', $data['name']." created their profile", $data['id'], 'user');
+                $this->history('Profile', $data['name']." created their profile", $data['id'], 'user');
 
                 return $this->success("User created", $data, 200);
             }else{
@@ -362,6 +363,7 @@ class UserRepository implements UserRepositoryInterface{
     public function count(){
 
         try{
+		
             $orders = Order::where('user_id', auth()->user()->id)->first();
             $pending = Order::where('user_id', auth()->user()->id)->get(); //->where('status', 'pending')
             $pickedUp = Order::where('user_id', auth()->user()->id)->get(); //->where('status', 'pickedUp')
