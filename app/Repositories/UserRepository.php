@@ -307,6 +307,7 @@ class UserRepository implements UserRepositoryInterface{
         return $this->success("Order created! You are successfully paired with a rider", $order, 200);
     }
 
+    public function getOrder(){}
 
     public function getUserHistory(){
         try{
@@ -433,11 +434,17 @@ class UserRepository implements UserRepositoryInterface{
         try{
 
             $partner = Partner::find($id);
-            $route_cost = RouteCosting::where('partner_id', $id)->get();
-            $calculation = (($distance * $fuel_cost) + $rider_salary + ($distance * $bike_fund )) * $ops_fee * $easy_log * $easy_disp;
+            $distance_rnd = number_format($distance,2);
+            $distance = intval($distance);
+            $route_cost = RouteCosting::where('partner_id', $id)->where('min_km', '<=', $distance)->where('max_km', '>=', $distance)->first();
+            //$calculation = (($distance * $fuel_cost) + $rider_salary + ($distance * $bike_fund )) * $ops_fee * $easy_log * $easy_disp;
+            $calculation = (($distance_rnd * $route_cost->fuel_cost) + $route_cost->rider_salary + ($distance_rnd * $route_cost->bike_fund)) * $route_cost->ops_fee * $route_cost->easy_log * $route_cost->easy_disp;
+            $cal = ceil($calculation / 50) * 50;
+            $cost = number_format($cal, 2);
 
+            return $this->success("price", $cost, 200);
         }catch(Exception $e){
-            return $this->error(true, "", 400);
+            return $this->error(true, "error in getting price", 400);
         }
 
     }

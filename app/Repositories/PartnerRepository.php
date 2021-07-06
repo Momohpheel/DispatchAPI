@@ -4,6 +4,9 @@ namespace App\Repositories;
 use App\Traits\Response;
 use App\Models\Partner;
 use App\Models\Rider;
+use App\Models\Subscription;
+use App\Models\OperatingHours;
+use App\Models\History;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Order;
@@ -54,7 +57,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                     "phone" => $partner->phone,
                     "email" => $partner->email,
                     "id" => $partner->id,
-                    "code_name" => $partner->image,
+                    "code_name" => $partner->code_name,
                     "access_token" => $access_token
                 ];
                 return $this->success("Partner registered", $data, 200);
@@ -85,7 +88,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                         "phone" => $partner->phone,
                         "email" => $partner->email,
                         "id" => $partner->id,
-                        "code_name" => $partner->image,
+                        "code_name" => $partner->code_name,
                         "access_token" => $access_token
                     ];
                     return $this->success("Partner found", $data, 200);
@@ -136,11 +139,39 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
     public function pauseAccount(){
         try{
-            $partner = Partner::find(1); //auth->user()->id
-            $partner->is_paused = true;
-            $partner->save();
-            //disable all riders under partner
-            return $this->success("Partner has been paused from operating", $partner, 200);
+            $partner = Partner::find(auth()->user()->id);
+
+            if ($partner->is_paused == false){
+                $partner->is_paused = true;
+                $partner->save();
+
+                //disable all riders under partner
+                $riders = Rider::where('partner_id', auth()->user()->id)->get();
+                if ($riders){
+                    foreach ($riders as $rider) {
+                            $rider->is_enabled = false;
+                            $rider->save();
+
+                    }
+                }
+
+                return $this->success("Partner has been paused from operating", $partner, 200);
+            }else{
+                $partner->is_paused = false;
+                $partner->save();
+
+                    //enable all riders under partner
+                    $riders = Rider::where('partner_id', auth()->user()->id)->get();
+                    if ($riders){
+                        foreach ($riders as $rider) {
+                            $rider->is_enabled = true;
+                            $rider->save();
+
+                        }
+                    }
+            return $this->success("Partner has been un-paused from operating", $partner, 200);
+            }
+
         }catch(Exception $e){
             return $this->error(true, "Error pausing partner", 400);
         }
@@ -299,8 +330,8 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
     public function getVehicle($id){
         try{
-            $id = auth()->user()->id;
-            $vehicle = Vehicle::with('partner')->where('id', $id)->where('partner_id', $id)->first();
+            $pid = auth()->user()->id;
+            $vehicle = Vehicle::with('partner')->where('id', $id)->where('partner_id', $pid)->first();
 
             return $this->success("Vehicle fetched", $vehicle, 200);
 
@@ -367,7 +398,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
     public function ordersDoneByRider($id){
         try{
 
-            $orders = DropOff::where('rider_id', $id)->where('partner_id', $partner->id)->load('order');
+            $orders = DropOff::with('order')->where('rider_id', $id)->where('partner_id', auth()->user()->id)->get();
 
             return $this->success("Orders done by the rider", $orders, 200);
 
@@ -394,9 +425,9 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 $rider->name = $validated['name'];
                 $rider->phone = $validated['phone'];
                 $rider->workname = $validated['workname'];
-                $rider->code_name = $partner->code_name;
+                //$rider->code_name = $partner->code_name;
                 $rider->vehicle_id = $validated['vehicle_id'];
-                $rider->image = 'sample image'; //$validated['image'];
+                //$rider->image = 'sample image'; //$validated['image'];
                 $rider->password = Hash::make($validated['password']);
                 $rider->partner_id = auth()->user()->id;
                 $rider->save();
@@ -414,13 +445,13 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
     public function disableRider($id){
         try{
-            $partner_id = 1; //auth()->user()->id
+            $partner_id = auth()->user()->id;
             $rider = Rider::where('id', $id)->where('partner_id', $partner_id)->first();
             $rider->is_enabled = !($rider->is_enabled);
             $rider->save();
 
 
-            if ($vehicle->is_enabled == true){
+            if ($rider->is_enabled == true){
                 return $this->success("Rider has been disabled", $rider, 200);
             }else{
                 return $this->success("Rider has been enabled", $rider, 200);
@@ -434,7 +465,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
     public function getRiders(){
         try{
-            $riders = Rider::where('partner_id', 1)->get();
+            $riders = Rider::with(['partner', 'vehicle'])->where('partner_id', auth()->user()->id)->get();
 
             return $this->success("Riders", $riders, 200);
         }catch(Exception $e){
@@ -451,8 +482,8 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 'dropoff_id' => 'required'
             ]);
 
-            $order = DropOff::where('id', $validated['dropoff_id'])->where('partner_id', 1)->first();
-            $rider = Rider::where('id', $validated['rider_id'])->where('partner_id', 1)->first();
+            $order = DropOff::where('id', $validated['dropoff_id'])->where('partner_id', auth()->user()->id)->first();
+            $rider = Rider::where('id', $validated['rider_id'])->where('partner_id', auth()->user()->id)->first();
             if ($order){
 
                 if ($order->status != 'completed'){
@@ -463,6 +494,8 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 }else{
                     return $this->success("Order is ".$order->status, $order, 400);
                 }
+            }else{
+                return $this->error(true, "Order doesn't exist", 400);
             }
         }catch(Exception $e){
             return $this->error(true, "Error assigning order to rider", 400);
@@ -484,7 +517,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
     public function getOrders(){
         try{
             $partner_id = auth()->user()->id;
-            $orders = Order::where('partner_id', $partner_id)->load('dropoff');
+            $orders = Order::with('dropoff')->where('partner_id', $partner_id)->get();
 
             return $this->success("Orders", $orders, 200);
         }catch(Exception $e){
@@ -495,9 +528,9 @@ class PartnerRepository implements PartnerRepositoryInterface{
     public function getOneOrder($id){
         try{
             $partner_id = auth()->user()->id;
-            $order = Order::where('id', $id)->where('partner_id', $partner_id)->load('dropoff');
+            $order = Order::with('dropoff')->where('id', $id)->where('partner_id', $partner_id)->get();
 
-            return $this->success("Orders", $order, 200);
+            return $this->success("Order", $order, 200);
         }catch(Exception $e){
             return $this->error(true, "Error fetching order", 400);
         }
@@ -582,21 +615,28 @@ class PartnerRepository implements PartnerRepositoryInterface{
             $partner = Partner::find($partner_id);
             $partner->subscription_id = $subs->id;
             $partner->subscription_status = 'paid';
-            if ($subs->name == 'FREE'){
+
+            if ($subs->name == 'Free'){
                 $partner->order_count_per_day = 5;
-            }else if ($subs->name == 'STARTER'){
-                $partner->order_count_per_day = 20;
+            }else if ($subs->name == 'Starter'){
+                $partner->order_count_per_day = 15;
+            }else if ($subs->name == 'Business'){
+                $partner->order_count_per_day = 25;
             }else {
                 $partner->order_count_per_day = 'unlimited';
             }
              //check what type of subscription and input appropiately here
             $partner->save();
+
+            return $this->success("Subscribtion successful", $partner, 200);
+        }else{
+            return $this->error(true, "Subscription not found", 400);
         }
     }
 
     public function addOperatingHours(Request $request){
         try{
-            $validate = $request->validate([
+            $validated = $request->validate([
                 'day' => 'required|string',
                 'start_time' => 'required|string',
                 'end_time' => 'required|string'
@@ -606,7 +646,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
             $operating_hours->day = $validated['day'];
             $operating_hours->start_time = $validated['start_time'];
             $operating_hours->end_time = $validated['end_time'];
-            $operating_hours->partner_id = 1; //auth()->user()->id;
+            $operating_hours->partner_id = auth()->user()->id;
             $operating_hours->save();
 
             return $this->success("Operating Hours added", $operating_hours, 200);
@@ -617,7 +657,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
     public function updateOperatingHours(Request $request, $id){
         try{
-            $validate = $request->validate([
+            $validated = $request->validate([
                 'day' => 'required|string',
                 'start_time' => 'required|string',
                 'end_time' => 'required|string'
@@ -639,7 +679,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
     public function getPartnerHistory(){
         try{
-            $id = 1; //auth()->user()->id;
+            $id = auth()->user()->id;
             $history = History::where('partner_id', $id)->get();
 
             return $this->success("Partner history", $history, 200);
@@ -652,6 +692,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
     public function makeTopPartner(){
         try{
             //pay to ba a top partner
+            $id = auth()->user()->id;
             $partner = Partner::find($id);
             $partner->is_top_partner = true;
             $partner->top_partner_pay_date = now();

@@ -10,7 +10,7 @@ use App\Repositories\Interfaces\RiderRepositoryInterface;
 class RiderController extends Controller
 {
 
-    use Response;
+
     public $repository;
 
     public function __construct(RiderRepositoryInterface $repository){
@@ -35,5 +35,13 @@ class RiderController extends Controller
 
     public function updatePhone(Request $request){
         return $this->repository->updatePhone($request);
+    }
+
+    public function end_order($id){
+        return $this->repository->end_order( $id);
+    }
+
+    public function getProfile(){
+        return $this->repository->getProfile();
     }
 }

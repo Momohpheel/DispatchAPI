@@ -5,12 +5,14 @@ use App\Traits\Response;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Models\Partner;
+use App\Models\History;
+use App\Models\Rider;
 use App\Traits\Logs;
 use App\Models\Order;
 use App\Models\DropOff;
 use App\Models\Address;
 use App\Repositories\Interfaces\RiderRepositoryInterface;
-
+use Illuminate\Http\Request;
 
 class RiderRepository implements RiderRepositoryInterface{
 
@@ -31,7 +33,8 @@ class RiderRepository implements RiderRepositoryInterface{
                     $check = Hash::check($validated['password'], $rider->password);
                     if ($check){
                         $access_token = $rider->createToken('authToken')->accessToken;
-                        return $this->success("rider found", $rider, 200);
+                        $data = ["access_token" => $access_token];
+                        return $this->success("rider found", $data, 200);
                     }else{
                         return $this->error(true, "Error logging rider", 400);
                     }
@@ -64,7 +67,7 @@ class RiderRepository implements RiderRepositoryInterface{
     }
     public function start_order(Request $request, $id){
         try{
-            $order = DropOff::where('id', $id)->where('rider_id', 1)->where('payment_status', 'paid')->first();
+            $order = DropOff::where('id', $id)->where('rider_id', auth()->user()->id)->where('payment_status', 'paid')->first();
             $order->start_time = now();
             $order->save();
             return $this->success("Rider has initiated order", $order, 200);
@@ -73,9 +76,9 @@ class RiderRepository implements RiderRepositoryInterface{
         }
     }
 
-    public function end_order(Request $request){
+    public function end_order($id){
         try{
-            $order = DropOff::where('id', $id)->where('rider_id', 1)->first();
+            $order = DropOff::where('id', $id)->where('rider_id', auth()->user()->id)->first();
             $order->end_time = now();
             $order->save();
             return $this->success("Rider has completed order", $order, 200);
@@ -84,9 +87,9 @@ class RiderRepository implements RiderRepositoryInterface{
         }
     }
 
-    public function checkOrders(Request $request){
+    public function checkOrders(){
         try{
-            $orders = DropOff::where('rider_id', 1)->get();
+            $orders = DropOff::where('rider_id', auth()->user()->id)->get();
 
             return $this->success("Rider's orders", $orders, 200);
         }catch(Exception $e){
@@ -96,7 +99,7 @@ class RiderRepository implements RiderRepositoryInterface{
 
     public function history(){
         try{
-            $id = 1; //auth()->user()->id;
+            $id = auth()->user()->id;
             $history = History::where('rider_id', $id)->get();
 
             return $this->success("rider's history", $history, 200);

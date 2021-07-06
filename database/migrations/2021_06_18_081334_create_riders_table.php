@@ -19,11 +19,13 @@ class CreateRidersTable extends Migration
             $table->string('workname')->unique();
             $table->string('phone')->nullable();
             $table->foreignId('partner_id')->constrained();
+            $table->foreignId('vehicle_id')->constrained();
             $table->string('password');
-            $table->string('earnings');
+            //$table->string('code_name');
+            $table->string('earnings')->nullable();
             $table->decimal('latitude', 11,7)->nullable();
             $table->decimal('longitude', 11,7)->nullable();
-            $table->integer('rating');
+            $table->integer('rating')->nullable();
             $table->boolean('is_enabled')->default(true);
             $table->boolean('is_available')->default(true);
             $table->timestamps();

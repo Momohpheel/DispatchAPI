@@ -9,7 +9,7 @@ use App\Repositories\Interfaces\PartnerRepositoryInterface;
 
 class PartnerController extends Controller
 {
-    
+
     public $repository;
 
     public function __construct(PartnerRepositoryInterface $repository){
@@ -91,7 +91,7 @@ class PartnerController extends Controller
     }
 
     public function getOneOrder($id){
-        return $this->repository->getOneOrder();
+        return $this->repository->getOneOrder($id);
     }
 
     public function setRouteCosting(Request $request){

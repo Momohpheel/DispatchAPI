@@ -43,18 +43,19 @@ use Illuminate\Support\Facades\Route;
     });
 
 
-    // Route::prefix('rider')->group(function () {
-    //     Route::post('signup', [App\Http\Controllers\UserController::class, 'onboard']);
-    //     Route::post('login', [App\Http\Controllers\UserController::class, 'profile']);
-    //     Route::post('login', [App\Http\Controllers\UserController::class, 'login']);
-    //     Route::post('order', [App\Http\Controllers\UserController::class, 'order']);
-    //     Route::middleware(['auth'])->group(function () {
-    //         Route::get('history', [App\Http\Controllers\UserController::class, 'getUserHistory']);
-    //         Route::post('address', [App\Http\Controllers\UserController::class, 'saveAddress']);
-    //         Route::get('address', [App\Http\Controllers\UserController::class, 'getSavedAddresses']);
-    //     });
+    Route::prefix('rider')->group(function () {
 
-    // });
+        Route::post('login', [App\Http\Controllers\RiderController::class, 'login']);
+        Route::middleware(['auth:rider'])->group(function () {
+            Route::post('order/start/{id}', [App\Http\Controllers\RiderController::class, 'start_order']);
+            Route::post('order/end/{id}', [App\Http\Controllers\RiderController::class, 'end_order']);
+            Route::get('/', [App\Http\Controllers\RiderController::class, 'getProfile']);
+            Route::get('orders', [App\Http\Controllers\RiderController::class, 'checkOrders']);
+            Route::get('history', [App\Http\Controllers\RiderController::class, 'history']);
+            Route::put('phone/update', [App\Http\Controllers\RiderController::class, 'updatePhone']);
+        });
+
+    });
 
 
 
@@ -73,7 +74,7 @@ use Illuminate\Support\Facades\Route;
             });
             Route::prefix('vehicle')->group(function () {
                 Route::post('add', [App\Http\Controllers\PartnerController::class, 'addVehicle']);
-                Route::get('update', [App\Http\Controllers\PartnerController::class, 'updateVehicle']);
+                Route::put('update/{id}', [App\Http\Controllers\PartnerController::class, 'updateVehicle']);
                 Route::post('disable/{id}', [App\Http\Controllers\PartnerController::class, 'disableVehicle']);
                 Route::get('/', [App\Http\Controllers\PartnerController::class, 'getVehicles']);
                 Route::get('/{id}', [App\Http\Controllers\PartnerController::class, 'getVehicle']);
@@ -85,11 +86,11 @@ use Illuminate\Support\Facades\Route;
                 Route::post('/', [App\Http\Controllers\PartnerController::class, 'createRider']);
                 Route::post('disable/{id}', [App\Http\Controllers\PartnerController::class, 'disableRider']);
                 Route::get('/', [App\Http\Controllers\PartnerController::class, 'getRiders']);
-                Route::post('assign/{id}', [App\Http\Controllers\PartnerController::class, 'assignOrder']);
+                Route::post('assign', [App\Http\Controllers\PartnerController::class, 'assignOrder']);
             });
             Route::prefix('order')->group(function () {
                 Route::get('/all', [App\Http\Controllers\PartnerController::class, 'getOrders']);
-                Route::get('{id}', [App\Http\Controllers\PartnerController::class, 'getOneOrder']);
+                Route::get('/{id}', [App\Http\Controllers\PartnerController::class, 'getOneOrder']);
             });
 
             Route::prefix('route')->group(function () {
@@ -99,7 +100,7 @@ use Illuminate\Support\Facades\Route;
 
             Route::post('subscribe', [App\Http\Controllers\PartnerController::class, 'subscribe']);
             Route::post('ophours/add', [App\Http\Controllers\PartnerController::class, 'addOperatingHours']);
-            Route::post('ophours/update', [App\Http\Controllers\PartnerController::class, 'updateOperatingHours']);
+            Route::post('ophours/update/{id}', [App\Http\Controllers\PartnerController::class, 'updateOperatingHours']);
 
         });
 

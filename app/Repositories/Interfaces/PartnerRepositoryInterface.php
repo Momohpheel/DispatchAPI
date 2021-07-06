@@ -18,7 +18,9 @@ interface PartnerRepositoryInterface{
 
     public function updateProfile(Request $request);
 
-    public function addVehicle(Request $request);    public function updateVehicle(Request $request, $id);
+    public function addVehicle(Request $request);
+
+    public function updateVehicle(Request $request, $id);
 
     public function disableVehicle($id);
 
