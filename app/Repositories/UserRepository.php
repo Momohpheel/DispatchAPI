@@ -39,7 +39,7 @@ class UserRepository implements UserRepositoryInterface{
                 "image" => $partner->image
 
             ];
-            return $this->success('User Onboarded successfully', $data, 200);
+            return $this->success(false, 'User Onboarded successfully', $data, 200);
         }else{
             return $this->error(true, "Partner doesn't exist" , 400);
         }
@@ -77,7 +77,7 @@ class UserRepository implements UserRepositoryInterface{
                 ];
                 $this->history('Profile', $data['name']." created their profile", $data['id'], 'user');
 
-                return $this->success("User created", $data, 200);
+                return $this->success(false, "User created", $data, 200);
             }else{
                 return $this->error(true, "User exists", 400);
             }
@@ -107,7 +107,7 @@ class UserRepository implements UserRepositoryInterface{
                         "image" => $user->image,
                         "access_token" => $access_token
                     ];
-                    return $this->success("User found", $data, 200);
+                    return $this->success(false, "User found", $data, 200);
                 }else{
                     return $this->error(true, "Incorrect Password", 400);
                 }
@@ -132,7 +132,7 @@ class UserRepository implements UserRepositoryInterface{
                 $check_user->phone = $validated['phone'] ?? $check_user->name;
                 $check_user->save();
 
-                return $this->success("user profile updated", $check_user, 200);
+                return $this->success(false, "user profile updated", $check_user, 200);
             }else{
                 return $this->error(true, "Unauthenticated", 400);
             }
@@ -153,7 +153,7 @@ class UserRepository implements UserRepositoryInterface{
                     "email" => $profile->email,
                     "image" => $profile->image,
                 ];
-                return $this->success("user profile", $data, 200);
+                return $this->success(false, "user profile", $data, 200);
             }else{
                 return $this->error(true, "Unauthenticated", 400);
             }
@@ -236,7 +236,8 @@ class UserRepository implements UserRepositoryInterface{
             'dropoff.*.receiver_phone' => "required|string",
             'dropoff.*.receiver_email' => "required|string",
             'dropoff.*.quantity' => "required|string",
-            'dropoff.*' => "required"
+            'dropoff.*' => "required",
+            'vehicle_type' => 'required|string'
         ]);
 
 
@@ -261,9 +262,13 @@ class UserRepository implements UserRepositoryInterface{
             $newdropoff->receiver_phone = $dropoff['receiver_phone'];
             $newdropoff->receiver_email = $dropoff['receiver_email'];
             $newdropoff->quantity = $dropoff['quantity'];
+
+            //will it differ in each dropoff address
+            //$newdropoff->vehicle_type =
+
             $newdropoff->partner_id = $id;
             //rider id
-
+            //check rider with specific vehicle type
             // $riders = Rider::where('partner_id', $partner->id)->where('is_available', true)->get();
             // foreach ($riders as $rider){
             //     $rider_lat = $rider->latitude;
@@ -281,6 +286,7 @@ class UserRepository implements UserRepositoryInterface{
             // }
 
             // if (isset($getrider)){
+                //rider_id or vehicle_id
             //     $newdropoff->rider_id = $getrider->id;
             // }else{
             //     return $this->error(true, 'Sorry all our riders are fully booked and are unable to fulfill your orders at the moment, please try again', 400);
@@ -304,7 +310,7 @@ class UserRepository implements UserRepositoryInterface{
 
         $this->history('Jobs', auth()->user()->name." made ".$newdropoff->count()." orders", auth()->user()->id, 'user');
 
-        return $this->success("Order created! You are successfully paired with a rider", $order, 200);
+        return $this->success(false, "Order created! You are successfully paired with a rider", $order, 200);
     }
 
     public function getOrder(){}
@@ -340,7 +346,7 @@ class UserRepository implements UserRepositoryInterface{
 
             $this->history('Save Address', auth()->user()->name." saved ".$address->name." as one of their frequently used addresses", auth()->user()->id, 'user');
 
-            return $this->success("Address saved", $address, 200);
+            return $this->success(false, "Address saved", $address, 200);
         }catch(Exception $e){
             return $this->error(true, "Address couldn't save", 400);
         }
@@ -352,7 +358,7 @@ class UserRepository implements UserRepositoryInterface{
             $id = auth()->user()->id;
             $addresses = Address::where('user_id', $id)->get();
 
-            return $this->success("User saved addresses", $addresses, 200);
+            return $this->success(false, "User saved addresses", $addresses, 200);
 
         }catch(Exception $e){
             return $this->error(true, "Couldn't find user's addresses", 400);
@@ -420,7 +426,7 @@ class UserRepository implements UserRepositoryInterface{
                 "delivered" => count($d_data), // $delivered->dropoff()->count(),
             ];
 
-            return $this->success("User count orders", $data, 200);
+            return $this->success(false, "User count orders", $data, 200);
 
         }catch(Exception $e){
             return $this->error(true, "ERROR!", 400);
@@ -442,7 +448,7 @@ class UserRepository implements UserRepositoryInterface{
             $cal = ceil($calculation / 50) * 50;
             $cost = number_format($cal, 2);
 
-            return $this->success("price", $cost, 200);
+            return $this->success(false, "price", $cost, 200);
         }catch(Exception $e){
             return $this->error(true, "error in getting price", 400);
         }
@@ -482,7 +488,7 @@ class UserRepository implements UserRepositoryInterface{
             $rider->rating = $ratings;
             $rider->save();
 
-            return $this->success("Rider rating successful", $rating, 200);
+            return $this->success(false, "Rider rating successful", $rating, 200);
 
         }catch(Exception $e){
             return $this->error(true, "Error occured!", 400);
@@ -520,7 +526,7 @@ class UserRepository implements UserRepositoryInterface{
             $partner->rating = $ratings;
             $partner->save();
 
-            return $this->success("Partner rating successful", $rating, 200);
+            return $this->success(false, "Partner rating successful", $rating, 200);
 
         }catch(Exception $e){
             return $this->error(true, "Error occured!", 400);

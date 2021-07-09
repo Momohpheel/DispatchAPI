@@ -4,8 +4,9 @@ namespace App\Traits;
 
 trait Response{
 
-    public function success($message, $data, $status = 200){
+    public function success($error, $message, $data, $status = 200){
        return response()->json([
+        'error' => $error,
         'message' => $message,
         'data' => $data
        ], $status);
