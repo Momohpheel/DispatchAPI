@@ -36,7 +36,7 @@ class UserRepository implements UserRepositoryInterface{
                 "email" => $partner->email,
                 "id" => $partner->id,
                 "code_name" => $partner->code_name,
-                "image" => $partner->image
+                // "image" => $partner->image
 
             ];
             return $this->success(false, 'User Onboarded successfully', $data, 200);
@@ -72,7 +72,7 @@ class UserRepository implements UserRepositoryInterface{
                     "phone" => $user->phone,
                     "email" => $user->email,
                     "id" => $user->id,
-                    "image" => $user->image,
+                    // "image" => $user->image,
                     "access_token" => $access_token
                 ];
                 $this->history('Profile', $data['name']." created their profile", $data['id'], 'user');
@@ -104,7 +104,7 @@ class UserRepository implements UserRepositoryInterface{
                         "phone" => $user->phone,
                         "email" => $user->email,
                         "id" => $user->id,
-                        "image" => $user->image,
+                        // "image" => $user->image,
                         "access_token" => $access_token
                     ];
                     return $this->success(false, "User found", $data, 200);
@@ -313,7 +313,9 @@ class UserRepository implements UserRepositoryInterface{
         return $this->success(false, "Order created! You are successfully paired with a rider", $order, 200);
     }
 
-    public function getOrder(){}
+    public function getOrder($id){}
+
+    public function deleteDropOff(){}
 
     public function getUserHistory(){
         try{
@@ -448,7 +450,8 @@ class UserRepository implements UserRepositoryInterface{
             $cal = ceil($calculation / 50) * 50;
             $cost = number_format($cal, 2);
 
-            return $this->success(false, "price", $cost, 200);
+            return $cost;
+
         }catch(Exception $e){
             return $this->error(true, "error in getting price", 400);
         }
