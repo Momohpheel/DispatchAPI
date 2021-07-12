@@ -283,11 +283,13 @@ class UserRepository implements UserRepositoryInterface{
             //         $min = $distance;
             //         $getrider = $rider;
             //     }
+
             // }
 
             // if (isset($getrider)){
                 //rider_id or vehicle_id
             //     $newdropoff->rider_id = $getrider->id;
+            //      $newdropoff->price = $this->calculatePrice($min, $id);
             // }else{
             //     return $this->error(true, 'Sorry all our riders are fully booked and are unable to fulfill your orders at the moment, please try again', 400);
             // }
@@ -313,9 +315,19 @@ class UserRepository implements UserRepositoryInterface{
         return $this->success(false, "Order created! You are successfully paired with a rider", $order, 200);
     }
 
-    public function getOrder($id){}
 
-    public function deleteDropOff(){}
+    public function getOrder($id){
+        //get current order, check if order has started
+        //get all dropoffs under order
+    }
+
+    public function deleteDropOff($id){
+        //delete dropoff without touching the order,
+        //delete the pivot data column
+    }
+
+
+
 
     public function getUserHistory(){
         try{
