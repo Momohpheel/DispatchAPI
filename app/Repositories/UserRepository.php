@@ -27,7 +27,7 @@ class UserRepository implements UserRepositoryInterface{
             'partner' => 'required|string',
         ]);
 
-        $partner = Partner::find($validated['partner']);
+        $partner = Partner::where('code_name', $validated['partner'])->first();
 
         if (!empty($partner)){
             $data = [
