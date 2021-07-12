@@ -166,7 +166,7 @@ class UserRepository implements UserRepositoryInterface{
         try{
             $partner = Partner::where('id', $id)->first();
             if (!$partner){
-                throw new \Exception("Partner not found!");
+                return $this->error(true, "Partner not found!", 400);
             }
             $now = Carbon::now()->addHour();
             $day = $now->format('l');

@@ -328,6 +328,10 @@ class PartnerRepository implements PartnerRepositoryInterface{
         }
     }
 
+    // public function getCars(){}
+    // public function getBikes(){}
+    // public function getVans(){}
+
     public function getVehicle($id){
         try{
             $pid = auth()->user()->id;
@@ -363,6 +367,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
             return $this->error(true, "Error disabling rider", 400);
         }
     }
+
     public function updateRider(Request $request, $id){
         try{
             $validated = $request->validate([
@@ -425,7 +430,6 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 $rider->name = $validated['name'];
                 $rider->phone = $validated['phone'];
                 $rider->workname = $validated['workname'];
-                //$rider->code_name = $partner->code_name;
                 $rider->vehicle_id = $validated['vehicle_id'];
                 //$rider->image = 'sample image'; //$validated['image'];
                 $rider->password = Hash::make($validated['password']);
