@@ -34,7 +34,7 @@ class RiderRepository implements RiderRepositoryInterface{
                     if ($check){
                         $access_token = $rider->createToken('authToken')->accessToken;
                         $data = ["access_token" => $access_token];
-                        return $this->success("rider found", $data, 200);
+                        return $this->success(false, "rider found", $data, 200);
                     }else{
                         return $this->error(true, "Error logging rider", 400);
                     }
@@ -60,7 +60,7 @@ class RiderRepository implements RiderRepositoryInterface{
                 'earnings' => $rider->earnings,
             ];
 
-            return $this->success("Profile", $data, 200);
+            return $this->success(false, "Profile", $data, 200);
         }catch(Exception $e){
             return $this->error(true, "Error getting rider profile", 400);
         }
@@ -70,7 +70,7 @@ class RiderRepository implements RiderRepositoryInterface{
             $order = DropOff::where('id', $id)->where('rider_id', auth()->user()->id)->where('payment_status', 'paid')->first();
             $order->start_time = now();
             $order->save();
-            return $this->success("Rider has initiated order", $order, 200);
+            return $this->success(false, "Rider has initiated order", $order, 200);
         }catch(Exception $e){
             return $this->error(true, "Error" ,400);
         }
@@ -81,21 +81,35 @@ class RiderRepository implements RiderRepositoryInterface{
             $order = DropOff::where('id', $id)->where('rider_id', auth()->user()->id)->first();
             $order->end_time = now();
             $order->save();
-            return $this->success("Rider has completed order", $order, 200);
+            return $this->success(false, "Rider has completed order", $order, 200);
         }catch(Exception $e){
             return $this->error(true, "Error" ,400);
         }
     }
 
-    public function changeOrderStatus(Request $request){
+    public function changeOrderStatus(Request $request, $id){
+        try{
 
+            $validated = $request->validate([
+                'status' => 'required|string'
+            ]);
+
+            $dropoff = Dropoff::where('id', $id)->where('rider_id', auth()->user()->id)->first();
+            $dropoff->status = $validated['status'];
+            $dropoff->save();
+
+            return $this->success(false, "Dropoff status changed to ".$validated['status'] ,$dropoff, 200);
+
+        }catch(Exception $e){
+            return $this->error(true, "Error Occured", 400);
+        }
     }
 
     public function checkOrders(){
         try{
             $orders = DropOff::where('rider_id', auth()->user()->id)->get();
 
-            return $this->success("Rider's orders", $orders, 200);
+            return $this->success(false, "Rider's orders", $orders, 200);
         }catch(Exception $e){
             return $this->error(true, "" ,400);
         }
@@ -106,7 +120,7 @@ class RiderRepository implements RiderRepositoryInterface{
             $id = auth()->user()->id;
             $history = History::where('rider_id', $id)->get();
 
-            return $this->success("rider's history", $history, 200);
+            return $this->success(false, "rider's history", $history, 200);
 
         }catch(Exception $e){
             return $this->error(true, "Couldn't find rider's history", 400);
@@ -125,7 +139,7 @@ class RiderRepository implements RiderRepositoryInterface{
             $rider->phone = $validated['phone'];
             $rider->save();
 
-            return $this->success("rider's phone number has been updated", $rider, 200);
+            return $this->success(false, "rider's phone number has been updated", $rider, 200);
         }catch(Exception $e){
             return $this->error(true, "Error Occured while updating rider's phone number", 400);
         }

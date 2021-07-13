@@ -60,9 +60,9 @@ class PartnerRepository implements PartnerRepositoryInterface{
                     "code_name" => $partner->code_name,
                     "access_token" => $access_token
                 ];
-                return $this->success("Partner registered", $data, 200);
+                return $this->success(false,"Partner registered", $data, 200);
             }else{
-                return $this->success(true, "Partner exists", 400);
+                return $this->error(true, "Partner exists", 400);
             }
         }catch(Exception $e){
             return $this->error(true, "Error creating partner", 400);
@@ -91,7 +91,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                         "code_name" => $partner->code_name,
                         "access_token" => $access_token
                     ];
-                    return $this->success("Partner found", $data, 200);
+                    return $this->success(false, "Partner found", $data, 200);
                 }else{
                     return $this->error(true, "Error logging partner", 400);
                 }
@@ -155,7 +155,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                     }
                 }
 
-                return $this->success("Partner has been paused from operating", $partner, 200);
+                return $this->success(false, "Partner has been paused from operating", $partner, 200);
             }else{
                 $partner->is_paused = false;
                 $partner->save();
@@ -169,7 +169,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
                         }
                     }
-            return $this->success("Partner has been un-paused from operating", $partner, 200);
+            return $this->success(false, "Partner has been un-paused from operating", $partner, 200);
             }
 
         }catch(Exception $e){
@@ -218,7 +218,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
             ];
 
-            return $this->success("Profile", $data, 200);
+            return $this->success(false, "Profile", $data, 200);
         }catch(Exception $e){
             return $this->error(true, "Error getting rider profile", 400);
         }
@@ -253,7 +253,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 $vehicle->type = $validated['type'];
                 $vehicle->save();
 
-                return $this->success("vehicle registered", $vehicle, 200);
+                return $this->success(false, "vehicle registered", $vehicle, 200);
             }else{
                 return $this->error(true, "vehicle with given plate number exists", 400);
             }
@@ -283,7 +283,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 $vehicle->partner_id = $id ?? $vehicle->partner_id; //auth()->user()->id;
                 $vehicle->save();
 
-                return $this->success("vehicle updated", $vehicle, 200);
+                return $this->success(false, "vehicle updated", $vehicle, 200);
             }else{
                 return $this->error(true, "vehicle with given plate number doesn't exists", 400);
             }
@@ -303,9 +303,9 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 $vehicle->save();
 
                 if ($vehicle->is_enabled == false){
-                    return $this->success("vehicle disabled", $vehicle, 200);
+                    return $this->success(false, "vehicle disabled", $vehicle, 200);
                 }else{
-                    return $this->success("vehicle enabled", $vehicle, 200);
+                    return $this->success(false, "vehicle enabled", $vehicle, 200);
                 }
 
             }else{
@@ -321,7 +321,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
             $id = auth()->user()->id;
             $vehicles = Vehicle::with('partner')->where('partner_id', $id)->get();
 
-            return $this->success("Vehicles fetched", $vehicles, 200);
+            return $this->success(false, "Vehicles fetched", $vehicles, 200);
 
         }catch(Exception $e){
             return $this->error(true, "Error occured", 400);
@@ -337,7 +337,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
             $pid = auth()->user()->id;
             $vehicle = Vehicle::with('partner')->where('id', $id)->where('partner_id', $pid)->first();
 
-            return $this->success("Vehicle fetched", $vehicle, 200);
+            return $this->success(false, "Vehicle fetched", $vehicle, 200);
 
         }catch(Exception $e){
             return $this->error(true, "Error occured", 400);
@@ -362,7 +362,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
             $rider->is_dismissed = true;
             $rider->save();
 
-            return $this->success("Rider has been disabled", $rider, 200);
+            return $this->success(false, "Rider has been disabled", $rider, 200);
         }catch(Exception $e){
             return $this->error(true, "Error disabling rider", 400);
         }
@@ -391,7 +391,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 $rider->partner_id = auth()->user()->id;
                 $rider->save();
 
-                return $this->success("Rider profile updated", $rider, 200);
+                return $this->success(false, "Rider profile updated", $rider, 200);
             }else{
                 return $this->error(true, "Rider with given workname or phone number  doesn't exist", 400);
             }
@@ -405,7 +405,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
             $orders = DropOff::with('order')->where('rider_id', $id)->where('partner_id', auth()->user()->id)->get();
 
-            return $this->success("Orders done by the rider", $orders, 200);
+            return $this->success(false, "Orders done by the rider", $orders, 200);
 
         }catch(Exception $e){
             return $this->error(true, "Error occured", 400);
@@ -436,7 +436,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 $rider->partner_id = auth()->user()->id;
                 $rider->save();
 
-                return $this->success("Rider registered", $rider, 200);
+                return $this->success(false, "Rider registered", $rider, 200);
             }else{
                 return $this->error(true, "Rider with given workname or phone number exists", 400);
             }
@@ -456,9 +456,9 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
 
             if ($rider->is_enabled == true){
-                return $this->success("Rider has been disabled", $rider, 200);
+                return $this->success(false, "Rider has been disabled", $rider, 200);
             }else{
-                return $this->success("Rider has been enabled", $rider, 200);
+                return $this->success(false, "Rider has been enabled", $rider, 200);
             }
 
         }catch(Exception $e){
@@ -471,7 +471,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
         try{
             $riders = Rider::with(['partner', 'vehicle'])->where('partner_id', auth()->user()->id)->get();
 
-            return $this->success("Riders", $riders, 200);
+            return $this->success(false, "Riders", $riders, 200);
         }catch(Exception $e){
             return $this->error(true, "Error fetching riders", 400);
         }
@@ -490,14 +490,19 @@ class PartnerRepository implements PartnerRepositoryInterface{
             $rider = Rider::where('id', $validated['rider_id'])->where('partner_id', auth()->user()->id)->first();
             if ($order){
 
-                if ($order->status != 'completed'){
-                    $order->rider_id = $validated['rider_id'];
-                    $order->save();
+                if ($rider->vehicle->type == $order->vehicle_type){
+                    if ($order->status != 'completed'){
+                        $order->rider_id = $validated['rider_id'];
+                        $order->save();
 
-                    return $this->success("Order has been successfully assigned to ". $rider->name, $order, 200);
+                        return $this->success(false, false,"Order has been successfully assigned to ". $rider->name, $order, 200);
+                    }else{
+                        return $this->error(true, "Order is ".$order->status, 400);
+                    }
                 }else{
-                    return $this->success("Order is ".$order->status, $order, 400);
+                    return $this->error(true, "Riders vehicle type doesn't match order vehicle type!", 400);
                 }
+
             }else{
                 return $this->error(true, "Order doesn't exist", 400);
             }
@@ -523,7 +528,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
             $partner_id = auth()->user()->id;
             $orders = Order::with('dropoff')->where('partner_id', $partner_id)->get();
 
-            return $this->success("Orders", $orders, 200);
+            return $this->success(false, "Orders", $orders, 200);
         }catch(Exception $e){
             return $this->error(true, "Error fetching orders", 400);
         }
@@ -534,7 +539,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
             $partner_id = auth()->user()->id;
             $order = Order::with('dropoff')->where('id', $id)->where('partner_id', $partner_id)->get();
 
-            return $this->success("Order", $order, 200);
+            return $this->success(false, "Order", $order, 200);
         }catch(Exception $e){
             return $this->error(true, "Error fetching order", 400);
         }
@@ -569,7 +574,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
             $route_costing->partner_id = auth()->user()->id;
             $route_costing->save();
 
-            return $this->success("Route-Costing Added", $route_costing,200);
+            return $this->success(false, "Route-Costing Added", $route_costing,200);
         }catch(Exception $e){
             return $this->error(true, "Error occured", 400);
         }
@@ -600,7 +605,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
             $route_costing->max_km = $validated['max_km'] ?? $route_costing->max_km;
             $route_costing->save();
 
-            return $this->success("Route-Costing Updating", $route_costing, 200);
+            return $this->success(false, "Route-Costing Updating", $route_costing, 200);
         }catch(Exception $e){
             return $this->error(true, "Error occured", 400);
         }
@@ -632,7 +637,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
              //check what type of subscription and input appropiately here
             $partner->save();
 
-            return $this->success("Subscribtion successful", $partner, 200);
+            return $this->success(false, "Subscribtion successful", $partner, 200);
         }else{
             return $this->error(true, "Subscription not found", 400);
         }
@@ -653,7 +658,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
             $operating_hours->partner_id = auth()->user()->id;
             $operating_hours->save();
 
-            return $this->success("Operating Hours added", $operating_hours, 200);
+            return $this->success(false, "Operating Hours added", $operating_hours, 200);
         }catch(Exception $e){
             return $this->error(true, "Couldn't add operating hours", 400);
         }
@@ -674,7 +679,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
             //$operating_hours->partner_id = 1; //auth()->user()->id;
             $operating_hours->save();
 
-            return $this->success("Operating Hours updated", $operating_hours, 200);
+            return $this->success(false, "Operating Hours updated", $operating_hours, 200);
         }catch(Exception $e){
             return $this->error(true, "Couldn't update operating hours", 400);
         }
@@ -686,7 +691,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
             $id = auth()->user()->id;
             $history = History::where('partner_id', $id)->get();
 
-            return $this->success("Partner history", $history, 200);
+            return $this->success(false, "Partner history", $history, 200);
 
         }catch(Exception $e){
             return $this->error(true, "Couldn't find partner history", 400);
@@ -702,7 +707,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
             $partner->top_partner_pay_date = now();
             $partner->save();
 
-            return $this->success("Partner has been made a top partner", $partner, 200);
+            return $this->success(false, "Partner has been made a top partner", $partner, 200);
         }catch(Exception $e){
             return $this->error(true, "Error occured", 400);
         }
