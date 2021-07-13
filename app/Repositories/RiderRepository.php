@@ -57,6 +57,7 @@ class RiderRepository implements RiderRepositoryInterface{
                 'workname' => $rider->workname,
                 'rating' => $rider->rating,
                 'phone' => $rider->phone,
+                'image' => $rider->image,
                 'earnings' => $rider->earnings,
             ];
 

@@ -120,19 +120,40 @@ class PartnerRepository implements PartnerRepositoryInterface{
         try{
             $validated = $request->validate([
                 'image' => "required|image|mimes:jpg,png,jpeg|max:2000",
+                'business_name' => 'required|string',
+                'business_description' => 'required|string',
+                'business_phone' => 'required|string',
+                'business_email' => 'required|string',
+                'business_bank_account' => 'required|string',
+                'business_bank_name' => 'required|string',
+
             ]);
 
-            if (request()->hasFile('image')){
-                $image_name = request()->file()->getClientOriginalName();
-                $image_ext = pathfile($image_name);
-
-
+            if ($request->hasFile('image')){
+                    $image_name = $validated['image']->getClientOriginalName();
+                    $image_name_withoutextensions =  pathinfo($image_name, PATHINFO_FILENAME);
+                    $name = str_replace(" ", "", $image_name_withoutextensions);
+                    $image_extension = $validated['image']->getClientOriginalExtension();
+                    $image_to_store = $name . '_' . time() . '.' . $image_extension;
+                    $path = $validated['image']->storeAs('public/images', trim($image_to_store));
             }
-            $partner = Partner::find(1);
-            $partner->image = $image;
+
+            $id = auth()->user()->id;
+            $partner = Partner::find($id);
+            $partner->image = $image_to_store;
+            $partner->name = $validated['business_name'];
+            $partner->description = $validated['business_description'];
+            $partner->phone = $validated['business_phone'];
+            $partner->email = $validated['business_email'];
+            $partner->bank_account = $validated['business_bank_account'];
+            $partner->bank_name = $validated['business_bank_name'];
             $partner->save();
 
+            return $this->success(false, "Partner Profile Created", $partner, 200);
+
         }catch(Exception $e){
+
+            return $this->error(true, "Error Creating Partner Profile", 400);
 
         }
     }
@@ -379,13 +400,22 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 'vehicle_id' => 'string'
             ]);
 
+            if ($request->hasFile('image')){
+                $image_name = $validated['image']->getClientOriginalName();
+                $image_name_withoutextensions =  pathinfo($image_name, PATHINFO_FILENAME);
+                $name = str_replace(" ", "", $image_name_withoutextensions);
+                $image_extension = $validated['image']->getClientOriginalExtension();
+                $image_to_store = $name . '_' . time() . '.' . $image_extension;
+                $path = $validated['image']->storeAs('public/images', trim($image_to_store));
+        }
+
             $rider = Rider::where('workname', $validated['workname'])->where('phone', $validated['phone'])->where('partner_id', $partner->id)->first();
             if ($rider){
                 $rider->name = $validated['name'] ?? $rider->name;
                 $rider->phone = $validated['phone'] ?? $rider->phone;
                 $rider->workname = $validated['workname'] ?? $rider->workname;
                 $rider->code_name = $validated['code_name'] ?? $rider->code_name;
-                $rider->image = $validated['image'] ?? $rider->image;
+                $rider->image = $$image_to_store ?? $rider->image;
                 $rider->vehicle_id = $validated['vehicle_id'] ?? $rider->vehicle_id;
                 $rider->password = Hash::make($validated['password']) ?? $rider->password;
                 $rider->partner_id = auth()->user()->id;
@@ -419,9 +449,21 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 'workname' => 'required|string',
                 'phone' => 'required|string',
                 'password' => 'required|string',
-                //'image' => 'required|image|mimes:png,jpeg,jpg|max:2000',
+                'image' => 'required|image|mimes:png,jpeg,jpg|max:2000',
                 'vehicle_id' => 'required'
             ]);
+
+
+            if ($request->hasFile('image')){
+                $image_name = $validated['image']->getClientOriginalName();
+                $image_name_withoutextensions =  pathinfo($image_name, PATHINFO_FILENAME);
+                $name = str_replace(" ", "", $image_name_withoutextensions);
+                $image_extension = $validated['image']->getClientOriginalExtension();
+                $image_to_store = $name . '_' . time() . '.' . $image_extension;
+                $path = $validated['image']->storeAs('public/images', trim($image_to_store));
+        }
+
+
             $id = auth()->user()->id;
             $partner = Partner::find($id);
             $rider = Rider::where('workname', $validated['workname'])->where('phone', $validated['phone'])->where('partner_id', $id)->first();
@@ -431,7 +473,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 $rider->phone = $validated['phone'];
                 $rider->workname = $validated['workname'];
                 $rider->vehicle_id = $validated['vehicle_id'];
-                //$rider->image = 'sample image'; //$validated['image'];
+                $rider->image = $image_to_store; //$validated['image'];
                 $rider->password = Hash::make($validated['password']);
                 $rider->partner_id = auth()->user()->id;
                 $rider->save();

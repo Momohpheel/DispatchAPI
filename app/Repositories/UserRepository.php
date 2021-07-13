@@ -57,6 +57,10 @@ class UserRepository implements UserRepositoryInterface{
                 'email' => "required|string",
                 "password" => "required|string"
             ]);
+
+
+
+
             $check_user = User::where('email', $validated['email'])->where('phone', $validated['phone'])->first();
             if (!$check_user){
                 $user = new User;
@@ -125,11 +129,22 @@ class UserRepository implements UserRepositoryInterface{
             $validated = $request->validated([
                 'name' => "string",
                 'phone' => "string",
+                'image' => 'image|max:2000|mimes:png,jpg'
             ]);
+
+            if ($request->hasFile('image')){
+                $image_name = $validated['image']->getClientOriginalName();
+                $image_name_withoutextensions =  pathinfo($image_name, PATHINFO_FILENAME);
+                $name = str_replace(" ", "", $image_name_withoutextensions);
+                $image_extension = $validated['image']->getClientOriginalExtension();
+                $image_to_store = $name . '_' . time() . '.' . $image_extension;
+                $path = $validated['image']->storeAs('public/images', trim($image_to_store));
+        }
             $check_user = User::where('id', auth()->user()->id)->first();
             if ($check_user){
                 $check_user->name = $validated['name'] ?? $check_user->name;
                 $check_user->phone = $validated['phone'] ?? $check_user->name;
+                $check_user->phone = $image_to_store ?? $check_user->name;
                 $check_user->save();
 
                 return $this->success(false, "user profile updated", $check_user, 200);
