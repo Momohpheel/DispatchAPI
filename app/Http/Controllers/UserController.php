@@ -46,6 +46,9 @@ class UserController extends Controller
         return $this->repository->deleteDropOff($d_id, $o_id);
     }
 
+    public function logout(){
+        return $this->repository->logout();
+    }
 
     public function calculatePrice($distance, $id){
         return $this->repository->calculatePrice($distance, $id);

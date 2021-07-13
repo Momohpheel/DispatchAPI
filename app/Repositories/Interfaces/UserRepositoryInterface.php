@@ -34,6 +34,8 @@ interface UserRepositoryInterface{
 
     public function count();
 
+    public function logout();
+
     public function ratePartner();
 
     public function saveAddress(Request $request);

@@ -608,4 +608,15 @@ class UserRepository implements UserRepositoryInterface{
         }
     }
 
+
+    public function logout(){
+        try{
+            \Auth::user()->token()->delete();
+            return $this->success(false, "User Logged out successfully", true, 200);
+        }catch(Exception $e){
+            return $this->error(true, "Error logging user out!", 400);
+        }
+
+    }
+
 }
