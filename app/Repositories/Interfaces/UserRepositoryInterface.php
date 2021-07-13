@@ -18,6 +18,12 @@ interface UserRepositoryInterface{
 
     public function order(Request $request, $id);
 
+    public function getAllOrders();
+
+    public function getOrder($id);
+
+    public function deleteDropOff($d_id, $o_id);
+
     public function calculatePrice($distance, $id);
 
     public function payment();

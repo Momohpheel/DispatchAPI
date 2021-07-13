@@ -237,7 +237,7 @@ class UserRepository implements UserRepositoryInterface{
             'dropoff.*.receiver_email' => "required|string",
             'dropoff.*.quantity' => "required|string",
             'dropoff.*' => "required",
-            'vehicle_type' => 'required|string'
+            'dropoff.*vehicle_type' => 'required|string'
         ]);
 
 
@@ -249,6 +249,7 @@ class UserRepository implements UserRepositoryInterface{
         $order->partner_id = $id;
         $order->save();
         $min = 200;
+        $getrider;
         //pair with rider who is under the partner
         //and is not disabled or dismissed and nearby
         //dd($validated['dropoff'][0]);
@@ -264,36 +265,42 @@ class UserRepository implements UserRepositoryInterface{
             $newdropoff->quantity = $dropoff['quantity'];
 
             //will it differ in each dropoff address
-            //$newdropoff->vehicle_type =
-
+            $newdropoff->vehicle_type = $dropoff['vehicle_type'];
             $newdropoff->partner_id = $id;
+
             //rider id
             //check rider with specific vehicle type
-            // $riders = Rider::where('partner_id', $partner->id)->where('is_available', true)->get();
-            // foreach ($riders as $rider){
-            //     $rider_lat = $rider->latitude;
-            //     $rider_long = $rider->longitude;
-            //     $url = file_get_contents("https://maps.googleapis.com/maps/api/directions/json?origin=".$rider_lat.",".$rider_long."&destination=".$order->o_latitude.",".$order->o_longitude."&sensor=false&key=AIzaSyDiUJ5BCTHX1UG9SbCrcwNYbIxODhg1Fl8");
-            //     $url = json_decode($url);
+            $riders = Rider::where('partner_id', $partner->id)->where('is_available', true)->get();
+            foreach ($riders as $rider){
+                if ($rider->vehicle->type ==  $dropoff['vehicle_type']){
+                        $rider_lat = $rider->latitude;
+                        $rider_long = $rider->longitude;
+                        $url = file_get_contents("https://maps.googleapis.com/maps/api/directions/json?origin=".$rider_lat.",".$rider_long."&destination=".$order->o_latitude.",".$order->o_longitude."&sensor=false&key=AIzaSyDiUJ5BCTHX1UG9SbCrcwNYbIxODhg1Fl8");
+                        $url = json_decode($url);
 
-            //     $meters = $url->{'routes'}[0]->{'legs'}[0]->{'distance'}->{'value'};
-            //     $time = $url->{'routes'}[0]->{'legs'}[0]->{'duration'}->{'value'};
-            //     $distance = $meters/1000;
-            //     if ($distance < $min) {
-            //         $min = $distance;
-            //         $getrider = $rider;
-            //     }
+                        $meters = $url->{'routes'}[0]->{'legs'}[0]->{'distance'}->{'value'};
+                        $time = $url->{'routes'}[0]->{'legs'}[0]->{'duration'}->{'value'};
+                        $distance = $meters/1000;
+                        if ($distance < $min) {
+                            $min = $distance;
+                            $getrider = $rider;
+                        }
 
-            // }
+                    }
 
-            // if (isset($getrider)){
-                //rider_id or vehicle_id
-            //     $newdropoff->rider_id = $getrider->id;
-            //      $newdropoff->price = $this->calculatePrice($min, $id);
-            // }else{
-            //     return $this->error(true, 'Sorry all our riders are fully booked and are unable to fulfill your orders at the moment, please try again', 400);
-            // }
 
+                }
+
+                if (isset($getrider)){
+                    //rider_id or vehicle_id
+                    $newdropoff->rider_id = $getrider->id;
+                    $newdropoff->price = $this->calculatePrice($min, $id);
+
+                }else{
+                    return $this->error(true, 'Sorry all our riders are fully booked and are unable to fulfill your orders at the moment, please try again', 400);
+                }
+
+            $newdropoff->status = 'pending';
             $newdropoff->save();
 
 
@@ -316,14 +323,52 @@ class UserRepository implements UserRepositoryInterface{
     }
 
 
+    public function getAllOrders(){
+        try{
+
+            $id = auth()->user()->id;
+            $order = Order::where('user_id', $id)->load('dropoff');
+
+            return $this->success(false, "User Order History", $order, 200);
+        }catch(Exception $e){
+            return $this->error(true, "Error Occured!", 400);
+        }
+    }
+
     public function getOrder($id){
         //get current order, check if order has started
         //get all dropoffs under order
+        try{
+            $order = Order::where('id', $id)->load('dropoff');
+
+            return $this->success(false, "Order", $order, 200);
+        }catch(Exception $e){
+            return $this->error(true, "Couldn't get particular order", 400);
+        }
+
+
     }
 
-    public function deleteDropOff($id){
+    public function deleteDropOff($d_id, $o_id){
         //delete dropoff without touching the order,
         //delete the pivot data column
+        try{
+            $dropoff = Dropoff::where('id', $id)->first();
+            $dropoff->order()->detach($o_id);
+
+
+            //increase order limit of partner by 1
+            $partner = Partner::find($dropoff->partner_id);
+            //reduce partner order count
+            if ($partner->order_count_per_day != 'unlimited'){
+                $partner->order_count_per_day++;
+                $partner->save();
+             }
+
+            return $this->success(false, "DropOff deleted!", [], 200);
+        }catch(Exception $e){
+            return $this->error(true, "Couldn't delete dropoff!", 400);
+        }
     }
 
 

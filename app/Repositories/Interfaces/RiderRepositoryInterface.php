@@ -14,6 +14,8 @@ interface RiderRepositoryInterface{
 
     public function end_order($id);
 
+    public function changeOrderStatus(Request $request);
+
     public function checkOrders();
 
     public function history();

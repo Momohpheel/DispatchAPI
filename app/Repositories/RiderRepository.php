@@ -87,6 +87,10 @@ class RiderRepository implements RiderRepositoryInterface{
         }
     }
 
+    public function changeOrderStatus(Request $request){
+
+    }
+
     public function checkOrders(){
         try{
             $orders = DropOff::where('rider_id', auth()->user()->id)->get();
