@@ -37,6 +37,11 @@ class RiderController extends Controller
         return $this->repository->updatePhone($request);
     }
 
+    public function changeOrderStatus(Request $request, $id){
+        return $this->repository->changeOrderStatus($request, $id);
+    }
+
+
     public function end_order($id){
         return $this->repository->end_order( $id);
     }

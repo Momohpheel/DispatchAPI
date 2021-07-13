@@ -34,6 +34,19 @@ class UserController extends Controller
         return $this->repository->order($request, $id);
     }
 
+    public function getAllOrders(){
+        return $this->repository->getAllOrders($request, $id);
+    }
+
+    public function getOrder($id){
+        return $this->repository->getOrder($id);
+    }
+
+    public function deleteDropOff($d_id, $o_id){
+        return $this->repository->deleteDropOff($d_id, $o_id);
+    }
+
+
     public function calculatePrice($distance, $id){
         return $this->repository->calculatePrice($distance, $id);
     }
