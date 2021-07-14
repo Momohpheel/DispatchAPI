@@ -535,9 +535,14 @@ class UserRepository implements UserRepositoryInterface{
 
     public function payment(){}
 
-    public function rateRider(){
+    public function rateRider(Request $request){
 
         try{
+
+            $validated = $request->validate([
+                'rider_id' => 'required|string',
+                'rating' => 'required|string'
+            ]);
             $userId = auth()->user()->id;
             $rated = Rating::where('user_id', $userId)->where('rider_id', $validated['rider_id'])->first();
             if (!$rated){
@@ -574,10 +579,15 @@ class UserRepository implements UserRepositoryInterface{
 
     }
 
-    public function ratePartner(){
+    public function ratePartner(Request $request){
         try{
+
+            $validated = $request->validate([
+                'partner_id' => 'required|string',
+                'rating' => 'required|string'
+            ]);
             $userId = auth()->user()->id;
-            $rated = Rating::where('user_id', $userId)->where('partner_id', $validated['rider_id'])->first();
+            $rated = Rating::where('user_id', $userId)->where('partner_id', $validated['partner_id'])->first();
             if (!$rated){
                 $rating = new Rating;
                 $rating->rating = $validated['rating'];

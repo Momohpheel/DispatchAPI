@@ -35,7 +35,7 @@ class UserController extends Controller
     }
 
     public function getAllOrders(){
-        return $this->repository->getAllOrders($request, $id);
+        return $this->repository->getAllOrders();
     }
 
     public function getOrder($id){
@@ -55,19 +55,19 @@ class UserController extends Controller
     }
 
     public function payment(){
-        return $this->repository->payment($request);
+        return $this->repository->payment();
     }
 
     public function getUserHistory(){
         return $this->repository->getUserHistory();
     }
 
-    public function rateRider(){
-        return $this->repository->rateRider($request);
+    public function rateRider(Request $request){
+        return $this->repository->rateRider();
     }
 
-    public function ratePartner(){
-        return $this->repository->ratePartner($request);
+    public function ratePartner(Request $request){
+        return $this->repository->ratePartner();
     }
 
     public function saveAddress(Request $request){
