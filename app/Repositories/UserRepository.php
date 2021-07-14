@@ -647,18 +647,25 @@ class UserRepository implements UserRepositoryInterface{
 
             $history = [];
 
-            // foreach ($orders as $order) {
-            //     $data = [
-            //         'order_id' => $order->id,
-            //         'pickup_address' => $order->o_address,
-            //         'dropoff' => [
-            //             'address' => $order->dropoff->d_address ?? null,
-            //             'status' => $order->dropoff->status ?? null
-            //         ],
-            //     ];
+            foreach ($orders as $order) {
+                $data = [
+                    'order_id' => $order->id,
+                    'pickup_address' => $order->o_address,
+                    'dropoff' => []
 
-            //     array_push($history, $data);
-            // }
+                ];
+                    foreach ($order->dropoff as $dropoff){
+                            $data = [
+                                'address' => $dropoff->d_address ?? null,
+                                'status' => $dropoff->status ?? null
+                            ];
+
+                            array_push($history->dropoff, $data);
+                    }
+
+
+                array_push($history, $data);
+            }
 
 
 
