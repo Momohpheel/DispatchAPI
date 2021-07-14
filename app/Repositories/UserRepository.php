@@ -661,10 +661,10 @@ class UserRepository implements UserRepositoryInterface{
                                 'status' => $dropoff->status ?? null
                             ];
 
-                            array_push($history->dropoff, $data);
+                            array_push($data->dropoff, $data);
                     }
                 }else{
-                    array_push($history->dropoff, null);
+                    array_push($data->dropoff, null);
                 }
 
                 array_push($history, $data);
