@@ -654,6 +654,7 @@ class UserRepository implements UserRepositoryInterface{
                     'dropoff' => []
 
                 ];
+                if ($order->dropoff){
                     foreach ($order->dropoff as $dropoff){
                             $data = [
                                 'address' => $dropoff->d_address ?? null,
@@ -662,7 +663,9 @@ class UserRepository implements UserRepositoryInterface{
 
                             array_push($history->dropoff, $data);
                     }
-
+                }else{
+                    array_push($history->dropoff, null);
+                }
 
                 array_push($history, $data);
             }
