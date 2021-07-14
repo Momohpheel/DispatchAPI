@@ -543,6 +543,7 @@ class UserRepository implements UserRepositoryInterface{
                 'rider_id' => 'required|string',
                 'rating' => 'required|string'
             ]);
+
             $userId = auth()->user()->id;
             $rated = Rating::where('user_id', $userId)->where('rider_id', $validated['rider_id'])->first();
             if (!$rated){

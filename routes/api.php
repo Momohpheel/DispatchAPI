@@ -43,6 +43,7 @@ use Illuminate\Support\Facades\Route;
             Route::delete('dropoff/{id}/{id}', [App\Http\Controllers\UserController::class, 'deleteDropOff']);
             Route::get('order/{id}', [App\Http\Controllers\UserController::class, 'getOrder']);
             Route::get('order', [App\Http\Controllers\UserController::class, 'getAllOrders']);
+            Route::get();
         });
     });
 
