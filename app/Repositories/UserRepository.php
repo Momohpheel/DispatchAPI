@@ -656,10 +656,12 @@ class UserRepository implements UserRepositoryInterface{
                         'status' => $order->dropoff()->status ?? null
                     ],
                 ];
+
+                array_push($history, $data);
             }
 
 
-            array_push($history, $data);
+
 
             return $this->success(false, "Order history", $history, 200);
 
