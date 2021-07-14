@@ -645,7 +645,7 @@ class UserRepository implements UserRepositoryInterface{
 
             $orders = Order::where('user_id', auth()->user()->id)->get();
 
-            $data = [];
+            $history = [];
 
             foreach ($orders as $order) {
                 $data = [
@@ -658,9 +658,9 @@ class UserRepository implements UserRepositoryInterface{
             }
 
 
-            //array_push($history, $data);
+            array_push($history, $data);
 
-            return $this->success(false, "Order history", $data, 200);
+            return $this->success(false, "Order history", $history, 200);
 
         }catch(Exception $e){
             return $this->error(true, "Error occured!", 400);
