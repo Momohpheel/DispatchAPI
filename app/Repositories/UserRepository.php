@@ -651,8 +651,8 @@ class UserRepository implements UserRepositoryInterface{
                 $data = [
                     'pickup_address' => $order->o_address,
                     'dropoff' => [
-                        'address' => $order->dropoff->d_address ?? null,
-                        'status' => $order->dropoff->status ?? null
+                        'address' => $order->dropoff()->d_address ?? null,
+                        'status' => $order->dropoff()->status ?? null
                     ],
                 ];
             }
