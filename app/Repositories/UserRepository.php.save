@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Repositories;
 
 use Illuminate\Http\Request;
@@ -7,6 +8,7 @@ use App\Models\Partner;
 use App\Traits\Logs;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Order;
+
 use App\Models\DropOff;
 use App\Models\Address;
 use App\Models\Rating;
@@ -27,7 +29,7 @@ class UserRepository implements UserRepositoryInterface{
             'partner' => 'required|string',
         ]);
 
-        $partner = Partner::where('code_name', $validated['partner'])->first();
+        $partner = Partner::find($validated['partner']);
 
         if (!empty($partner)){
             $data = [
@@ -36,10 +38,10 @@ class UserRepository implements UserRepositoryInterface{
                 "email" => $partner->email,
                 "id" => $partner->id,
                 "code_name" => $partner->code_name,
-                // "image" => $partner->image
+                "image" => $partner->image
 
             ];
-            return $this->success(false, 'User Onboarded successfully', $data, 200);
+            return $this->success('User Onboarded successfully', $data, 200);
         }else{
             return $this->error(true, "Partner doesn't exist" , 400);
         }
@@ -57,10 +59,6 @@ class UserRepository implements UserRepositoryInterface{
                 'email' => "required|string",
                 "password" => "required|string"
             ]);
-
-
-
-
             $check_user = User::where('email', $validated['email'])->where('phone', $validated['phone'])->first();
             if (!$check_user){
                 $user = new User;
@@ -76,12 +74,12 @@ class UserRepository implements UserRepositoryInterface{
                     "phone" => $user->phone,
                     "email" => $user->email,
                     "id" => $user->id,
-                    // "image" => $user->image,
+                    "image" => $user->image,
                     "access_token" => $access_token
                 ];
                 $this->history('Profile', $data['name']." created their profile", $data['id'], 'user');
 
-                return $this->success(false, "User created", $data, 200);
+                return $this->success("User created", $data, 200);
             }else{
                 return $this->error(true, "User exists", 400);
             }
@@ -108,10 +106,10 @@ class UserRepository implements UserRepositoryInterface{
                         "phone" => $user->phone,
                         "email" => $user->email,
                         "id" => $user->id,
-                        // "image" => $user->image,
+                        "image" => $user->image,
                         "access_token" => $access_token
                     ];
-                    return $this->success(false, "User found", $data, 200);
+                    return $this->success("User found", $data, 200);
                 }else{
                     return $this->error(true, "Incorrect Password", 400);
                 }
@@ -129,25 +127,14 @@ class UserRepository implements UserRepositoryInterface{
             $validated = $request->validated([
                 'name' => "string",
                 'phone' => "string",
-                'image' => 'image|max:2000|mimes:png,jpg'
             ]);
-
-            if ($request->hasFile('image')){
-                $image_name = $validated['image']->getClientOriginalName();
-                $image_name_withoutextensions =  pathinfo($image_name, PATHINFO_FILENAME);
-                $name = str_replace(" ", "", $image_name_withoutextensions);
-                $image_extension = $validated['image']->getClientOriginalExtension();
-                $image_to_store = $name . '_' . time() . '.' . $image_extension;
-                $path = $validated['image']->storeAs('public/images', trim($image_to_store));
-        }
             $check_user = User::where('id', auth()->user()->id)->first();
             if ($check_user){
                 $check_user->name = $validated['name'] ?? $check_user->name;
                 $check_user->phone = $validated['phone'] ?? $check_user->name;
-                $check_user->phone = $image_to_store ?? $check_user->name;
                 $check_user->save();
 
-                return $this->success(false, "user profile updated", $check_user, 200);
+                return $this->success("user profile updated", $check_user, 200);
             }else{
                 return $this->error(true, "Unauthenticated", 400);
             }
@@ -168,7 +155,7 @@ class UserRepository implements UserRepositoryInterface{
                     "email" => $profile->email,
                     "image" => $profile->image,
                 ];
-                return $this->success(false, "user profile", $data, 200);
+                return $this->success("user profile", $data, 200);
             }else{
                 return $this->error(true, "Unauthenticated", 400);
             }
@@ -181,7 +168,7 @@ class UserRepository implements UserRepositoryInterface{
         try{
             $partner = Partner::where('id', $id)->first();
             if (!$partner){
-                return $this->error(true, "Partner not found!", 400);
+                throw new \Exception("Partner not found!");
             }
             $now = Carbon::now()->addHour();
             $day = $now->format('l');
@@ -251,8 +238,7 @@ class UserRepository implements UserRepositoryInterface{
             'dropoff.*.receiver_phone' => "required|string",
             'dropoff.*.receiver_email' => "required|string",
             'dropoff.*.quantity' => "required|string",
-            'dropoff.*' => "required",
-            'dropoff.*vehicle_type' => 'required|string'
+            'dropoff.*' => "required"
         ]);
 
 
@@ -264,7 +250,6 @@ class UserRepository implements UserRepositoryInterface{
         $order->partner_id = $id;
         $order->save();
         $min = 200;
-        $getrider;
         //pair with rider who is under the partner
         //and is not disabled or dismissed and nearby
         //dd($validated['dropoff'][0]);
@@ -278,44 +263,31 @@ class UserRepository implements UserRepositoryInterface{
             $newdropoff->receiver_phone = $dropoff['receiver_phone'];
             $newdropoff->receiver_email = $dropoff['receiver_email'];
             $newdropoff->quantity = $dropoff['quantity'];
-
-            //will it differ in each dropoff address
-            $newdropoff->vehicle_type = $dropoff['vehicle_type'];
             $newdropoff->partner_id = $id;
-
             //rider id
-            //check rider with specific vehicle type
-            $riders = Rider::where('partner_id', $partner->id)->where('is_available', true)->get();
-            foreach ($riders as $rider){
-                if ($rider->vehicle->type ==  $dropoff['vehicle_type']){
-                        $rider_lat = $rider->latitude;
-                        $rider_long = $rider->longitude;
-                        $url = file_get_contents("https://maps.googleapis.com/maps/api/directions/json?origin=".$rider_lat.",".$rider_long."&destination=".$order->o_latitude.",".$order->o_longitude."&sensor=false&key=AIzaSyDiUJ5BCTHX1UG9SbCrcwNYbIxODhg1Fl8");
-                        $url = json_decode($url);
 
-                        $meters = $url->{'routes'}[0]->{'legs'}[0]->{'distance'}->{'value'};
-                        $time = $url->{'routes'}[0]->{'legs'}[0]->{'duration'}->{'value'};
-                        $distance = $meters/1000;
-                        if ($distance < $min) {
-                            $min = $distance;
-                            $getrider = $rider;
-                        }
+            // $riders = Rider::where('partner_id', $partner->id)->where('is_available', true)->get();
+            // foreach ($riders as $rider){
+            //     $rider_lat = $rider->latitude;
+            //     $rider_long = $rider->longitude;
+            //     $url = file_get_contents("https://maps.googleapis.com/maps/api/directions/json?origin=".$rider_lat.",".$rider_long."&destination=".$order->o_latitude.",".$order->o_longitude."&sensor=false&key=AIzaSyDiUJ5BCTHX1UG9SbCrcwNYbIxODhg1Fl8");
+            //     $url = json_decode($url);
 
-                    }
+            //     $meters = $url->{'routes'}[0]->{'legs'}[0]->{'distance'}->{'value'};
+            //     $time = $url->{'routes'}[0]->{'legs'}[0]->{'duration'}->{'value'};
+            //     $distance = $meters/1000;
+            //     if ($distance < $min) {
+            //         $min = $distance;
+            //         $getrider = $rider;
+            //     }
+            // }
 
+            // if (isset($getrider)){
+            //     $newdropoff->rider_id = $getrider->id;
+            // }else{
+            //     return $this->error(true, 'Sorry all our riders are fully booked and are unable to fulfill your orders at the moment, please try again', 400);
+            // }
 
-                }
-
-                if (isset($getrider)){
-                    //rider_id or vehicle_id
-                    $newdropoff->rider_id = $getrider->id;
-                    $newdropoff->price = $this->calculatePrice($min, $id);
-
-                }else{
-                    return $this->error(true, 'Sorry all our riders are fully booked and are unable to fulfill your orders at the moment, please try again', 400);
-                }
-
-            $newdropoff->status = 'pending';
             $newdropoff->save();
 
 
@@ -334,68 +306,8 @@ class UserRepository implements UserRepositoryInterface{
 
         $this->history('Jobs', auth()->user()->name." made ".$newdropoff->count()." orders", auth()->user()->id, 'user');
 
-        return $this->success(false, "Order created! You are successfully paired with a rider", $order, 200);
+        return $this->success("Order created! You are successfully paired with a rider", $order, 200);
     }
-
-
-    public function getAllOrders(){
-        try{
-
-            $id = auth()->user()->id;
-            $order = Order::where('user_id', $id)->get();
-$data = [];
-foreach ($order as $ord){
-	$data = $ord->dropoff();
-}
-            if ($order){
-                return $this->success(false, "User Order History", $order, 200);
-            }else{
-                return $this->success(false, "User Order History",[], 200);
-            }
-        }catch(Exception $e){
-            return $this->error(true, "Error Occured!", 400);
-        }
-    }
-
-    public function getOrder($id){
-        //get current order, check if order has started
-        //get all dropoffs under order
-        try{
-            $order = Order::where('id', $id)->get();
-
-
-            return $this->success(false, "Order", $order->dropoff(), 200);
-        }catch(Exception $e){
-            return $this->error(true, "Couldn't get particular order", 400);
-        }
-
-
-    }
-
-    public function deleteDropOff($d_id, $o_id){
-        //delete dropoff without touching the order,
-        //delete the pivot data column
-        try{
-            $dropoff = Dropoff::where('id', $id)->first();
-            $dropoff->order()->detach($o_id);
-
-
-            //increase order limit of partner by 1
-            $partner = Partner::find($dropoff->partner_id);
-            //reduce partner order count
-            if ($partner->order_count_per_day != 'unlimited'){
-                $partner->order_count_per_day++;
-                $partner->save();
-             }
-
-            return $this->success(false, "DropOff deleted!", [], 200);
-        }catch(Exception $e){
-            return $this->error(true, "Couldn't delete dropoff!", 400);
-        }
-    }
-
-
-
 
     public function getUserHistory(){
         try{
@@ -428,7 +340,7 @@ foreach ($order as $ord){
 
             $this->history('Save Address', auth()->user()->name." saved ".$address->name." as one of their frequently used addresses", auth()->user()->id, 'user');
 
-            return $this->success(false, "Address saved", $address, 200);
+            return $this->success("Address saved", $address, 200);
         }catch(Exception $e){
             return $this->error(true, "Address couldn't save", 400);
         }
@@ -440,75 +352,28 @@ foreach ($order as $ord){
             $id = auth()->user()->id;
             $addresses = Address::where('user_id', $id)->get();
 
-            return $this->success(false, "User saved addresses", $addresses, 200);
+            return $this->success("User saved addresses", $addresses, 200);
 
         }catch(Exception $e){
             return $this->error(true, "Couldn't find user's addresses", 400);
         }
     }
 
-
     public function count(){
 
-        try{
-
-            $orders = Order::where('user_id', auth()->user()->id)->get();
-            $pendings = Order::where('user_id', auth()->user()->id)->get(); //->where('status', 'pending')
+            $orders = Order::where('user_id', auth()->user()->id)->first();
+            $pending = Order::where('user_id', auth()->user()->id)->get(); //->where('status', 'pending')
             $pickedUp = Order::where('user_id', auth()->user()->id)->get(); //->where('status', 'pickedUp')
             $delivered = Order::where('user_id', auth()->user()->id)->get(); //->where('status', 'delivered')
-            $data = [];
-            $p_data = [];
-            $d_data = [];
-            $pu_data = [];
-            foreach ($orders as $order){
-               $datum = $order->load('dropoff');
-                foreach ($datum->dropoff as $dro){
-                    array_push($data, $dro);
-                }
-            }
-
-            foreach ($pendings as $pending){
-                $p_datum = $pending->load('dropoff');
-                 foreach ($p_datum->dropoff as $dro){
-                     if ($dro->status == 'pending'){
-                        array_push($p_data, $dro);
-                     }
-
-
-                 }
-            }
-
-            foreach ($pendings as $pending){
-                $d_datum = $pending->load('dropoff');
-                 foreach ($d_datum->dropoff as $dro){
-                     if ($dro->status == 'delivered'){
-                        array_push($d_data, $dro);
-                     }
-
-
-                 }
-            }
-
-            foreach ($pendings as $pending){
-                $pu_datum = $pending->load('dropoff');
-                 foreach ($pu_datum->dropoff as $dro){
-                     if ($dro->status == 'pickedUp'){
-                        array_push($pu_data, $dro);
-                     }
-
-
-                 }
-            }
-
-
+            return $orders->dropoff;
             $data = [
-                "orders" => count($data),
-                "pending" => count($p_data), //$pending->dropoff()->count(),
-                "pickedUp" => count($pu_data), //$pickedUp->dropoff()->count(),
-                "delivered" => count($d_data), // $delivered->dropoff()->count(),
+                "orders" => $orders->dropoff()->count(),
+                "pending" => $pending->dropoff()->count(),
+                "pickedUp" => $pickedUp->dropoff()->count(),
+                "delivered" => $delivered->dropoff()->count(),
             ];
 
-            return $this->success(false, "User count orders", $data, 200);
+            return $this->success("User count orders", $data, 200);
 
         }catch(Exception $e){
             return $this->error(true, "ERROR!", 400);
@@ -516,39 +381,24 @@ foreach ($order as $ord){
 
     }
 
-
-
     public function calculatePrice($distance, $id){
         try{
 
             $partner = Partner::find($id);
-            $distance_rnd = number_format($distance,2);
-            $distance = intval($distance);
-            $route_cost = RouteCosting::where('partner_id', $id)->where('min_km', '<=', $distance)->where('max_km', '>=', $distance)->first();
-            //$calculation = (($distance * $fuel_cost) + $rider_salary + ($distance * $bike_fund )) * $ops_fee * $easy_log * $easy_disp;
-            $calculation = (($distance_rnd * $route_cost->fuel_cost) + $route_cost->rider_salary + ($distance_rnd * $route_cost->bike_fund)) * $route_cost->ops_fee * $route_cost->easy_log * $route_cost->easy_disp;
-            $cal = ceil($calculation / 50) * 50;
-            $cost = number_format($cal, 2);
-
-            return $cost;
+            $route_cost = RouteCosting::where('partner_id', $id)->get();
+            $calculation = (($distance * $fuel_cost) + $rider_salary + ($distance * $bike_fund )) * $ops_fee * $easy_log * $easy_disp;
 
         }catch(Exception $e){
-            return $this->error(true, "error in getting price", 400);
+            return $this->error(true, "", 400);
         }
 
     }
 
     public function payment(){}
 
-    public function rateRider(Request $request){
+    public function rateRider(){
 
         try{
-
-            $validated = $request->validate([
-                'rider_id' => 'required|string',
-                'rating' => 'required|string'
-            ]);
-
             $userId = auth()->user()->id;
             $rated = Rating::where('user_id', $userId)->where('rider_id', $validated['rider_id'])->first();
             if (!$rated){
@@ -577,7 +427,7 @@ foreach ($order as $ord){
             $rider->rating = $ratings;
             $rider->save();
 
-            return $this->success(false, "Rider rating successful", $rating, 200);
+            return $this->success("Rider rating successful", $rating, 200);
 
         }catch(Exception $e){
             return $this->error(true, "Error occured!", 400);
@@ -585,15 +435,10 @@ foreach ($order as $ord){
 
     }
 
-    public function ratePartner(Request $request){
+    public function ratePartner(){
         try{
-
-            $validated = $request->validate([
-                'partner_id' => 'required|string',
-                'rating' => 'required|string'
-            ]);
             $userId = auth()->user()->id;
-            $rated = Rating::where('user_id', $userId)->where('partner_id', $validated['partner_id'])->first();
+            $rated = Rating::where('user_id', $userId)->where('partner_id', $validated['rider_id'])->first();
             if (!$rated){
                 $rating = new Rating;
                 $rating->rating = $validated['rating'];
@@ -620,45 +465,7 @@ foreach ($order as $ord){
             $partner->rating = $ratings;
             $partner->save();
 
-            return $this->success(false, "Partner rating successful", $rating, 200);
-
-        }catch(Exception $e){
-            return $this->error(true, "Error occured!", 400);
-        }
-    }
-
-
-    public function logout(){
-        try{
-            \Auth::user()->token()->delete();
-            return $this->success(false, "User Logged out successfully", [], 200);
-        }catch(Exception $e){
-            return $this->error(true, "Error logging user out!", 400);
-        }
-
-    }
-
-    public function orderHistory(){
-        try{
-
-            $orders = Order::where('user_id', auth()->user()->id)->load('dropoff');
-
-            $history = [];
-
-            foreach ($orders as $order) {
-                $data = [
-                    'pickup_address' => $order->o_address,
-                    'dropoff' => [
-                        'address' => $order->dropoff->d_address,
-                        'status' => $order->dropoff->status
-                    ],
-                ];
-            }
-
-
-            array_push($history, $data);
-
-            return $this->success(false, "Order history", $history, 200);
+            return $this->success("Partner rating successful", $rating, 200);
 
         }catch(Exception $e){
             return $this->error(true, "Error occured!", 400);
