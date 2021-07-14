@@ -645,7 +645,7 @@ class UserRepository implements UserRepositoryInterface{
 
             $orders = Order::where('user_id', auth()->user()->id)->get();
 
-            $history = [];
+            $data = [];
 
             foreach ($orders as $order) {
                 $data = [

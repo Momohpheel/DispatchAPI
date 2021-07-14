@@ -21,6 +21,7 @@ class CreateDropOffsTable extends Migration
             $table->string('product_name')->nullable();
             $table->string('receiver_name')->nullable();
             $table->string('receiver_phone')->nullable();
+            $table->string('vehicle_type')->nullable();
             $table->string('receiver_email')->nullable();
             $table->string('quantity')->nullable();
             $table->foreignId('rider_id')->constrained();
