@@ -30,13 +30,13 @@ interface UserRepositoryInterface{
 
     public function getUserHistory();
 
-    public function rateRider();
+    public function rateRider(Request $request);
 
     public function count();
 
     public function logout();
 
-    public function ratePartner();
+    public function ratePartner(Request $request);
 
     public function saveAddress(Request $request);
 
