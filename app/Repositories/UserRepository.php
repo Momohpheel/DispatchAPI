@@ -651,16 +651,16 @@ class UserRepository implements UserRepositoryInterface{
                 $data = [
                     'pickup_address' => $order->o_address,
                     'dropoff' => [
-                        'address' => $order->dropoff()->d_address,
-                        'status' => $order->dropoff()->status
+                        'address' => $order->dropoff->d_address,
+                        'status' => $order->dropoff->status
                     ],
                 ];
             }
 
 
-            array_push($history, $data);
+            //array_push($history, $data);
 
-            return $this->success(false, "Order history", $history, 200);
+            return $this->success(false, "Order history", $data, 200);
 
         }catch(Exception $e){
             return $this->error(true, "Error occured!", 400);
