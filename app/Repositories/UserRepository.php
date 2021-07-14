@@ -342,16 +342,13 @@ class UserRepository implements UserRepositoryInterface{
         try{
 
             $id = auth()->user()->id;
-            $order = Order::where('user_id', $id)->get();
-$data = [];
-foreach ($order as $ord){
-	$data = $ord->dropoff();
-}
-            if ($order){
-                return $this->success(false, "User Order History", $order, 200);
-            }else{
-                return $this->success(false, "User Order History",[], 200);
+            $orders = Order::where('user_id', $id)->load('dropoff');
+            $data = [];
+            foreach ($orders as $order){
+                $data = $order->dropoff();
             }
+                return $this->success(false, "User Order History", $data, 200);
+
         }catch(Exception $e){
             return $this->error(true, "Error Occured!", 400);
         }
@@ -362,9 +359,12 @@ foreach ($order as $ord){
         //get all dropoffs under order
         try{
             $order = Order::where('id', $id)->get();
+            $data = [];
+            foreach ($orders as $order){
+                $data = $order->dropoff();
+            }
 
-
-            return $this->success(false, "Order", $order->dropoff(), 200);
+            return $this->success(false, "Order", $data, 200);
         }catch(Exception $e){
             return $this->error(true, "Couldn't get particular order", 400);
         }
@@ -641,7 +641,7 @@ foreach ($order as $ord){
     public function orderHistory(){
         try{
 
-            $orders = Order::where('user_id', auth()->user()->id)->load('dropoff');
+            $orders = Order::where('user_id', auth()->user()->id)->get();
 
             $history = [];
 
@@ -649,8 +649,8 @@ foreach ($order as $ord){
                 $data = [
                     'pickup_address' => $order->o_address,
                     'dropoff' => [
-                        'address' => $order->dropoff->d_address,
-                        'status' => $order->dropoff->status
+                        'address' => $order->dropoff()->d_address,
+                        'status' => $order->dropoff()->status
                     ],
                 ];
             }
