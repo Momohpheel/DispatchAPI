@@ -358,7 +358,7 @@ class UserRepository implements UserRepositoryInterface{
         //get current order, check if order has started
         //get all dropoffs under order
         try{
-            $order = Order::where('id', $id)->get();
+            $orders = Order::where('id', $id)->get();
             $data = [];
             foreach ($orders as $order){
                 $data = $order->dropoff();
