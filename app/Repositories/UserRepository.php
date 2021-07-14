@@ -343,8 +343,11 @@ class UserRepository implements UserRepositoryInterface{
 
             $id = auth()->user()->id;
             $order = Order::where('user_id', $id)->load('dropoff');
-
-            return $this->success(false, "User Order History", $order, 200);
+            if ($order){
+                return $this->success(false, "User Order History", $order, 200);
+            }else{
+                return $this->success(false, "User Order History",[], 200);
+            }
         }catch(Exception $e){
             return $this->error(true, "Error Occured!", 400);
         }
