@@ -312,9 +312,10 @@ class UserRepository implements UserRepositoryInterface{
                     $newdropoff->rider_id = $getrider->id ?? null;
                     $newdropoff->price = $this->calculatePrice($min, $id) ?? null;
 
-                }else{
-                    return $this->error(true, 'Sorry all our riders are fully booked and are unable to fulfill your orders at the moment, please try again', 400);
                 }
+                // else{
+                //     return $this->error(true, 'Sorry all our riders are fully booked and are unable to fulfill your orders at the moment, please try again', 400);
+                // }
 
             $newdropoff->status = 'pending';
             $newdropoff->save();
