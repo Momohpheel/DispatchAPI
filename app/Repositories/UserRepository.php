@@ -262,6 +262,7 @@ class UserRepository implements UserRepositoryInterface{
         $order->o_longitude = $validated['o_longitude'];
         $order->user_id = auth()->user()->id;
         $order->partner_id = $id;
+        $order->rider_id = null;
         $order->save();
         $min = 200;
         $getrider;
