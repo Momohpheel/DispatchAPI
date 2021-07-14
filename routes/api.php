@@ -34,7 +34,7 @@ use Illuminate\Support\Facades\Route;
                 Route::get('/', [App\Http\Controllers\UserController::class, 'getProfile']);
             });
             Route::post('order/{id}', [App\Http\Controllers\UserController::class, 'order']);
-            Route::get('history', [App\Http\Controllers\UserController::class, 'getUserHistory']);
+            //Route::get('history', [App\Http\Controllers\UserController::class, 'getUserHistory']);
             Route::post('address', [App\Http\Controllers\UserController::class, 'saveAddress']);
             Route::get('address', [App\Http\Controllers\UserController::class, 'getSavedAddresses']);
             Route::get('total', [App\Http\Controllers\UserController::class, 'count']);
@@ -43,7 +43,7 @@ use Illuminate\Support\Facades\Route;
             Route::delete('dropoff/{id}/{id}', [App\Http\Controllers\UserController::class, 'deleteDropOff']);
             Route::get('order/{id}', [App\Http\Controllers\UserController::class, 'getOrder']);
             Route::get('order', [App\Http\Controllers\UserController::class, 'getAllOrders']);
-            Route::get('history/order', [App\Http\Controllers\UserController::class, 'orderHistory']);
+            Route::get('history', [App\Http\Controllers\UserController::class, 'orderHistory']);
         });
     });
 
