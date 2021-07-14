@@ -643,7 +643,7 @@ class UserRepository implements UserRepositoryInterface{
     public function orderHistory(){
         try{
 
-            $orders = Order::where('user_id', auth()->user()->id)->get();
+            $orders = Order::with('dropoff')->where('user_id', auth()->user()->id)->get();
 
             $history = [];
 
@@ -652,8 +652,8 @@ class UserRepository implements UserRepositoryInterface{
                     'order_id' => $order->id,
                     'pickup_address' => $order->o_address,
                     'dropoff' => [
-                        'address' => $order->dropoff()->d_address ?? null,
-                        'status' => $order->dropoff()->status ?? null
+                        'address' => $order->dropoff->d_address ?? null,
+                        'status' => $order->dropoff->status ?? null
                     ],
                 ];
 
