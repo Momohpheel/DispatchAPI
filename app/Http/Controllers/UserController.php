@@ -63,11 +63,11 @@ class UserController extends Controller
     }
 
     public function rateRider(Request $request){
-        return $this->repository->rateRider();
+        return $this->repository->rateRider($request);
     }
 
     public function ratePartner(Request $request){
-        return $this->repository->ratePartner();
+        return $this->repository->ratePartner($request);
     }
 
     public function saveAddress(Request $request){
