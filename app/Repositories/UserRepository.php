@@ -647,23 +647,23 @@ class UserRepository implements UserRepositoryInterface{
 
             $history = [];
 
-            foreach ($orders as $order) {
-                $data = [
-                    'order_id' => $order->id,
-                    'pickup_address' => $order->o_address,
-                    'dropoff' => [
-                        'address' => $order->dropoff->d_address ?? null,
-                        'status' => $order->dropoff->status ?? null
-                    ],
-                ];
+            // foreach ($orders as $order) {
+            //     $data = [
+            //         'order_id' => $order->id,
+            //         'pickup_address' => $order->o_address,
+            //         'dropoff' => [
+            //             'address' => $order->dropoff->d_address ?? null,
+            //             'status' => $order->dropoff->status ?? null
+            //         ],
+            //     ];
 
-                array_push($history, $data);
-            }
-
-
+            //     array_push($history, $data);
+            // }
 
 
-            return $this->success(false, "Order history", $history, 200);
+
+
+            return $this->success(false, "Order history", $orders, 200);
 
         }catch(Exception $e){
             return $this->error(true, "Error occured!", 400);
