@@ -612,11 +612,38 @@ class UserRepository implements UserRepositoryInterface{
     public function logout(){
         try{
             \Auth::user()->token()->delete();
-            return $this->success(false, "User Logged out successfully", true, 200);
+            return $this->success(false, "User Logged out successfully", [], 200);
         }catch(Exception $e){
             return $this->error(true, "Error logging user out!", 400);
         }
 
+    }
+
+    public function orderHistory(){
+        try{
+
+            $orders = Order::where('user_id', auth()->user()->id)->load('dropoff');
+
+            $history = [];
+
+            foreach ($orders as $order) {
+                $data = [
+                    'pickup_address' => $order->o_address,
+                    'dropoff' => [
+                        'address' => $order->dropoff->d_address,
+                        'status' => $order->dropoff->status
+                    ],
+                ];
+            }
+
+
+            array_push($history, $data);
+
+            return $this->success(false, "Order history", $history, 200);
+
+        }catch(Exception $e){
+            return $this->error(true, "Error occured!", 400);
+        }
     }
 
 }
