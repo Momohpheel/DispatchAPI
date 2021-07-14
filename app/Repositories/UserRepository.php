@@ -646,23 +646,26 @@ class UserRepository implements UserRepositoryInterface{
             $orders = Order::with('dropoff')->where('user_id', auth()->user()->id)->get();
 
             $history = [];
+            $drop_o = [];
 
             foreach ($orders as $order) {
                 $data = [
                     'order_id' => $order->id,
                     'pickup_address' => $order->o_address,
-                    'dropoff' => []
-
+                    'dropoff' => array()
                 ];
+
                 if ($order->dropoff){
                     foreach ($order->dropoff as $dropoff){
-                            $data = [
+                            $datu = [
                                 'address' => $dropoff->d_address ?? null,
                                 'status' => $dropoff->status ?? null
                             ];
+                            array_push($data['dropoff'], $datu);
 
-                            array_push($data['dropoff'], $data);
                     }
+
+                    //array_push($data['dropoff'], $drop_o);
                 }else{
                     array_push($data['dropoff'], null);
                 }
@@ -673,7 +676,7 @@ class UserRepository implements UserRepositoryInterface{
 
 
 
-            return $this->success(false, "Order history", $orders, 200);
+            return $this->success(false, "Order history", $history, 200);
 
         }catch(Exception $e){
             return $this->error(true, "Error occured!", 400);
