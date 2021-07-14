@@ -649,6 +649,7 @@ class UserRepository implements UserRepositoryInterface{
 
             foreach ($orders as $order) {
                 $data = [
+                    'order_id' => $order->id,
                     'pickup_address' => $order->o_address,
                     'dropoff' => [
                         'address' => $order->dropoff()->d_address ?? null,
