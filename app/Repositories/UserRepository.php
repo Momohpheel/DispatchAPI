@@ -241,9 +241,10 @@ class UserRepository implements UserRepositoryInterface{
     public function job($request, $id){
         $validated = $request->validate([
             'o_address' => "required|string",
-            'dropoff.d_address.*' => "required|string",
             'o_latitude' => "required",
             'o_longitude' => "required",
+            'dropoff.*' => "required",
+            'dropoff.*.d_address' => "required|string",
             'dropoff.*.d_latitude' => "required",
             'dropoff.*.d_longitude' => "required",
             'dropoff.*.product_name' => "required|string",
@@ -251,7 +252,6 @@ class UserRepository implements UserRepositoryInterface{
             'dropoff.*.receiver_phone' => "required|string",
             'dropoff.*.receiver_email' => "required|string",
             'dropoff.*.quantity' => "required|string",
-            'dropoff.*' => "required",
             'dropoff.*vehicle_type' => 'required|string'
         ]);
 
@@ -285,31 +285,31 @@ class UserRepository implements UserRepositoryInterface{
 
             //rider id
             //check rider with specific vehicle type
-            $riders = Rider::where('partner_id', $partner->id)->where('is_available', true)->get();
-            foreach ($riders as $rider){
-                if ($rider->vehicle->type ==  $dropoff['vehicle_type']){
-                        $rider_lat = $rider->latitude;
-                        $rider_long = $rider->longitude;
-                        $url = file_get_contents("https://maps.googleapis.com/maps/api/directions/json?origin=".$rider_lat.",".$rider_long."&destination=".$order->o_latitude.",".$order->o_longitude."&sensor=false&key=AIzaSyDiUJ5BCTHX1UG9SbCrcwNYbIxODhg1Fl8");
-                        $url = json_decode($url);
+            //$riders = Rider::where('partner_id', $partner->id)->where('is_available', true)->get();
+            // foreach ($riders as $rider){
+            //     if ($rider->vehicle->type ==  $dropoff['vehicle_type']){
+            //             $rider_lat = $rider->latitude;
+            //             $rider_long = $rider->longitude;
+            //             $url = file_get_contents("https://maps.googleapis.com/maps/api/directions/json?origin=".$rider_lat.",".$rider_long."&destination=".$order->o_latitude.",".$order->o_longitude."&sensor=false&key=AIzaSyDiUJ5BCTHX1UG9SbCrcwNYbIxODhg1Fl8");
+            //             $url = json_decode($url);
 
-                        $meters = $url->{'routes'}[0]->{'legs'}[0]->{'distance'}->{'value'};
-                        $time = $url->{'routes'}[0]->{'legs'}[0]->{'duration'}->{'value'};
-                        $distance = $meters/1000;
-                        if ($distance < $min) {
-                            $min = $distance;
-                            $getrider = $rider;
-                        }
+            //             $meters = $url->{'routes'}[0]->{'legs'}[0]->{'distance'}->{'value'};
+            //             $time = $url->{'routes'}[0]->{'legs'}[0]->{'duration'}->{'value'};
+            //             $distance = $meters/1000;
+            //             if ($distance < $min) {
+            //                 $min = $distance;
+            //                 $getrider = $rider;
+            //             }
 
-                    }
+            //         }
 
 
-                }
+            //     }
 
                 if (isset($getrider)){
                     //rider_id or vehicle_id
-                    $newdropoff->rider_id = $getrider->id;
-                    $newdropoff->price = $this->calculatePrice($min, $id);
+                    $newdropoff->rider_id = $getrider->id ?? null;
+                    $newdropoff->price = $this->calculatePrice($min, $id) ?? null;
 
                 }else{
                     return $this->error(true, 'Sorry all our riders are fully booked and are unable to fulfill your orders at the moment, please try again', 400);
