@@ -375,16 +375,15 @@ class UserRepository implements UserRepositoryInterface{
     }
 
     public function deleteDropOff($d_id, $o_id){
-        //delete dropoff without touching the order,
-        //delete the pivot data column
+        //delete dropoff without touching the order and dropoff table,
+        //deleting the pivot data row/column
         try{
-            $dropoff = Dropoff::where('id', $id)->first();
+            $dropoff = Dropoff::where('id', $d_id)->first();
             $dropoff->order()->detach($o_id);
 
 
             //increase order limit of partner by 1
             $partner = Partner::find($dropoff->partner_id);
-            //reduce partner order count
             if ($partner->order_count_per_day != 'unlimited'){
                 $partner->order_count_per_day++;
                 $partner->save();
