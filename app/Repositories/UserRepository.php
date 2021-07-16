@@ -245,7 +245,7 @@ class UserRepository implements UserRepositoryInterface{
             'o_address' => "required|string",
             'o_latitude' => "required",
             'o_longitude' => "required",
-            'dropoff.*' => "required",
+            // 'dropoff.*' => "required",
             'dropoff.*.d_address' => "required|string",
             'dropoff.*.d_latitude' => "required",
             'dropoff.*.d_longitude' => "required",
@@ -660,7 +660,8 @@ class UserRepository implements UserRepositoryInterface{
                     foreach ($order->dropoff as $dropoff){
                             $datu = [
                                 'address' => $dropoff->d_address ?? null,
-                                'status' => $dropoff->status ?? null
+                                'status' => $dropoff->status ?? null,
+                                'time' => $dropoff->created_at
                             ];
                             array_push($data['dropoff'], $datu);
 
