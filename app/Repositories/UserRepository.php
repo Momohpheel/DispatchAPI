@@ -129,6 +129,7 @@ class UserRepository implements UserRepositoryInterface{
             $validated = $request->validated([
                 'name' => "string",
                 'phone' => "string",
+                'email' => 'email',
                 'image' => 'image|max:2000|mimes:png,jpg'
             ]);
 
@@ -143,8 +144,9 @@ class UserRepository implements UserRepositoryInterface{
             $check_user = User::where('id', auth()->user()->id)->first();
             if ($check_user){
                 $check_user->name = $validated['name'] ?? $check_user->name;
-                $check_user->phone = $validated['phone'] ?? $check_user->name;
-                $check_user->phone = $image_to_store ?? $check_user->name;
+                $check_user->phone = $validated['phone'] ?? $check_user->phone;
+                $check_user->email = $validated['email'] ?? $check_user->email;
+                $check_user->image = $image_to_store ?? $check_user->image;
                 $check_user->save();
 
                 return $this->success(false, "user profile updated", $check_user, 200);
