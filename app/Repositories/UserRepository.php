@@ -495,7 +495,7 @@ class UserRepository implements UserRepositoryInterface{
             foreach ($pendings as $pending){
                 $pu_datum = $pending->load('dropoff');
                  foreach ($pu_datum->dropoff as $dro){
-                     if ($dro->status == 'pickedUp'){
+                     if ($dro->status == 'picked'){
                         array_push($pu_data, $dro);
                      }
 
@@ -656,7 +656,7 @@ class UserRepository implements UserRepositoryInterface{
                     'dropoff' => array()
                 ];
 
-                if ($order->dropoff){
+                if (!empty($order->dropoff)){
                     foreach ($order->dropoff as $dropoff){
                             $datu = [
                                 'address' => $dropoff->d_address ?? null,
@@ -667,8 +667,6 @@ class UserRepository implements UserRepositoryInterface{
                     }
 
                     //array_push($data['dropoff'], $drop_o);
-                }else{
-                    array_push($data['dropoff'], null);
                 }
 
                 array_push($history, $data);
