@@ -146,7 +146,7 @@ class UserRepository implements UserRepositoryInterface{
                 $check_user->name = $validated['name'] ?? $check_user->name;
                 $check_user->phone = $validated['phone'] ?? $check_user->phone;
                 $check_user->email = $validated['email'] ?? $check_user->email;
-                $check_user->image = env('APP_URL') . '/storage/images/'.$image_to_store ?? $check_user->image;
+                $check_user->image = $image_to_store ? env('APP_URL') .'/storage/images/'.$image_to_store : $check_user->image;
                 $check_user->save();
 
                 return $this->success(false, "user profile updated", $check_user, 200);
