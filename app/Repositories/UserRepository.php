@@ -254,7 +254,7 @@ class UserRepository implements UserRepositoryInterface{
             'dropoff.*.receiver_phone' => "required|string",
             'dropoff.*.receiver_email' => "required|string",
             'dropoff.*.quantity' => "required|string",
-            'dropoff.*vehicle_type' => 'required|string'
+            'dropoff.*.vehicle_type' => 'required|string'
         ]);
 
 
