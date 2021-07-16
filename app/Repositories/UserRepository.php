@@ -126,7 +126,7 @@ class UserRepository implements UserRepositoryInterface{
 
     public function updateProfile(Request $request){
         try{
-            $validated = $request->validated([
+            $validated = $request->validate([
                 'name' => "string",
                 'phone' => "string",
                 'email' => 'email',
