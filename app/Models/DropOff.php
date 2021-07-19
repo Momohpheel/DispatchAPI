@@ -9,6 +9,6 @@ class DropOff extends Model
 {
     use HasFactory;
     public function order(){
-        return $this->belongsToMany(Order::class, 'order_dropoffs');
+        return $this->belongsTo(Order::class);
     }
 }

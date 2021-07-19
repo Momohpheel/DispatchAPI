@@ -16,7 +16,7 @@ trait Response{
         return response()->json([
             'error' => $message,
             'message' => $data,
-            'data' => []
+            // 'data' => []
            ], $status);
     }
 }

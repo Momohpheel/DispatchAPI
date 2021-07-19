@@ -40,7 +40,7 @@ use Illuminate\Support\Facades\Route;
             Route::get('total', [App\Http\Controllers\UserController::class, 'count']);
 
             Route::post('logout', [App\Http\Controllers\UserController::class, 'logout']);
-            Route::delete('dropoff/{id}/{id}', [App\Http\Controllers\UserController::class, 'deleteDropOff']);
+            Route::delete('dropoff/{id}', [App\Http\Controllers\UserController::class, 'deleteDropOff']);
             Route::get('order/{id}', [App\Http\Controllers\UserController::class, 'getOrder']);
             Route::get('order', [App\Http\Controllers\UserController::class, 'getAllOrders']);
             Route::get('history', [App\Http\Controllers\UserController::class, 'orderHistory']);

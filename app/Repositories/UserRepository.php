@@ -13,6 +13,7 @@ use App\Models\Rating;
 use App\Models\History;
 use App\Models\OperatingHours as OpHour;
 use App\Traits\Response;
+use App\Models\routeCosting as RouteCosting;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use Carbon\Carbon;
 
@@ -266,73 +267,77 @@ class UserRepository implements UserRepositoryInterface{
         $order->partner_id = $id;
         $order->rider_id = null;
         $order->save();
-        $min = 200;
+        $min = 10; //200
         $getrider;
+        $partner = Partner::find($id);
         //pair with rider who is under the partner
         //and is not disabled or dismissed and nearby
         //dd($validated['dropoff'][0]);
         foreach($validated['dropoff'] as $dropoff ){
-            $newdropoff = new DropOff;
-            $newdropoff->d_address = $dropoff['d_address'];
-            $newdropoff->d_latitude = $dropoff['d_latitude'];
-            $newdropoff->d_longitude = $dropoff['d_longitude'];
-            $newdropoff->product_name = $dropoff['product_name'];
-            $newdropoff->receiver_name = $dropoff['receiver_name'];
-            $newdropoff->receiver_phone = $dropoff['receiver_phone'];
-            $newdropoff->receiver_email = $dropoff['receiver_email'];
-            $newdropoff->quantity = $dropoff['quantity'];
+            if ($partner->order_count_per_day > 0){
+                $newdropoff = new DropOff;
+                $newdropoff->d_address = $dropoff['d_address'];
+                $newdropoff->d_latitude = $dropoff['d_latitude'];
+                $newdropoff->d_longitude = $dropoff['d_longitude'];
+                $newdropoff->product_name = $dropoff['product_name'];
+                $newdropoff->receiver_name = $dropoff['receiver_name'];
+                $newdropoff->receiver_phone = $dropoff['receiver_phone'];
+                $newdropoff->receiver_email = $dropoff['receiver_email'];
+                $newdropoff->quantity = $dropoff['quantity'];
 
-            //will it differ in each dropoff address
-            $newdropoff->vehicle_type = $dropoff['vehicle_type'];
-            $newdropoff->partner_id = $id;
+                //will it differ in each dropoff address
+                $newdropoff->vehicle_type = $dropoff['vehicle_type'];
+                $newdropoff->partner_id = $id;
+                $newdropoff->order_id = $order->id;
 
-            //rider id
-            //check rider with specific vehicle type
-            //$riders = Rider::where('partner_id', $partner->id)->where('is_available', true)->get();
-            // foreach ($riders as $rider){
-            //     if ($rider->vehicle->type ==  $dropoff['vehicle_type']){
-            //             $rider_lat = $rider->latitude;
-            //             $rider_long = $rider->longitude;
-            //             $url = file_get_contents("https://maps.googleapis.com/maps/api/directions/json?origin=".$rider_lat.",".$rider_long."&destination=".$order->o_latitude.",".$order->o_longitude."&sensor=false&key=AIzaSyDiUJ5BCTHX1UG9SbCrcwNYbIxODhg1Fl8");
-            //             $url = json_decode($url);
+                //rider id
+                //check rider with specific vehicle type
+                //$riders = Rider::where('partner_id', $partner->id)->where('is_available', true)->get();
+                // foreach ($riders as $rider){
+                //     if ($rider->vehicle->type ==  $dropoff['vehicle_type']){
+                //             $rider_lat = $rider->latitude;
+                //             $rider_long = $rider->longitude;
+                //             $url = file_get_contents("https://maps.googleapis.com/maps/api/directions/json?origin=".$rider_lat.",".$rider_long."&destination=".$order->o_latitude.",".$order->o_longitude."&sensor=false&key=AIzaSyDiUJ5BCTHX1UG9SbCrcwNYbIxODhg1Fl8");
+                //             $url = json_decode($url);
 
-            //             $meters = $url->{'routes'}[0]->{'legs'}[0]->{'distance'}->{'value'};
-            //             $time = $url->{'routes'}[0]->{'legs'}[0]->{'duration'}->{'value'};
-            //             $distance = $meters/1000;
-            //             if ($distance < $min) {
-            //                 $min = $distance;
-            //                 $getrider = $rider;
-            //             }
+                //             $meters = $url->{'routes'}[0]->{'legs'}[0]->{'distance'}->{'value'};
+                //             $time = $url->{'routes'}[0]->{'legs'}[0]->{'duration'}->{'value'};
+                //             $distance = $meters/1000;
+                //             if ($distance < $min) {
+                //                 $min = $distance;
+                //                 $getrider = $rider;
+                //             }
 
-            //         }
+                //         }
 
 
-            //     }
+                //     }
 
-                if (isset($getrider)){
-                    //rider_id or vehicle_id
-                    $newdropoff->rider_id = $getrider->id ?? null;
-                    $newdropoff->price = $this->calculatePrice($min, $id) ?? null;
+                    if (isset($getrider)){
+                        //rider_id or vehicle_id
+                        $newdropoff->rider_id = $getrider->id ?? null;
+                        $newdropoff->price = $this->calculatePrice($min, $id) ?? null;
 
+                    }
+                    // else{
+                    //     return $this->error(true, 'Sorry all our riders are fully booked and are unable to fulfill your orders at the moment, please try again', 400);
+                    // }
+
+                $newdropoff->status = 'pending';
+                $newdropoff->save();
+
+
+                //$order->dropoff()->attach($newdropoff);
+
+                $this->history('Jobs', auth()->user()->name." ordered a dispatch from ".$order->o_address." to ". $newdropoff->d_address, auth()->user()->id, 'user');
+
+                    $partner = Partner::find($id);
+                //reduce partner order count
+                if ($partner->order_count_per_day != 'unlimited'){
+                    $partner->order_count_per_day--;
+                    $partner->save();
                 }
-                // else{
-                //     return $this->error(true, 'Sorry all our riders are fully booked and are unable to fulfill your orders at the moment, please try again', 400);
-                // }
-
-            $newdropoff->status = 'pending';
-            $newdropoff->save();
-
-
-            $order->dropoff()->attach($newdropoff);
-
-            $this->history('Jobs', auth()->user()->name." ordered a dispatch from ".$order->o_address." to ". $newdropoff->d_address, auth()->user()->id, 'user');
-
-                $partner = Partner::find($id);
-            //reduce partner order count
-            if ($partner->order_count_per_day != 'unlimited'){
-                $partner->order_count_per_day--;
-                $partner->save();
-             }
+            }
         }
 
 
@@ -346,12 +351,12 @@ class UserRepository implements UserRepositoryInterface{
         try{
 
             $id = auth()->user()->id;
-            $orders = Order::where('user_id', $id)->load('dropoff');
-            $data = [];
-            foreach ($orders as $order){
-                $data = $order->dropoff();
-            }
-                return $this->success(false, "User Order History", $data, 200);
+            $orders = Order::with('dropoff')->where('user_id', $id)->get();
+            // $data = [];
+            // foreach ($orders as $order){
+            //     $data = $order->dropoff();
+            // }
+                return $this->success(false, "User Order History", $orders, 200);
 
         }catch(Exception $e){
             return $this->error(true, "Error Occured!", 400);
@@ -362,13 +367,9 @@ class UserRepository implements UserRepositoryInterface{
         //get current order, check if order has started
         //get all dropoffs under order
         try{
-            $orders = Order::where('id', $id)->get();
-            $data = [];
-            foreach ($orders as $order){
-                $data = $order->dropoff();
-            }
+            $orders = Order::with('dropoff')->where('id', $id)->get();
 
-            return $this->success(false, "Order", $data, 200);
+            return $this->success(false, "Order", $orders, 200);
         }catch(Exception $e){
             return $this->error(true, "Couldn't get particular order", 400);
         }
@@ -376,22 +377,34 @@ class UserRepository implements UserRepositoryInterface{
 
     }
 
-    public function deleteDropOff($d_id, $o_id){
+    public function deleteDropOff($d_id){
         //delete dropoff without touching the order and dropoff table,
         //deleting the pivot data row/column
         try{
-            $dropoff = Dropoff::where('id', $d_id)->first();
-            $dropoff->order()->detach($o_id);
+            $dropoff = Dropoff::with('order')->where('id', $d_id)->first();
 
 
-            //increase order limit of partner by 1
-            $partner = Partner::find($dropoff->partner_id);
-            if ($partner->order_count_per_day != 'unlimited'){
-                $partner->order_count_per_day++;
-                $partner->save();
-             }
 
-            return $this->success(false, "DropOff deleted!", [], 200);
+
+            if (isset($dropoff) && $dropoff->order->user_id == auth()->user()->id){
+                $dropoff->delete();
+
+                  //increase order limit of partner by 1
+                $partner = Partner::find($dropoff->partner_id);
+                if ($partner->order_count_per_day != 'unlimited'){
+                    $partner->order_count_per_day++;
+                    $partner->save();
+                }
+
+                return $this->success(false, "DropOff deleted!", [], 200);
+            }else{
+                return $this->error(true, "DropOff not found!", 200);
+            }
+
+
+
+
+
         }catch(Exception $e){
             return $this->error(true, "Couldn't delete dropoff!", 400);
         }
@@ -455,24 +468,24 @@ class UserRepository implements UserRepositoryInterface{
 
         try{
 
-            $orders = Order::where('user_id', auth()->user()->id)->get();
-            $pendings = Order::where('user_id', auth()->user()->id)->get(); //->where('status', 'pending')
-            $pickedUp = Order::where('user_id', auth()->user()->id)->get(); //->where('status', 'pickedUp')
-            $delivered = Order::where('user_id', auth()->user()->id)->get(); //->where('status', 'delivered')
+            $orders = Order::with('dropoff')->where('user_id', auth()->user()->id)->get();
+            $pendings = Order::with('dropoff')->where('user_id', auth()->user()->id)->get(); //->where('status', 'pending')
+            $pickedUp = Order::with('dropoff')->where('user_id', auth()->user()->id)->get(); //->where('status', 'pickedUp')
+            $delivered = Order::with('dropoff')->where('user_id', auth()->user()->id)->get(); //->where('status', 'delivered')
             $data = [];
             $p_data = [];
             $d_data = [];
             $pu_data = [];
             foreach ($orders as $order){
-               $datum = $order->load('dropoff');
-                foreach ($datum->dropoff as $dro){
+               //$datum = $order->load('dropoff');
+                foreach ($order->dropoff as $dro){
                     array_push($data, $dro);
                 }
             }
 
             foreach ($pendings as $pending){
-                $p_datum = $pending->load('dropoff');
-                 foreach ($p_datum->dropoff as $dro){
+                //$p_datum = $pending->load('dropoff');
+                 foreach ($pending->dropoff as $dro){
                      if ($dro->status == 'pending'){
                         array_push($p_data, $dro);
                      }
@@ -482,8 +495,8 @@ class UserRepository implements UserRepositoryInterface{
             }
 
             foreach ($pendings as $pending){
-                $d_datum = $pending->load('dropoff');
-                 foreach ($d_datum->dropoff as $dro){
+                //$d_datum = $pending->load('dropoff');
+                 foreach ($pending->dropoff as $dro){
                      if ($dro->status == 'delivered'){
                         array_push($d_data, $dro);
                      }
@@ -493,8 +506,8 @@ class UserRepository implements UserRepositoryInterface{
             }
 
             foreach ($pendings as $pending){
-                $pu_datum = $pending->load('dropoff');
-                 foreach ($pu_datum->dropoff as $dro){
+                //$pu_datum = $pending->load('dropoff');
+                 foreach ($pending->dropoff as $dro){
                      if ($dro->status == 'picked'){
                         array_push($pu_data, $dro);
                      }
@@ -526,9 +539,9 @@ class UserRepository implements UserRepositoryInterface{
 
             $partner = Partner::find($id);
             $distance_rnd = number_format($distance,2);
-            $distance = intval($distance);
             $route_cost = RouteCosting::where('partner_id', $id)->where('min_km', '<=', $distance)->where('max_km', '>=', $distance)->first();
             //$calculation = (($distance * $fuel_cost) + $rider_salary + ($distance * $bike_fund )) * $ops_fee * $easy_log * $easy_disp;
+            //dd($route_cost);
             $calculation = (($distance_rnd * $route_cost->fuel_cost) + $route_cost->rider_salary + ($distance_rnd * $route_cost->bike_fund)) * $route_cost->ops_fee * $route_cost->easy_log * $route_cost->easy_disp;
             $cal = ceil($calculation / 50) * 50;
             $cost = number_format($cal, 2);

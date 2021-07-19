@@ -22,7 +22,7 @@ interface UserRepositoryInterface{
 
     public function getOrder($id);
 
-    public function deleteDropOff($d_id, $o_id);
+    public function deleteDropOff($d_id);
 
     public function calculatePrice($distance, $id);
 

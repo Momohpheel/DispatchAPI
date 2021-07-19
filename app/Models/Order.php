@@ -10,7 +10,7 @@ class Order extends Model
     use HasFactory;
 
     public function dropoff(){
-        return $this->belongsToMany(DropOff::class, 'order_dropoffs');
+        return $this->hasMany(DropOff::class);
     }
 
     public function user(){

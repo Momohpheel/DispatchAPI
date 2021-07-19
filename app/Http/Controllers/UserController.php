@@ -42,8 +42,8 @@ class UserController extends Controller
         return $this->repository->getOrder($id);
     }
 
-    public function deleteDropOff($d_id, $o_id){
-        return $this->repository->deleteDropOff($d_id, $o_id);
+    public function deleteDropOff($d_id){
+        return $this->repository->deleteDropOff($d_id);
     }
 
     public function logout(){
