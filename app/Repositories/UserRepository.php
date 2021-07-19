@@ -188,7 +188,7 @@ class UserRepository implements UserRepositoryInterface{
             }
             $now = Carbon::now()->addHour();
             $day = $now->format('l');
-            $c_time =  Carbon::parse($now->format('h:i:s'));
+            $c_time =  Carbon::now()->addHour();
 
             //check if order is place within partner's operating hours
 
@@ -201,6 +201,7 @@ class UserRepository implements UserRepositoryInterface{
                     $time = OpHour::where('day', $day->day)->where('partner_id', $partner->id)->first();
                     $stime = Carbon::parse($time->start_time);
                     $etime = Carbon::parse($time->end_time);
+
                     //try to format to 23:00 format and test again
                     if ($c_time->gt($stime) && $c_time->lessThan($etime)){
 

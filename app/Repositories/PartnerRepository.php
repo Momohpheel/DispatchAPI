@@ -49,6 +49,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 $partner->code_name = $validated['code_name'];
                 $partner->password = Hash::make($validated['password']);
                 $partner->subscription_id = 1;
+                $partner->order_count_per_day = 5;
                 $partner->save();
                 $access_token = $partner->createToken('authToken')->accessToken;
 
@@ -694,7 +695,8 @@ class PartnerRepository implements PartnerRepositoryInterface{
             ]);
 
             $operating_hours = new OperatingHours;
-            $operating_hours->day = $validated['day'];
+
+            $operating_hours->day = strtolower($validated['day']);
             $operating_hours->start_time = $validated['start_time'];
             $operating_hours->end_time = $validated['end_time'];
             $operating_hours->partner_id = auth()->user()->id;
@@ -715,7 +717,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
             ]);
 
             $operating_hours = OperatingHours::where('id', $id)->where('partner_id', 1)->first();
-            $operating_hours->day = $validated['day'] ?? $operating_hours->day;
+            $operating_hours->day = strtolower($validated['day']) ?? $operating_hours->day;
             $operating_hours->start_time = $validated['start_time'] ?? $operating_hours->start_time;
             $operating_hours->end_time = $validated['end_time'] ?? $operating_hours->end_time;
             //$operating_hours->partner_id = 1; //auth()->user()->id;
