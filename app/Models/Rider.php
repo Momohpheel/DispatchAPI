@@ -18,6 +18,6 @@ class Rider extends Authenticatable
     }
 
     public function vehicle(){
-        return $this->hasOne(Vehicle::class);
+        return $this->belongsTo(Vehicle::class);
     }
 }
