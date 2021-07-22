@@ -341,7 +341,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
     public function getVehicles(){
         try{
             $id = auth()->user()->id;
-            $vehicles = Vehicle::with('partner')->where('partner_id', $id)->get();
+            $vehicles = Vehicle::with(['partner', 'rider'])->where('partner_id', $id)->get();
 
             return $this->success(false, "Vehicles fetched", $vehicles, 200);
 
@@ -512,7 +512,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
     public function getRiders(){
         try{
-            $riders = Rider::with(['partner', 'vehicle'])->where('partner_id', auth()->user()->id)->get();
+            $riders = Rider::with(['partner'])->where('partner_id', auth()->user()->id)->get();
 
             return $this->success(false, "Riders", $riders, 200);
         }catch(Exception $e){
