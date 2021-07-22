@@ -186,7 +186,7 @@ class UserRepository implements UserRepositoryInterface{
             if (!$partner){
                 return $this->error(true, "Partner not found!", 400);
             }
-            $now = Carbon::now()->addHour();
+            //$now = Carbon::now()->addHour();
             $day = $now->format('l');
             $c_time =  Carbon::now()->addHour();
 
@@ -268,7 +268,7 @@ class UserRepository implements UserRepositoryInterface{
         $order->partner_id = $id;
         $order->rider_id = null;
         $order->save();
-        $min = 10; //200
+        $min = 200; //200
         $getrider;
         $partner = Partner::find($id);
         //pair with rider who is under the partner
@@ -555,8 +555,6 @@ class UserRepository implements UserRepositoryInterface{
 
     }
 
-    public function payment(){}
-
     public function rateRider(Request $request){
 
         try{
@@ -696,5 +694,9 @@ class UserRepository implements UserRepositoryInterface{
             return $this->error(true, "Error occured!", 400);
         }
     }
+
+
+    public function payment(){}
+
 
 }

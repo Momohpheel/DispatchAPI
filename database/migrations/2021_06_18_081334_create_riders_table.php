@@ -18,6 +18,7 @@ class CreateRidersTable extends Migration
             $table->string('name')->nullable();
             $table->string('workname')->unique();
             $table->string('phone')->nullable();
+            $table->string('image')->nullable();
             $table->foreignId('partner_id')->constrained();
             $table->foreignId('vehicle_id')->constrained();
             $table->string('password');

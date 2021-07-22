@@ -474,7 +474,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 $rider->phone = $validated['phone'];
                 $rider->workname = $validated['workname'];
                 $rider->vehicle_id = $validated['vehicle_id'];
-                $rider->image = $image_to_store; //$validated['image'];
+                $rider->image = env('APP_URL') .'/storage/images/'.$image_to_store; //$validated['image'];
                 $rider->password = Hash::make($validated['password']);
                 $rider->partner_id = auth()->user()->id;
                 $rider->save();

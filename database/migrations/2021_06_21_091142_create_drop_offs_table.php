@@ -26,6 +26,7 @@ class CreateDropOffsTable extends Migration
             $table->string('quantity')->nullable();
             $table->foreignId('rider_id')->constrained();
             $table->foreignId('partner_id')->constrained();
+            $table->foreignId('order_id')->constrained();
             $table->timestamp('start_time')->nullable();
             $table->timestamp('end_time')->nullable();
             $table->string('price')->nullable();
