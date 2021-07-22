@@ -512,7 +512,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
     public function getRiders(){
         try{
-            $riders = Rider::with(['partner'])->where('partner_id', auth()->user()->id)->get();
+            $riders = Rider::with(['partner', 'vehicle'])->where('partner_id', auth()->user()->id)->get();
 
             return $this->success(false, "Riders", $riders, 200);
         }catch(Exception $e){
