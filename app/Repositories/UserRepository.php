@@ -186,7 +186,7 @@ class UserRepository implements UserRepositoryInterface{
             if (!$partner){
                 return $this->error(true, "Partner not found!", 400);
             }
-            //$now = Carbon::now()->addHour();
+            $now = Carbon::now()->addHour();
             $day = $now->format('l');
             $c_time =  Carbon::now()->addHour();
 
