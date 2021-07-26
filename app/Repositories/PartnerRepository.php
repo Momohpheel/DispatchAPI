@@ -141,7 +141,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
             $id = auth()->user()->id;
             $partner = Partner::find($id);
-            $partner->image = $image_to_store;
+            $partner->image =  env('APP_URL') .'/storage/images/'.$image_to_store;
             $partner->name = $validated['business_name'];
             $partner->description = $validated['business_description'];
             $partner->phone = $validated['business_phone'];
@@ -416,7 +416,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 $rider->phone = $validated['phone'] ?? $rider->phone;
                 $rider->workname = $validated['workname'] ?? $rider->workname;
                 $rider->code_name = $validated['code_name'] ?? $rider->code_name;
-                $rider->image = $$image_to_store ?? $rider->image;
+                $rider->image =  env('APP_URL') .'/storage/images/'.$image_to_store ?? $rider->image;
                 $rider->vehicle_id = $validated['vehicle_id'] ?? $rider->vehicle_id;
                 $rider->password = Hash::make($validated['password']) ?? $rider->password;
                 $rider->partner_id = auth()->user()->id;

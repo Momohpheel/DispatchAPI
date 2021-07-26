@@ -37,7 +37,7 @@ class UserRepository implements UserRepositoryInterface{
                 "email" => $partner->email,
                 "id" => $partner->id,
                 "code_name" => $partner->code_name,
-                // "image" => $partner->image
+                "image" => $partner->image
 
             ];
             return $this->success(false, 'User Onboarded successfully', $data, 200);
@@ -77,7 +77,7 @@ class UserRepository implements UserRepositoryInterface{
                     "phone" => $user->phone,
                     "email" => $user->email,
                     "id" => $user->id,
-                    // "image" => $user->image,
+                    "image" => $user->image,
                     "access_token" => $access_token
                 ];
                 $this->history('Profile', $data['name']." created their profile", $data['id'], 'user');
@@ -109,7 +109,7 @@ class UserRepository implements UserRepositoryInterface{
                         "phone" => $user->phone,
                         "email" => $user->email,
                         "id" => $user->id,
-                        // "image" => $user->image,
+                        "image" => $user->image,
                         "access_token" => $access_token
                     ];
                     return $this->success(false, "User found", $data, 200);
@@ -696,7 +696,97 @@ class UserRepository implements UserRepositoryInterface{
     }
 
 
-    public function payment(){}
+    public function payment(Request $request, $id){
+        //increase partner's earninigs
+        //increase rider and vehicle earnings
+        //
+        try {
+            $validated = $request->validate(
+                [
+                    "amount" => "required",
+                    "email" => "required"
+                ]
+                );
+
+
+                $url = "https://api.paystack.co/transaction/initialize";
+                $ch = curl_init($url);
+
+                curl_setopt_array($ch, array(
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_CUSTOMREQUEST => "POST",
+                    CURLOPT_POSTFIELDS => json_encode([
+                        'amount'=> $validated['amount'],
+                        'email'=> $validated['email'],
+                        'callback_url' =>  env('APP_URL') .'/api/user/callback',
+                    ]),
+                    CURLOPT_HTTPHEADER => array(
+                        'cache-control: no-cache',
+                        'Content-Type: application/json',
+                        'Authorization: Bearer sk_test_f2a6d1d7f41d7d5e23c4221cf683a56b03ea3a81',
+                    ),
+                ));
+
+
+                $response = curl_exec($ch);
+                $error = curl_error($ch);
+
+                if ($error){
+                    return $this->error(true, 'There was an error: '. $error, 400);
+                }
+
+
+
+                $trans = json_decode($response);
+
+
+                curl_close($ch);
+                //return redirect($trans->data->authorization_url);
+                return $this->success(false, "Payment...", $trans, 200);
+        }catch(Exception $e){
+            return $this->error(true, "Error occured!", 400);
+        }
+
+    }
+
+    public function callback(){
+
+
+        $tr_id = isset($_GET['reference']) ? $_GET['reference'] : null;
+
+        if ($tr_id == null){
+            die('error: no trnasaction id found!');
+        }
+
+        $url = "https://api.paystack.co/transaction/verify/$tr_id";
+        $ch = curl_init($url);
+
+
+        curl_setopt_array($ch, array(
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CUSTOMREQUEST => "GET",
+            CURLOPT_HTTPHEADER => array(
+                'cache-control: no-cache',
+                'Content-Type : application/json',
+                'Authorization : Bearer sk_test_f2a6d1d7f41d7d5e23c4221cf683a56b03ea3a81',
+            ),
+        )
+        );
+
+
+
+        $response = curl_exec($ch);
+
+        $trans = json_decode($response, true);
+
+        if ($trans->data->status == 'successfull'){
+            return $this->success(false, "Payment Successful", $trans, 200);
+        }else{
+            return $this->error(true, "Payment Not Successful", $trans, 400);
+        }
+
+        curl_close($ch);
+    }
 
 
 }
