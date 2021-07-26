@@ -270,6 +270,8 @@ class UserRepository implements UserRepositoryInterface{
         $order->save();
         $min = 200; //200
         $getrider;
+        $totals = 0;
+        $discounts = 0;
         $partner = Partner::find($id);
         //pair with rider who is under the partner
         //and is not disabled or dismissed and nearby
@@ -318,7 +320,10 @@ class UserRepository implements UserRepositoryInterface{
                         //rider_id or vehicle_id
                         $newdropoff->rider_id = $getrider->id ?? null;
                         $newdropoff->price = $this->calculatePrice($min, $id) ?? null;
+                        $newdropoff->discount = null;
 
+                        $totals += $newdropoff->price;
+                        $discounts += $newdropoff->discount;
                     }
                     // else{
                     //     return $this->error(true, 'Sorry all our riders are fully booked and are unable to fulfill your orders at the moment, please try again', 400);
@@ -341,10 +346,19 @@ class UserRepository implements UserRepositoryInterface{
             }
         }
 
+        $calculations = [
+            "total_amount" => $totals ?? null,
+            "discount" => $discounts ?? null,
+            "total" => ($totals - $discount) ?? null
+        ];
+
 
         $this->history('Jobs', auth()->user()->name." made ".$newdropoff->count()." orders", auth()->user()->id, 'user');
 
+        array_push($order, $calculations);
+
         return $this->success(false, "Order created! You are successfully paired with a rider", $order, 200);
+
     }
 
 
@@ -696,10 +710,18 @@ class UserRepository implements UserRepositoryInterface{
     }
 
 
+    public function fundWallet(){}
+
+    public function saveCard(){}
+
+    public function getSavedCard(){}
+
+
+
     public function payment(Request $request, $id){
         //increase partner's earninigs
         //increase rider and vehicle earnings
-        //
+        //reduce user wallet
         try {
             $validated = $request->validate(
                 [
