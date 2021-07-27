@@ -394,10 +394,41 @@ class UserRepository implements UserRepositoryInterface{
     public function getAllOrders(){
         try{
 
-            $totals = 0;
-            $discounts = 0;
+
             $id = auth()->user()->id;
             $orders = Order::with('dropoff')->where('user_id', $id)->get();
+
+            // if (isset($orders->dropoff)){
+            //     foreach ($orders->dropoff as $dropoff){
+            //         $totals += $dropoff->price;
+            //         $discounts += $dropoff->discount;
+            //     }
+            // }
+            // $calculations = [
+            //     "total_amount" => $totals ?? null,
+            //     "discount" => $discounts ?? null,
+            //     "total" => ($totals - $discounts) ?? null
+            // ];
+
+            // json_encode($calculations);
+
+            // $orders['calculation'] = $calculations;
+
+            return $this->success(false, "User Order History", $orders, 200);
+
+        }catch(Exception $e){
+            return $this->error(true, "Error Occured!", 400);
+        }
+    }
+
+    public function getOrder($id){
+        //get current order, check if order has started
+        //get all dropoffs under order
+        try{
+
+            $totals = 0;
+            $discounts = 0;
+            $orders = Order::with('dropoff')->where('id', $id)->first();
 
             if (isset($orders->dropoff)){
                 foreach ($orders->dropoff as $dropoff){
@@ -415,18 +446,6 @@ class UserRepository implements UserRepositoryInterface{
 
             $orders['calculation'] = $calculations;
 
-            return $this->success(false, "User Order History", $orders, 200);
-
-        }catch(Exception $e){
-            return $this->error(true, "Error Occured!", 400);
-        }
-    }
-
-    public function getOrder($id){
-        //get current order, check if order has started
-        //get all dropoffs under order
-        try{
-            $orders = Order::with('dropoff')->where('id', $id)->first();
 
             return $this->success(false, "Order", $orders, 200);
         }catch(Exception $e){
