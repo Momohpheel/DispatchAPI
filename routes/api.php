@@ -31,6 +31,7 @@ use Illuminate\Support\Facades\Route;
         Route::middleware(['auth:api'])->group(function () {
             Route::prefix('profile')->group(function () {
                 Route::post('update', [App\Http\Controllers\UserController::class, 'updateProfile']);
+                Route::post('image', [App\Http\Controllers\UserController::class, 'uploadImage']);
                 Route::get('/', [App\Http\Controllers\UserController::class, 'getProfile']);
             });
             Route::post('order/{id}', [App\Http\Controllers\UserController::class, 'order']);

@@ -14,6 +14,8 @@ interface UserRepositoryInterface{
 
     public function updateProfile(Request $request);
 
+    public function uploadImage(Request $request);
+
     public function login(Request $request);
 
     public function order(Request $request, $id);

@@ -125,13 +125,11 @@ class UserRepository implements UserRepositoryInterface{
         }
     }
 
-    public function updateProfile(Request $request){
+    public function uploadImage(Request $request){
         try{
+
             $validated = $request->validate([
-                'name' => "string",
-                'phone' => "string",
-                'email' => 'email',
-                'image' => 'image|max:2000|mimes:png,jpg'
+                'image' => 'required|image|max:2000|mimes:png,jpg'
             ]);
 
             if ($request->hasFile('image')){
@@ -141,13 +139,40 @@ class UserRepository implements UserRepositoryInterface{
                 $image_extension = $validated['image']->getClientOriginalExtension();
                 $image_to_store = $name . '_' . time() . '.' . $image_extension;
                 $path = $validated['image']->storeAs('public/images', trim($image_to_store));
+            }
+
+            $check_user = User::where('id', auth()->user()->id)->first();
+            if ($check_user){
+
+                $check_user->image = isset($image_to_store) ? env('APP_URL') .'/storage/images/'.$image_to_store : $check_user->image;
+                $check_user->save();
+
+                return $this->success(false, "user profile image uploaded", $check_user, 200);
+
+            }else{
+                return $this->error(true, "Unauthenticated", 400);
+            }
+
+        }catch(Exception $e){
+            return $this->error(true, "Unable to upload image", 400);
         }
+    }
+
+
+    public function updateProfile(Request $request){
+        try{
+            $validated = $request->validate([
+                'name' => "required|string",
+                'phone' => "required|string",
+                'email' => 'required|email'
+            ]);
+
+
             $check_user = User::where('id', auth()->user()->id)->first();
             if ($check_user){
                 $check_user->name = $validated['name'] ?? $check_user->name;
                 $check_user->phone = $validated['phone'] ?? $check_user->phone;
                 $check_user->email = $validated['email'] ?? $check_user->email;
-                $check_user->image = isset($image_to_store) ? env('APP_URL') .'/storage/images/'.$image_to_store : $check_user->image;
                 $check_user->save();
 
                 return $this->success(false, "user profile updated", $check_user, 200);
@@ -319,8 +344,8 @@ class UserRepository implements UserRepositoryInterface{
                     if (isset($getrider)){
                         //rider_id or vehicle_id
                         $newdropoff->rider_id = $getrider->id ?? null;
-                        $newdropoff->price = $this->calculatePrice($min, $id) ?? null;
-                        $newdropoff->discount = null;
+                        $newdropoff->price = $this->calculatePrice($min, $id) ?? 0;
+                        $newdropoff->discount = 0;
 
                         $totals += $newdropoff->price;
                         $discounts += $newdropoff->discount;
@@ -346,16 +371,20 @@ class UserRepository implements UserRepositoryInterface{
             }
         }
 
+
+
         $calculations = [
             "total_amount" => $totals ?? null,
             "discount" => $discounts ?? null,
-            "total" => ($totals - $discount) ?? null
+            "total" => ($totals - $discounts) ?? null
         ];
 
+        json_encode($calculations);
 
+        $order['calculation'] = $calculations;
         $this->history('Jobs', auth()->user()->name." made ".$newdropoff->count()." orders", auth()->user()->id, 'user');
 
-        array_push($order, $calculations);
+        //array_merge($order, $calculations);
 
         return $this->success(false, "Order created! You are successfully paired with a rider", $order, 200);
 
@@ -365,13 +394,28 @@ class UserRepository implements UserRepositoryInterface{
     public function getAllOrders(){
         try{
 
+            $totals = 0;
+            $discounts = 0;
             $id = auth()->user()->id;
             $orders = Order::with('dropoff')->where('user_id', $id)->get();
-            // $data = [];
-            // foreach ($orders as $order){
-            //     $data = $order->dropoff();
-            // }
-                return $this->success(false, "User Order History", $orders, 200);
+
+            if (isset($orders->dropoff)){
+                foreach ($orders->dropoff as $dropoff){
+                    $totals += $dropoff->price;
+                    $discounts += $dropoff->discount;
+                }
+            }
+            $calculations = [
+                "total_amount" => $totals ?? null,
+                "discount" => $discounts ?? null,
+                "total" => ($totals - $discounts) ?? null
+            ];
+
+            json_encode($calculations);
+
+            $orders['calculation'] = $calculations;
+
+            return $this->success(false, "User Order History", $orders, 200);
 
         }catch(Exception $e){
             return $this->error(true, "Error Occured!", 400);
@@ -711,11 +755,6 @@ class UserRepository implements UserRepositoryInterface{
 
 
     public function fundWallet(){}
-
-    public function saveCard(){}
-
-    public function getSavedCard(){}
-
 
 
     public function payment(Request $request, $id){

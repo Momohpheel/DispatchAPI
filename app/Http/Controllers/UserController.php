@@ -66,6 +66,10 @@ class UserController extends Controller
         return $this->repository->getUserHistory();
     }
 
+    public function uploadImage(Request $request){
+        return $this->repository->uploadImage($request);
+    }
+
     public function rateRider(Request $request){
         return $this->repository->rateRider($request);
     }
