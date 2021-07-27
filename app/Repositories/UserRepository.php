@@ -426,7 +426,7 @@ class UserRepository implements UserRepositoryInterface{
         //get current order, check if order has started
         //get all dropoffs under order
         try{
-            $orders = Order::with('dropoff')->where('id', $id)->get();
+            $orders = Order::with('dropoff')->where('id', $id)->first();
 
             return $this->success(false, "Order", $orders, 200);
         }catch(Exception $e){
@@ -825,7 +825,8 @@ class UserRepository implements UserRepositoryInterface{
                     "type" => "required",
                     'card_no' => "string",
                     'exp_date' => "string",
-                    'cvv' => "string"
+                    'cvv' => "string",
+                    'partner_id' => "string"
             ]);
 
 
@@ -879,6 +880,8 @@ class UserRepository implements UserRepositoryInterface{
                         curl_close($ch);
 
                         if ($trans->data->status == 'success'){
+                            //increase partner's wallet
+
 
                             //increase admin's wallet balance
 
