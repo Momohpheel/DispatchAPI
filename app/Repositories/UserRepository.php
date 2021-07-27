@@ -754,32 +754,25 @@ class UserRepository implements UserRepositoryInterface{
     }
 
 
-    public function fundWallet(){}
+    public function fundWallet(){
+        try{
 
 
-    public function payment(Request $request, $id){
-        //increase partner's earninigs
-        //increase rider and vehicle earnings
-        //reduce user wallet
-        try {
-            $validated = $request->validate(
-                [
-                    "amount" => "required",
-                    "email" => "required"
-                ]
-                );
+            $validated = $request->validate([
+                'card_no' => "required|string",
+                'exp_date' => "required|string",
+                'cvv' => "required|string",
+                'amount' => 'required|string'
+            ]);
 
-
-                $url = "https://api.paystack.co/transaction/initialize";
+                $url = "https://api.paystack.co/charge";
                 $ch = curl_init($url);
 
                 curl_setopt_array($ch, array(
                     CURLOPT_RETURNTRANSFER => true,
                     CURLOPT_CUSTOMREQUEST => "POST",
                     CURLOPT_POSTFIELDS => json_encode([
-                        'amount'=> $validated['amount'],
-                        'email'=> $validated['email'],
-                        'callback_url' =>  env('APP_URL') .'/api/user/callback',
+
                     ]),
                     CURLOPT_HTTPHEADER => array(
                         'cache-control: no-cache',
@@ -802,13 +795,108 @@ class UserRepository implements UserRepositoryInterface{
 
 
                 curl_close($ch);
-                //return redirect($trans->data->authorization_url);
-                return $this->success(false, "Payment...", $trans, 200);
+
+                if ($trans->data->status == 'success'){
+
+                    $user = User::where('id', auth()->user()->id)->first();
+                    $user->wallet = $user->wallet + $validated['amount'];
+                    $user->save();
+
+                    //increase admin's wallet balance
+
+                    return $this->success(false, "Payment...", $trans, 200);
+                }else{
+                    return $this->error(true, "Couldn't fund wallet", 400);
+                }
+
         }catch(Exception $e){
-            return $this->error(true, "Error occured!", 400);
+            return $this->error(true, "Couldn't fund wallet", 400);
+        }
+    }
+
+
+    public function payment(Request $request, $id){
+        //increase partner's earninigs
+        //increase rider and vehicle earnings
+        //reduce user wallet
+        try {
+            $validated = $request->validate([
+                    "amount" => "required",
+                    "type" => "required",
+                    'card_no' => "string",
+                    'exp_date' => "string",
+                    'cvv' => "string"
+            ]);
+
+
+
+
+                if ($validated['type'] == "wallet"){
+
+                    $user = User::where('id', auth()->user()->id)->first();
+                    if ($user->wallet > intval($validated['amount'])){
+                        $user->wallet = $user->wallet - intval($validated['amount']);
+                        $user->save();
+                    }else{
+                        return $this->error(true, "Insufficient funds in user wallet", 400);
+                    }
+
+                    return $this->success(false, "Payment Successful", 200);
+
+
+                }else if($validated['type'] == "card") {
+
+
+                    //$url = "https://api.paystack.co/transaction/initialize";
+                        $url = "https://api.paystack.co/charge";
+                        $ch = curl_init($url);
+
+                        curl_setopt_array($ch, array(
+                            CURLOPT_RETURNTRANSFER => true,
+                            CURLOPT_CUSTOMREQUEST => "POST",
+                            CURLOPT_POSTFIELDS => json_encode([
+
+                            ]),
+                            CURLOPT_HTTPHEADER => array(
+                                'cache-control: no-cache',
+                                'Content-Type: application/json',
+                                'Authorization: Bearer sk_test_f2a6d1d7f41d7d5e23c4221cf683a56b03ea3a81',
+                            ),
+                        ));
+
+
+                        $response = curl_exec($ch);
+                        $error = curl_error($ch);
+
+                        if ($error){
+                            return $this->error(true, 'There was an error: '. $error, 400);
+                        }
+
+
+                        $trans = json_decode($response);
+
+
+                        curl_close($ch);
+
+                        if ($trans->data->status == 'success'){
+
+                            //increase admin's wallet balance
+
+                            return $this->success(false, "Payment Successful", $trans, 200);
+                        }else{
+                            return $this->error(true, "Payment Successful", 400);
+                        }
+
+            }else{
+                return $this->error(true, "Invalid Payment type", 400);
+            }
+
+        }catch(Exception $e){
+            return $this->error(true, "Error occured while processing payment!", 400);
         }
 
     }
+
 
     public function callback(){
 
