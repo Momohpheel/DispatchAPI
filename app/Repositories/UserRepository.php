@@ -787,9 +787,14 @@ class UserRepository implements UserRepositoryInterface{
             $user->wallet = $user->wallet + $validated['amount'];
             $user->save();
 
-           //wallet history
-           //trnasaction history
-           //user history
+            if ($validated['status'] == 'success'){
+                //wallet history
+                $this->walletLogs('wallet', "You added ".$validated['amount']." to your wallet", auth()->user()->id, 'user');
+                //trnasaction history
+                $this->transactionLog('Funding Wallet', $user->name. " added ".$validated['amount']." to their wallet", auth()->user()->id, 'user');
+                //user history
+            }
+
 
         }catch(Exception $e){
             return $this->error(true, "Couldn't fund wallet", 400);
@@ -800,15 +805,91 @@ class UserRepository implements UserRepositoryInterface{
     public function payment(Request $request, $id){
 
         try {
-
-            //increase partner's earninigs
-            //increase rider and vehicle earnings
-            //reduce user wallet
             //transaction history
             //wallet history
             //user history
+            $validated = $request->validate([
+                'customer_name' => 'required',
+                'customer_email' => 'required',
+                'trans_description' => 'required',
+                'datetime' => 'required',
+                'trans_status' => 'required',
+                'job_id' => 'required',
+                'reference_num' => 'required',
 
-            //dropoff payment-status change to paid if true
+
+                'type' => 'required',
+                'status' => 'required',
+
+
+                'amount' => 'required',
+                'origin_of_payment' => 'required',
+                'paystack_message' => 'required'
+            ]);
+
+
+            $orders = Order::with('dropoff')->where('id', $id)->where('user_id', auth()->user()->id)->get();
+
+            if ($validated['status'] == 'success'){
+
+                //reduce user wallet
+                $user = User::where('id', auth()->user()->id)->first();
+                $user->wallet = $user->wallet - $validated['amount'];
+                $user->save();
+
+                //increase partner's earninigs/wallet
+                $partner = Partner::find($orders->partner_id);
+                $partner->wallet = $partner->wallet + $validated['amount'];
+                $partner->save();
+
+                foreach ($orders as $order){
+                    //increase rider and vehicle earnings
+                    $rider = Rider::with('vehicle')->where('id', $order->dropoff->rider_id)->first();
+                    $rider->earning = $rider->earning + $order->dropoff->price;
+                    $rider->save();
+
+                    $vehicle = Vehicle::find($rider->vehicle->id);
+                    $vehicle->earning = $vehicle->earning +  $order->dropoff->price;
+                    $vehicle->save();
+
+
+                    //dropoff payment-status change to paid if true
+                    $order->dropoff->payment_status = 'paid';
+                    $order->save();
+
+
+
+                }
+
+
+                 //wallet history
+                 $this->walletLogs('wallet', $validated['amount']." was deducted from your wallet for a job", auth()->user()->id, 'user');
+                 //trnasaction history
+                 $this->transactionLog('Order', $user->name." paid for an order", auth()->user()->id, 'user');
+                 //user history
+
+            }
+
+
+            $payment = new Payment;
+            $payment->customer_name = $validated['customer_name'];
+            $payment->customer_email = $validated['customer_email'];
+            $payment->trans_description = $validated['trans_description'];
+            $payment->datetime = $validated['datetime'];
+            $payment->trans_status = $validated['trans_status'];
+            $payment->order_id = $validated['order_id'];
+            $payment->reference_num = $validated['reference_num'];
+            $payment->status = $validated['status'];
+            $payment->amount = $validated['amount'];
+            $payment->origin_of_payment = $validated['origin_of_payment'];
+            $payment->paystack_message = $validated['paystack_message'];
+            $payment->save();
+
+
+
+
+
+
 
         }catch(Exception $e){
             return $this->error(true, "Error occured while processing payment!", 400);
