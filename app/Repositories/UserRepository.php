@@ -435,6 +435,8 @@ class UserRepository implements UserRepositoryInterface{
                     $totals += $dropoff->price;
                     $discounts += $dropoff->discount;
                 }
+            }else{
+                return $this->error(true, "You dont have this order!", 400);
             }
             $calculations = [
                 "total_amount" => $totals ?? null,
