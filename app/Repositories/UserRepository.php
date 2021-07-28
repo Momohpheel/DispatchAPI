@@ -428,7 +428,7 @@ class UserRepository implements UserRepositoryInterface{
 
             $totals = 0;
             $discounts = 0;
-            $orders = Order::with('dropoff')->where('id', auth()->user()->id)->where('id', $id)->first();
+            $orders = Order::with('dropoff')->where('user_id', auth()->user()->id)->where('id', $id)->first();
 
             if (isset($orders->dropoff)){
                 foreach ($orders->dropoff as $dropoff){
