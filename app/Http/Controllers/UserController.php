@@ -58,9 +58,6 @@ class UserController extends Controller
         return $this->repository->payment($request,$id);
     }
 
-    public function callback(){
-        return $this->repository->callback();
-    }
 
     public function getUserHistory(){
         return $this->repository->getUserHistory();

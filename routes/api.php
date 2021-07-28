@@ -47,7 +47,7 @@ use Illuminate\Support\Facades\Route;
             Route::get('history', [App\Http\Controllers\UserController::class, 'orderHistory']);
 
             Route::post('pay/{id}', [App\Http\Controllers\UserController::class, 'payment']);
-            Route::get('callback', [App\Http\Controllers\UserController::class, 'callback']);
+            //Route::get('callback', [App\Http\Controllers\UserController::class, 'callback']);
         });
     });
 

@@ -30,7 +30,7 @@ interface UserRepositoryInterface{
 
     public function payment(Request $request, $id);
 
-    public function callback();
+
 
     public function getUserHistory();
 
