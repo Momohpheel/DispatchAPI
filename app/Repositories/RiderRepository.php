@@ -69,9 +69,15 @@ class RiderRepository implements RiderRepositoryInterface{
     public function start_order(Request $request, $id){
         try{
             $order = DropOff::where('id', $id)->where('rider_id', auth()->user()->id)->where('payment_status', 'paid')->first();
+           if ($order){
+
             $order->start_time = now();
             $order->save();
             return $this->success(false, "Rider has initiated order", $order, 200);
+
+           } else{
+               return $this->error(true, "it's either this order doesn't exist or no payment has been made", 400);
+           }
         }catch(Exception $e){
             return $this->error(true, "Error" ,400);
         }

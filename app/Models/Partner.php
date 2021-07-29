@@ -14,6 +14,15 @@ class Partner extends Authenticatable
     use HasFactory, HasApiTokens;
 
 
+     /**
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'password',
+    ];
+
     public function vehicles(){
         return $this->hasMany(Vehicle::class);
     }

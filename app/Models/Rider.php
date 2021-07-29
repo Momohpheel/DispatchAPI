@@ -20,4 +20,16 @@ class Rider extends Authenticatable
     public function vehicle(){
         return $this->belongsTo(Vehicle::class);
     }
+
+
+     /**
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'password',
+    ];
+
 }
+
