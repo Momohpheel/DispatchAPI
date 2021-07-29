@@ -23,7 +23,7 @@ class CreateRidersTable extends Migration
             $table->foreignId('vehicle_id')->constrained();
             $table->string('password');
             //$table->string('code_name');
-            $table->string('earnings')->nullable();
+            $table->string('earning')->nullable();
             $table->decimal('latitude', 11,7)->nullable();
             $table->decimal('longitude', 11,7)->nullable();
             $table->integer('rating')->nullable();

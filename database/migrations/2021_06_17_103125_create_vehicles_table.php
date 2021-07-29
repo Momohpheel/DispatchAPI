@@ -19,7 +19,7 @@ class CreateVehiclesTable extends Migration
             $table->string('model')->nullable();
             $table->string('color')->nullable();
             $table->string('plate_number');
-            $table->string('earnings')->nullable();
+            $table->string('earning')->nullable();
             $table->enum('type', ['bike', 'small van', 'medium van', 'large van', 'car']);
             $table->boolean('is_enabled')->default(true);
             $table->boolean('is_removed')->default(false);

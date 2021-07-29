@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\Order;
 use App\Models\DropOff;
 use App\Models\Address;
+use App\Models\Vehicle;
 use App\Models\Rating;
 use App\Models\Rider;
 use App\Models\Payment;

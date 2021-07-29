@@ -58,7 +58,7 @@ class RiderRepository implements RiderRepositoryInterface{
                 'rating' => $rider->rating,
                 'phone' => $rider->phone,
                 'image' => $rider->image,
-                'earnings' => $rider->earnings,
+                'earnings' => $rider->earning,
             ];
 
             return $this->success(false, "Profile", $data, 200);
