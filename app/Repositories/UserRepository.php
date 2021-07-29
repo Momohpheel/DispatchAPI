@@ -869,7 +869,7 @@ class UserRepository implements UserRepositoryInterface{
                      //trnasaction history
                      $this->transactionLog('Order', $user->name." paid for an order", auth()->user()->id, 'user');
                      //user history
-                    $this->paymentLog($validated);
+                    $log = $this->paymentLog($validated);
 
 
 
@@ -884,7 +884,7 @@ class UserRepository implements UserRepositoryInterface{
 
 
 
-            return $this->success(false, "Logged Payment Successfully", 200);
+            return $this->success(false, "Logged Payment Successfully", $log , 200);
 
 
 
