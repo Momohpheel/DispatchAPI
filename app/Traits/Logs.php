@@ -9,12 +9,12 @@ use App\Models\TransactionLogs;
 
 trait Logs{
 
-    public function walletLogs($type = 'wallet',$data, $id, $user){
+    public function walletLogs($type,$data, $id, $user){
 
         $history = new History;
         $history->type = 'wallet';
         $history->data = $data;
-        $history->status = $status;
+        //$history->status = $status;
         if ($user == 'user'){
             $history->user_id = $id;
         }else if ($user == 'rider'){
@@ -34,9 +34,9 @@ trait Logs{
     public function transactionLog($type, $data, $id, $user){
 
         $trans = new TransactionLogs;
-        $trans->type = $type;
-        $trans->data = $data;
-        $trans->status = $status;
+        $trans->log_type = $type;
+        $trans->log_data = $data;
+        //$trans->status = $status;
         if ($user == 'user'){
             $trans->user_id = $id;
         }else if ($user == 'rider'){

@@ -355,6 +355,7 @@ class UserRepository implements UserRepositoryInterface{
                     //     return $this->error(true, 'Sorry all our riders are fully booked and are unable to fulfill your orders at the moment, please try again', 400);
                     // }
 
+                $newdropoff->payment_status = 'paid';
                 $newdropoff->status = 'pending';
                 $newdropoff->save();
 
@@ -783,16 +784,16 @@ class UserRepository implements UserRepositoryInterface{
             $user->wallet = $user->wallet + $request['amount'];
             $user->save();
 
-            if ($request['status'] == 'success'){
+            if ($request['trans_status'] == 'success'){
                 //wallet history
                 $this->walletLogs('wallet', "You added ".$request['amount']." to your wallet", auth()->user()->id, 'user');
                 //trnasaction history
                 $this->transactionLog('Funding Wallet', $user->name. " added ".$request['amount']." to their wallet", auth()->user()->id, 'user');
                 //user history
 
-                $this->paymentLog($request);
+                $log = $this->paymentLog($request);
 
-                return true;
+                return $log;
             }
 
 
@@ -814,7 +815,7 @@ class UserRepository implements UserRepositoryInterface{
                 'trans_description' => 'required',
                 'datetime' => 'required',
                 'trans_status' => 'required',
-                'order_id' => 'required',
+                'order_id' => 'string',
                 'reference_num' => 'required',
 
 
@@ -840,11 +841,13 @@ class UserRepository implements UserRepositoryInterface{
                     $user->save();
 
                     //increase partner's earninigs/wallet
-                    $partner = Partner::find($orders->partner_id);
-                    $partner->wallet = $partner->wallet + $validated['amount'];
-                    $partner->save();
+
 
                     foreach ($orders as $order){
+                        $partner = Partner::find($order->partner_id);
+                        $partner->wallet = $partner->wallet + $validated['amount'];
+                        $partner->save();
+
                         //increase rider and vehicle earnings
                         $rider = Rider::with('vehicle')->where('id', $order->dropoff->rider_id)->first();
                         $rider->earning = $rider->earning + $order->dropoff->price;
@@ -856,8 +859,13 @@ class UserRepository implements UserRepositoryInterface{
 
 
                         //dropoff payment-status change to paid if true
-                        $order->dropoff->payment_status = 'paid';
-                        $order->save();
+                       foreach ($order->dropoff as $dropoff){
+
+                            $job = Dropoff::where('id', $dropoff->id)->first();
+                            $job->payment_status = 'paid';
+                            $job->save();
+
+                       }
 
 
 
@@ -877,7 +885,7 @@ class UserRepository implements UserRepositoryInterface{
 
 
             }else if ($validated['type'] == 'wallet'){
-                    $this->fundWallet($validated);
+                    $log =  $this->fundWallet($validated);
             }else{
                 return $this->error(true, "The transaction type is unknown!", 400);
             }
@@ -902,7 +910,7 @@ class UserRepository implements UserRepositoryInterface{
         $payment->trans_description = $validated['trans_description'];
         $payment->datetime = $validated['datetime'];
         $payment->trans_status = $validated['trans_status'];
-        $payment->order_id = $validated['order_id'];
+        $payment->order_id = $validated['order_id'] ?? null;
         $payment->reference_num = $validated['reference_num'];
         $payment->status = $validated['status'];
         $payment->amount = $validated['amount'];
