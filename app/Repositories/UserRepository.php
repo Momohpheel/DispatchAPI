@@ -853,11 +853,11 @@ class UserRepository implements UserRepositoryInterface{
                         foreach ($order->dropoff as $dropoff){
                             //increase rider and vehicle earnings
                             $rider = Rider::with('vehicle')->where('id', $dropoff->rider_id)->first();
-                            $rider->earning = $rider->earning + $dropoff->price;
+                            $rider->earning = $rider->earning + $validated['amount'];
                             $rider->save();
 
                             $vehicle = Vehicle::find($rider->vehicle->id);
-                            $vehicle->earning = $vehicle->earning +  $dropoff->price;
+                            $vehicle->earning = $vehicle->earning +  $validated['amount'];
                             $vehicle->save();
 
 
