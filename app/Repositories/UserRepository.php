@@ -828,7 +828,7 @@ class UserRepository implements UserRepositoryInterface{
             ]);
 
 
-            $orders = Order::with('dropoff')->where('id', $validated['order_id'])->where('user_id', auth()->user()->id)->get();
+            $orders = Order::with('dropoff')->where('id', intval($validated['order_id']))->where('user_id', auth()->user()->id)->get();
 
             if ($validated['type'] == 'order'){
 
