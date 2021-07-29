@@ -10,6 +10,7 @@ use App\Models\Order;
 use App\Models\DropOff;
 use App\Models\Address;
 use App\Models\Rating;
+use App\Models\Rider;
 use App\Models\Payment;
 use App\Models\History;
 use App\Models\OperatingHours as OpHour;
