@@ -10,6 +10,7 @@ use App\Models\Order;
 use App\Models\DropOff;
 use App\Models\Address;
 use App\Models\Rating;
+use App\Models\Payment;
 use App\Models\History;
 use App\Models\OperatingHours as OpHour;
 use App\Traits\Response;
@@ -872,23 +873,18 @@ class UserRepository implements UserRepositoryInterface{
 
 
 
-            }else if ($validated['type'] == 'wallet'){
-                $this->fundWallet($validated);
-            }else{
-                return $this->error(true, "The transaction type is unknown!", 400);
+                }else if ($validated['type'] == 'wallet'){
+                    $this->fundWallet($validated);
+                }else{
+                    return $this->error(true, "The transaction type is unknown!", 400);
+                }
+
+                    return $this->success(false, "Logged Payment Successfully", 200);
+
+
+
+
             }
-
-            return $this->success(false, "Logged Payment Successfully", 200);
-
-
-
-
-        }
-
-
-
-
-
 
 
         }catch(Exception $e){
@@ -897,9 +893,8 @@ class UserRepository implements UserRepositoryInterface{
 
     }
 
+
     public function paymentLog($validated){
-
-
         $payment = new Payment;
         $payment->customer_name = $validated['customer_name'];
         $payment->customer_email = $validated['customer_email'];
