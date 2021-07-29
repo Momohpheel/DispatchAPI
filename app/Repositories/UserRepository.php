@@ -873,18 +873,19 @@ class UserRepository implements UserRepositoryInterface{
 
 
 
-                }else if ($validated['type'] == 'wallet'){
-                    $this->fundWallet($validated);
-                }else{
-                    return $this->error(true, "The transaction type is unknown!", 400);
                 }
 
-                    return $this->success(false, "Logged Payment Successfully", 200);
 
-
-
-
+            }else if ($validated['type'] == 'wallet'){
+                    $this->fundWallet($validated);
+            }else{
+                return $this->error(true, "The transaction type is unknown!", 400);
             }
+
+
+
+            return $this->success(false, "Logged Payment Successfully", 200);
+
 
 
         }catch(Exception $e){
