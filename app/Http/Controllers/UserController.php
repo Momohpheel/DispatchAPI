@@ -54,8 +54,8 @@ class UserController extends Controller
         return $this->repository->calculatePrice($distance, $id);
     }
 
-    public function payment(Request $request, $id){
-        return $this->repository->payment($request,$id);
+    public function payment(Request $request){
+        return $this->repository->payment($request);
     }
 
 

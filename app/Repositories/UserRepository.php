@@ -775,24 +775,23 @@ class UserRepository implements UserRepositoryInterface{
     }
 
 
-    public function fundWallet(){
+    public function fundWallet($request){
         try{
 
-            $validated = $request->validate([
-                'amount' => 'required',
-                'status' => 'required'
-            ]);
-
             $user = User::where('id', auth()->user()->id)->first();
-            $user->wallet = $user->wallet + $validated['amount'];
+            $user->wallet = $user->wallet + $request['amount'];
             $user->save();
 
-            if ($validated['status'] == 'success'){
+            if ($request['status'] == 'success'){
                 //wallet history
-                $this->walletLogs('wallet', "You added ".$validated['amount']." to your wallet", auth()->user()->id, 'user');
+                $this->walletLogs('wallet', "You added ".$request['amount']." to your wallet", auth()->user()->id, 'user');
                 //trnasaction history
-                $this->transactionLog('Funding Wallet', $user->name. " added ".$validated['amount']." to their wallet", auth()->user()->id, 'user');
+                $this->transactionLog('Funding Wallet', $user->name. " added ".$request['amount']." to their wallet", auth()->user()->id, 'user');
                 //user history
+
+                $this->paymentLog($request);
+
+                return true;
             }
 
 
@@ -802,7 +801,7 @@ class UserRepository implements UserRepositoryInterface{
     }
 
 
-    public function payment(Request $request, $id){
+    public function payment(Request $request){
 
         try {
             //transaction history
@@ -814,7 +813,7 @@ class UserRepository implements UserRepositoryInterface{
                 'trans_description' => 'required',
                 'datetime' => 'required',
                 'trans_status' => 'required',
-                'job_id' => 'required',
+                'order_id' => 'required',
                 'reference_num' => 'required',
 
 
@@ -828,62 +827,63 @@ class UserRepository implements UserRepositoryInterface{
             ]);
 
 
-            $orders = Order::with('dropoff')->where('id', $id)->where('user_id', auth()->user()->id)->get();
+            $orders = Order::with('dropoff')->where('id', $validated['order_id'])->where('user_id', auth()->user()->id)->get();
 
-            if ($validated['status'] == 'success'){
+            if ($validated['type'] == 'order'){
 
-                //reduce user wallet
-                $user = User::where('id', auth()->user()->id)->first();
-                $user->wallet = $user->wallet - $validated['amount'];
-                $user->save();
+                if ($validated['trans_status'] == 'success'){
 
-                //increase partner's earninigs/wallet
-                $partner = Partner::find($orders->partner_id);
-                $partner->wallet = $partner->wallet + $validated['amount'];
-                $partner->save();
+                    //reduce user wallet
+                    $user = User::where('id', auth()->user()->id)->first();
+                    $user->wallet = $user->wallet - $validated['amount'];
+                    $user->save();
 
-                foreach ($orders as $order){
-                    //increase rider and vehicle earnings
-                    $rider = Rider::with('vehicle')->where('id', $order->dropoff->rider_id)->first();
-                    $rider->earning = $rider->earning + $order->dropoff->price;
-                    $rider->save();
+                    //increase partner's earninigs/wallet
+                    $partner = Partner::find($orders->partner_id);
+                    $partner->wallet = $partner->wallet + $validated['amount'];
+                    $partner->save();
 
-                    $vehicle = Vehicle::find($rider->vehicle->id);
-                    $vehicle->earning = $vehicle->earning +  $order->dropoff->price;
-                    $vehicle->save();
+                    foreach ($orders as $order){
+                        //increase rider and vehicle earnings
+                        $rider = Rider::with('vehicle')->where('id', $order->dropoff->rider_id)->first();
+                        $rider->earning = $rider->earning + $order->dropoff->price;
+                        $rider->save();
 
-
-                    //dropoff payment-status change to paid if true
-                    $order->dropoff->payment_status = 'paid';
-                    $order->save();
+                        $vehicle = Vehicle::find($rider->vehicle->id);
+                        $vehicle->earning = $vehicle->earning +  $order->dropoff->price;
+                        $vehicle->save();
 
 
+                        //dropoff payment-status change to paid if true
+                        $order->dropoff->payment_status = 'paid';
+                        $order->save();
 
-                }
 
 
-                 //wallet history
-                 $this->walletLogs('wallet', $validated['amount']." was deducted from your wallet for a job", auth()->user()->id, 'user');
-                 //trnasaction history
-                 $this->transactionLog('Order', $user->name." paid for an order", auth()->user()->id, 'user');
-                 //user history
 
+                    }
+
+                     //wallet history
+                     $this->walletLogs('wallet', $validated['amount']." was deducted from your wallet for a job", auth()->user()->id, 'user');
+                     //trnasaction history
+                     $this->transactionLog('Order', $user->name." paid for an order", auth()->user()->id, 'user');
+                     //user history
+                    $this->paymentLog($validated);
+
+
+
+            }else if ($validated['type'] == 'wallet'){
+                $this->fundWallet($validated);
+            }else{
+                return $this->error(true, "The transaction type is unknown!", 400);
             }
 
+            return $this->success(false, "Logged Payment Successfully", 200);
 
-            $payment = new Payment;
-            $payment->customer_name = $validated['customer_name'];
-            $payment->customer_email = $validated['customer_email'];
-            $payment->trans_description = $validated['trans_description'];
-            $payment->datetime = $validated['datetime'];
-            $payment->trans_status = $validated['trans_status'];
-            $payment->order_id = $validated['order_id'];
-            $payment->reference_num = $validated['reference_num'];
-            $payment->status = $validated['status'];
-            $payment->amount = $validated['amount'];
-            $payment->origin_of_payment = $validated['origin_of_payment'];
-            $payment->paystack_message = $validated['paystack_message'];
-            $payment->save();
+
+
+
+        }
 
 
 
@@ -897,6 +897,25 @@ class UserRepository implements UserRepositoryInterface{
 
     }
 
+    public function paymentLog($validated){
+
+
+        $payment = new Payment;
+        $payment->customer_name = $validated['customer_name'];
+        $payment->customer_email = $validated['customer_email'];
+        $payment->trans_description = $validated['trans_description'];
+        $payment->datetime = $validated['datetime'];
+        $payment->trans_status = $validated['trans_status'];
+        $payment->order_id = $validated['order_id'];
+        $payment->reference_num = $validated['reference_num'];
+        $payment->status = $validated['status'];
+        $payment->amount = $validated['amount'];
+        $payment->origin_of_payment = $validated['origin_of_payment'];
+        $payment->paystack_message = $validated['paystack_message'];
+        $payment->save();
+
+        return $payment;
+    }
 
 
 

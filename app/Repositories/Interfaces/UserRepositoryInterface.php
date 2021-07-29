@@ -28,7 +28,7 @@ interface UserRepositoryInterface{
 
     public function calculatePrice($distance, $id);
 
-    public function payment(Request $request, $id);
+    public function payment(Request $request);
 
 
 
