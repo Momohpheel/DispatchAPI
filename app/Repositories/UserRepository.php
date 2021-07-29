@@ -849,19 +849,18 @@ class UserRepository implements UserRepositoryInterface{
                         $partner->wallet = $partner->wallet + $validated['amount'];
                         $partner->save();
 
-                        //increase rider and vehicle earnings
-                        $rider = Rider::with('vehicle')->where('id', $order->dropoff->rider_id)->first();
-                        $rider->earning = $rider->earning + $order->dropoff->price;
-                        $rider->save();
+                        foreach ($order->dropoff as $dropoff){
+                            //increase rider and vehicle earnings
+                            $rider = Rider::with('vehicle')->where('id', $dropoff->rider_id)->first();
+                            $rider->earning = $rider->earning + $dropoff->price;
+                            $rider->save();
 
-                        $vehicle = Vehicle::find($rider->vehicle->id);
-                        $vehicle->earning = $vehicle->earning +  $order->dropoff->price;
-                        $vehicle->save();
+                            $vehicle = Vehicle::find($rider->vehicle->id);
+                            $vehicle->earning = $vehicle->earning +  $dropoff->price;
+                            $vehicle->save();
 
 
-                        //dropoff payment-status change to paid if true
-                       foreach ($order->dropoff as $dropoff){
-
+                            //dropoff payment-status change to paid if true
                             $job = Dropoff::where('id', $dropoff->id)->first();
                             $job->payment_status = 'paid';
                             $job->save();
