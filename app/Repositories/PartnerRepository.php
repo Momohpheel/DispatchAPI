@@ -96,6 +96,8 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 }else{
                     return $this->error(true, "Error logging partner", 400);
                 }
+            }else{
+                return $this->error(true, "Error logging partner", 400);
             }
 
         }catch(Exception $e){
