@@ -11,6 +11,7 @@ use App\Traits\Logs;
 use App\Models\Order;
 use App\Models\DropOff;
 use App\Models\Address;
+use App\Models\gpsLog;
 use App\Repositories\Interfaces\RiderRepositoryInterface;
 use Illuminate\Http\Request;
 
@@ -108,7 +109,7 @@ class RiderRepository implements RiderRepositoryInterface{
             return $this->success(false, "Dropoff status changed to ".$validated['status'] ,$dropoff, 200);
 
         }catch(Exception $e){
-            return $this->error(true, "Error Occured", 400);
+            return $this->error(true, "Error Occuredn", 400);
         }
     }
 
@@ -132,6 +133,33 @@ class RiderRepository implements RiderRepositoryInterface{
         }catch(Exception $e){
             return $this->error(true, "Couldn't find rider's history", 400);
         }
+    }
+
+    public function setDriverLocation(Request $request){
+        try{
+
+            $validated = $request->validate([
+                'longitude' => 'required|string',
+                'latitude' => 'required|string'
+            ]);
+
+            $gps = new gpsLog;
+            $gps->longitude = $validated['longitude'];
+            $gps->latitude = $validated['latitude'];
+            $gps->rider_id = auth()->user()->id;
+            $gps->save();
+
+            $rider = Rider::where('id', auth()->user()->id)->first();
+            $rider->longitude = $validated['longitude'];
+            $rider->latitude = $validated['latitude'];
+            $rider->save();
+
+            return $this->success(false, "Rider location set", 200);
+
+        }catch(Exception $e){
+            return $this->error(true, "Rider location wasn't set", 400);
+        }
+
     }
 
     public function updatePhone(Request $request){
