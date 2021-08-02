@@ -157,7 +157,7 @@ class RiderRepository implements RiderRepositoryInterface{
             return $this->success(false, "Rider location set", 200);
 
         }catch(Exception $e){
-            return $this->error(true, "Rider location wasn't set", 400);
+            return $this->error(true, "Rider location wasn't set", $rider, 400);
         }
 
     }
