@@ -62,6 +62,7 @@ use Illuminate\Support\Facades\Route;
             Route::get('orders', [App\Http\Controllers\RiderController::class, 'checkOrders']);
             Route::get('history', [App\Http\Controllers\RiderController::class, 'history']);
             Route::put('phone/update', [App\Http\Controllers\RiderController::class, 'updatePhone']);
+            Route::post('location/set', [App\Http\Controllers\RiderController::class, 'setDriverLocation']);
 
             Route::post('order/status/{id}', [App\Http\Controllers\RiderController::class, 'changeOrderStatus']);
         });
