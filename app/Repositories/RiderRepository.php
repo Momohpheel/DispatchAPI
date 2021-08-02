@@ -102,7 +102,7 @@ class RiderRepository implements RiderRepositoryInterface{
                 'status' => 'required|string'
             ]);
 
-            $dropoff = Dropoff::where('id', $id)->where('rider_id', auth()->user()->id)->first();
+            $dropoff = Dropoff::where('id', $id)->where('rider_id', auth()->user()->id)->where('payment_status', 'paid')->first();
             $dropoff->status = $validated['status'];
             $dropoff->save();
 
@@ -115,7 +115,7 @@ class RiderRepository implements RiderRepositoryInterface{
 
     public function checkOrders(){
         try{
-            $orders = DropOff::where('rider_id', auth()->user()->id)->get();
+            $orders = DropOff::where('rider_id', auth()->user()->id)->where('payment_status', 'paid')->get();
 
             return $this->success(false, "Rider's orders", $orders, 200);
         }catch(Exception $e){

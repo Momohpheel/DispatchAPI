@@ -16,6 +16,8 @@ interface RiderRepositoryInterface{
 
     public function changeOrderStatus(Request $request, $id);
 
+    public function setDriverLocation(Request $request);
+
     public function checkOrders();
 
     public function history();

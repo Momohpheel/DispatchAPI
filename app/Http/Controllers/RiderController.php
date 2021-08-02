@@ -41,6 +41,9 @@ class RiderController extends Controller
         return $this->repository->changeOrderStatus($request, $id);
     }
 
+    public function setDriverLocation(Request $request){
+        return $this->repository->setDriverLocation($request);
+    }
 
     public function end_order($id){
         return $this->repository->end_order( $id);
