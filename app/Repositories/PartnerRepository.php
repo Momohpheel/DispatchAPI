@@ -84,11 +84,11 @@ class PartnerRepository implements PartnerRepositoryInterface{
     public function login(Request $request){
         try{
             $validated = $request->validate([
-                'code_name' => "required|string",
+                'email' => "required|string",
                 "password" => "required|string"
             ]);
 
-            $partner = Partner::where('code_name', $validated['code_name'])->first();
+            $partner = Partner::where('email', $validated['email'])->first();
             if ($partner){
                 $check = Hash::check($validated['password'], $partner->password);
                 if ($check){

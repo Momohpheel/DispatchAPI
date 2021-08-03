@@ -581,7 +581,7 @@ class UserRepository implements UserRepositoryInterface{
             foreach ($pendings as $pending){
                 //$d_datum = $pending->load('dropoff');
                  foreach ($pending->dropoff as $dro){
-                     if ($dro->payment_status == 'not paid'){
+                     if ($dro->payment_status != 'paid'){
                         array_push($d_data, $dro);
                      }
 
