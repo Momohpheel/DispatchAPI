@@ -619,31 +619,37 @@ class UserRepository implements UserRepositoryInterface{
     public function getOrderByStatus($status){
 
         try{
-            $order = Order::with('dropoff')->where('user_id', auth()->user()->id);
+            $orders = Order::with('dropoff')->where('user_id', auth()->user()->id)->get();
             $data = [];
 
             switch($status){
                 case 'pending':
-                    foreach ($order->dropoff as $dro){
-                        if ($dro->status == 'pending'){
-                            array_push($data, $dro);
+                    foreach ($orders as $order){
+                        foreach ($order->dropoff as $dro){
+                            if ($dro->status == 'pending'){
+                                array_push($data, $dro);
+                            }
                         }
                     }
 
                     return $this->success(false, "Pending Orders", $data, 200);
                 case 'unpaid':
-                    foreach ($order->dropoff as $dro){
-                        if ($dro->payment_status == 'not paid'){
-                            array_push($data, $dro);
+                    foreach ($orders as $order){
+                        foreach ($order->dropoff as $dro){
+                            if ($dro->payment_status == 'not paid'){
+                                array_push($data, $dro);
+                            }
                         }
                     }
 
                     return $this->success(false, "Unpaid Orders", $data, 200);
 
                 case 'pickedup':
-                    foreach ($order->dropoff as $dro){
-                        if ($dro->status == 'picked'){
-                            array_push($data, $dro);
+                    foreach ($orders as $order){
+                        foreach ($order->dropoff as $dro){
+                            if ($dro->status == 'picked'){
+                                array_push($data, $dro);
+                            }
                         }
                     }
 
