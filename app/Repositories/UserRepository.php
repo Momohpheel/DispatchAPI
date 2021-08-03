@@ -655,7 +655,7 @@ class UserRepository implements UserRepositoryInterface{
 
                     return $this->success(false, "Picked-Up Orders", $data, 200);
                 default:
-                    return $this->error(true, "Picked-Up Orders", 400);
+                    return $this->error(true, "Couldn't get order...", 400);
             }
 
 
