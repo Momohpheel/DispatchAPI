@@ -115,7 +115,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
         }
     }
 
-
+    public function forgotPassword(){}
 
 
 

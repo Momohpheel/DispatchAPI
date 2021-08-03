@@ -74,7 +74,7 @@ use Illuminate\Support\Facades\Route;
     Route::prefix('partner')->group(function () {
         Route::post('signup', [App\Http\Controllers\PartnerController::class, 'signup']);
         Route::post('login', [App\Http\Controllers\PartnerController::class, 'login']);
-        Route::post('all', [App\Http\Controllers\PartnerController::class, 'allPartner']);
+        Route::get('all', [App\Http\Controllers\PartnerController::class, 'allPartner']);
         Route::middleware(['auth:partner'])->group(function () {
             Route::post('pause-account', [App\Http\Controllers\PartnerController::class, 'pauseAccount']);
             Route::get('history', [App\Http\Controllers\PartnerController::class, 'getPartnerHistory']);
