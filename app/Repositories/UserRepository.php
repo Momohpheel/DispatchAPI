@@ -636,7 +636,7 @@ class UserRepository implements UserRepositoryInterface{
                 case 'unpaid':
                     foreach ($orders as $order){
                         foreach ($order->dropoff as $dro){
-                            if ($dro->payment_status == 'not paid'){
+                            if ($dro->payment_status != 'paid'){
                                 array_push($data, $dro);
                             }
                         }
