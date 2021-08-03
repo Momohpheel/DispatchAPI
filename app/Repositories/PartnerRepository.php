@@ -215,21 +215,40 @@ class PartnerRepository implements PartnerRepositoryInterface{
     public function updateProfile(Request $request){
         try{
             $validated = $request->validate([
-                'image' => "required|image|mimes:jpg,png,jpeg|max:2000",
+                'image' => "image|mimes:jpg,png,jpeg|max:2000",
+                'business_name' => 'string',
+                'business_description' => 'string',
+                'business_phone' => 'string',
+                'business_email' => 'string',
+                'business_bank_account' => 'string',
+                'business_bank_name' => 'string',
+
             ]);
 
-            if (request()->hasFile('image')){
-                $image_name = request()->file()->getClientOriginalName();
-                $image_ext = pathfile($image_name);
-
-
+            if ($request->hasFile('image')){
+                    $image_name = $validated['image']->getClientOriginalName();
+                    $image_name_withoutextensions =  pathinfo($image_name, PATHINFO_FILENAME);
+                    $name = str_replace(" ", "", $image_name_withoutextensions);
+                    $image_extension = $validated['image']->getClientOriginalExtension();
+                    $image_to_store = $name . '_' . time() . '.' . $image_extension;
+                    $path = $validated['image']->storeAs('public/images', trim($image_to_store));
             }
-            $partner = Partner::find(1);
-            $partner->image = $image;
-            $partner->save();
+
+                    $id = auth()->user()->id;
+                    $partner = Partner::find($id);
+                    $partner->image =  env('APP_URL') .'/storage/images/'.$image_to_store ?? $partner->image;
+                    $partner->name = $validated['business_name'] ?? $partner->name;
+                    $partner->description = $validated['business_description'] ?? $partner->description;
+                    $partner->phone = $validated['business_phone'] ?? $partner->phone;
+                    $partner->email = $validated['business_email'] ?? $partner->email;
+                    $partner->bank_account = $validated['business_bank_account'] ?? $partner->bank_account;
+                    $partner->bank_name = $validated['business_bank_name'] ?? $partner->bank_name;
+                    $partner->save();
+
+                    return $this->success(false, "Partner Profile Updated", $partner, 200);
 
         }catch(Exception $e){
-
+            return $this->error(true, "partner profile couldn't be updated", 400);
         }
     }
 
