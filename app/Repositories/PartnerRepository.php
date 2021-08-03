@@ -23,6 +23,16 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
     use Response, Logs;
 
+
+    public function allPartner(){
+        try{
+            $partners = Partner::all();
+
+            return $this->success(false, "All Partners", $partners, 200);
+        }catch(Exception $e){
+            return $this->error(true, "Couldn't find all partners", 400);
+        }
+    }
     /*
     *
     *

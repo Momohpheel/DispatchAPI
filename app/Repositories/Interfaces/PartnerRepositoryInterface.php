@@ -36,6 +36,8 @@ interface PartnerRepositoryInterface{
 
     public function createRider(Request $request);
 
+    public function allPartner();
+
     public function disableRider($id);
 
     public function getRiders();

@@ -581,7 +581,7 @@ class UserRepository implements UserRepositoryInterface{
             foreach ($pendings as $pending){
                 //$d_datum = $pending->load('dropoff');
                  foreach ($pending->dropoff as $dro){
-                     if ($dro->status == 'delivered'){
+                     if ($dro->payment_status == 'not paid'){
                         array_push($d_data, $dro);
                      }
 
@@ -605,7 +605,7 @@ class UserRepository implements UserRepositoryInterface{
                 "orders" => count($data),
                 "pending" => count($p_data), //$pending->dropoff()->count(),
                 "pickedUp" => count($pu_data), //$pickedUp->dropoff()->count(),
-                "delivered" => count($d_data), // $delivered->dropoff()->count(),
+                "unpaid" => count($d_data), // $delivered->dropoff()->count(),
             ];
 
             return $this->success(false, "User count orders", $data, 200);
@@ -616,7 +616,47 @@ class UserRepository implements UserRepositoryInterface{
 
     }
 
+    public function getOrderByStatus($status){
 
+        try{
+            $order = Order::with('dropoff')->where('user_id', auth()->user()->id);
+            $data = [];
+
+            switch($status){
+                case 'pending':
+                    foreach ($order->dropoff as $dro){
+                        if ($dro->status == 'pending'){
+                            array_push($data, $dro);
+                        }
+                    }
+
+                    return $this->success(false, "Pending Orders", $data, 200);
+                case 'unpaid':
+                    foreach ($order->dropoff as $dro){
+                        if ($dro->payment_status == 'not paid'){
+                            array_push($data, $dro);
+                        }
+                    }
+
+                    return $this->success(false, "Unpaid Orders", $data, 200);
+
+                case 'pickedup':
+                    foreach ($order->dropoff as $dro){
+                        if ($dro->status == 'picked'){
+                            array_push($data, $dro);
+                        }
+                    }
+
+                    return $this->success(false, "Picked-Up Orders", $data, 200);
+                default:
+                    return $this->error(true, "Picked-Up Orders", 400);
+            }
+
+
+        }catch(Exception $e){
+            return $this->error(true, "Couldn't get order", 400);
+        }
+    }
 
     public function calculatePrice($distance, $id){
         try{

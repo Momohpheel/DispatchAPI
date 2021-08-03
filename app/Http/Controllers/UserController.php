@@ -58,6 +58,9 @@ class UserController extends Controller
         return $this->repository->payment($request);
     }
 
+    public function getOrderByStatus($status){
+        return $this->repository->getOrderByStatus($status);
+    }
 
     public function getUserHistory(){
         return $this->repository->getUserHistory();

@@ -47,7 +47,7 @@ use Illuminate\Support\Facades\Route;
             Route::get('history', [App\Http\Controllers\UserController::class, 'orderHistory']);
 
             Route::post('payment/log', [App\Http\Controllers\UserController::class, 'payment']);
-            //Route::get('callback', [App\Http\Controllers\UserController::class, 'callback']);
+            Route::get('order/{status}', [App\Http\Controllers\UserController::class, 'getOrderByStatus']);
         });
     });
 
@@ -74,7 +74,7 @@ use Illuminate\Support\Facades\Route;
     Route::prefix('partner')->group(function () {
         Route::post('signup', [App\Http\Controllers\PartnerController::class, 'signup']);
         Route::post('login', [App\Http\Controllers\PartnerController::class, 'login']);
-
+        Route::post('all', [App\Http\Controllers\PartnerController::class, 'allPartner']);
         Route::middleware(['auth:partner'])->group(function () {
             Route::post('pause-account', [App\Http\Controllers\PartnerController::class, 'pauseAccount']);
             Route::get('history', [App\Http\Controllers\PartnerController::class, 'getPartnerHistory']);
