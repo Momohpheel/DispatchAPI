@@ -287,29 +287,44 @@ class PartnerRepository implements PartnerRepositoryInterface{
     **/
     public function addVehicle(Request $request){
         try{
-            $validated = $request->validate([
-                'name' => 'required|string',
-                'plate_number' => 'required|string',
-                'color' => 'required|string',
-                'model' => 'required|string',
-                'type' => 'string'
-            ]);
-            $id = auth()->user()->id;
-            $vehicle = Vehicle::where('plate_number', $validated['plate_number'])->where('partner_id', $id)->first();
-            if (!$vehicle){
-                $vehicle = new Vehicle;
-                $vehicle->name = $validated['name'];
-                $vehicle->plate_number = $validated['plate_number'];
-                $vehicle->color = $validated['color'];
-                $vehicle->model = $validated['model'];
-                $vehicle->partner_id = $id;
-                $vehicle->type = $validated['type'];
-                $vehicle->save();
 
-                return $this->success(false, "vehicle registered", $vehicle, 200);
+            $partner = Partner::find(auth()->user()->id);
+            if ($partner->vehicle_count > 0 || $partner->vehicle_count == 'unlimited'){
+                $validated = $request->validate([
+                    'name' => 'required|string',
+                    'plate_number' => 'required|string',
+                    'color' => 'required|string',
+                    'model' => 'required|string',
+                    'type' => 'string'
+                ]);
+                $id = auth()->user()->id;
+                $vehicle = Vehicle::where('plate_number', $validated['plate_number'])->where('partner_id', $id)->first();
+                if (!$vehicle){
+                    $vehicle = new Vehicle;
+                    $vehicle->name = $validated['name'];
+                    $vehicle->plate_number = $validated['plate_number'];
+                    $vehicle->color = $validated['color'];
+                    $vehicle->model = $validated['model'];
+                    $vehicle->partner_id = $id;
+                    $vehicle->type = $validated['type'];
+                    $vehicle->save();
+
+
+                    if ($partner->vehicle_count != 'unlimited'){
+                        $partner->vehicle_count--;
+                        $partner->save();
+                    }
+
+
+                    return $this->success(false, "vehicle registered", $vehicle, 200);
+                }else{
+                    return $this->error(true, "vehicle with given plate number exists", 400);
+                }
+
             }else{
-                return $this->error(true, "vehicle with given plate number exists", 400);
+                return $this->error(true, "You have exceeded the number of vehicles to register", 400);
             }
+
         }catch(Exception $e){
             return $this->error(true, "Error creating vehicle", 400);
         }
@@ -701,12 +716,16 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
             if ($subs->name == 'Free'){
                 $partner->order_count_per_day = 5;
+                $partner->vehicle_count = 5;
             }else if ($subs->name == 'Starter'){
                 $partner->order_count_per_day = 15;
+                $partner->vehicle_count = 15;
             }else if ($subs->name == 'Business'){
                 $partner->order_count_per_day = 25;
+                $partner->vehicle_count = 25;
             }else {
                 $partner->order_count_per_day = 'unlimited';
+                $partner->vehicle_count = 'unlimited';
             }
              //check what type of subscription and input appropiately here
             $partner->save();
@@ -789,7 +808,64 @@ class PartnerRepository implements PartnerRepositoryInterface{
     }
 
 
-    //wallet transactions
 
+    public function count(){
+        $id = auth()->user()->id;
+        $dropoffs = Dropoff::with('order')->where('partner_id', $id)->get();
+
+        $pending = [];
+        $delivered = [];
+        $picked = [];
+
+        foreach ($dropoffs as $dropoff){
+            if ($dropoff->status == 'pending'){
+                $pending = array_push($pending, $dropoff);
+            }else if ($dropoff->status == 'delivered'){
+                array_push($delivered, $dropoff);
+            } else if ($dropoff->status == 'picked'){
+                array_push($picked, $dropoff);
+            }else{}
+        }
+        $data = [
+            'pending' => count($pending),
+            'delivered' => count($delivered),
+            'picked' => count($picked),
+        ];
+
+        $this->success(false, "Total Count", $data, 200);
+
+
+
+    }
+
+
+    public function countForVehicle($id){
+        $pid = auth()->user()->id;
+        $dropoffs = Dropoff::with('order')->where('partner_id', $pid)->where('vehicle_id', $id)->get();
+
+        $pending = [];
+        $delivered = [];
+        $picked = [];
+
+        foreach ($dropoffs as $dropoff){
+            if ($dropoff->status == 'pending'){
+                $pending = array_push($pending, $dropoff);
+            }else if ($dropoff->status == 'delivered'){
+                array_push($delivered, $dropoff);
+            } else if ($dropoff->status == 'picked'){
+                array_push($picked, $dropoff);
+            }else{}
+        }
+        $data = [
+            'pending' => count($pending),
+            'delivered' => count($delivered),
+            'picked' => count($picked),
+        ];
+
+        $this->success(false, "Total Count for Vehicle", $data, 200);
+
+
+
+    }
 
 }
