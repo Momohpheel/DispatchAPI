@@ -38,16 +38,19 @@ use Illuminate\Support\Facades\Route;
             //Route::get('history', [App\Http\Controllers\UserController::class, 'getUserHistory']);
             Route::post('address', [App\Http\Controllers\UserController::class, 'saveAddress']);
             Route::get('address', [App\Http\Controllers\UserController::class, 'getSavedAddresses']);
-            Route::get('total', [App\Http\Controllers\UserController::class, 'count']);
+            Route::get('total/{id}', [App\Http\Controllers\UserController::class, 'count']);
+
+            Route::get('dashboard/{id}', [App\Http\Controllers\UserController::class, 'dashboard']);
 
             Route::post('logout', [App\Http\Controllers\UserController::class, 'logout']);
             Route::delete('dropoff/{id}', [App\Http\Controllers\UserController::class, 'deleteDropOff']);
             Route::get('order/{id}', [App\Http\Controllers\UserController::class, 'getOrder']);
             Route::get('order', [App\Http\Controllers\UserController::class, 'getAllOrders']);
-            Route::get('history', [App\Http\Controllers\UserController::class, 'orderHistory']);
+
+            Route::get('history/{id}', [App\Http\Controllers\UserController::class, 'orderHistory']);
 
             Route::post('payment/log', [App\Http\Controllers\UserController::class, 'payment']);
-            Route::get('order/status/{status}', [App\Http\Controllers\UserController::class, 'getOrderByStatus']);
+            Route::post('order/status/{status}', [App\Http\Controllers\UserController::class, 'getOrderByStatus']);
         });
     });
 
@@ -90,6 +93,8 @@ use Illuminate\Support\Facades\Route;
                 Route::post('disable/{id}', [App\Http\Controllers\PartnerController::class, 'disableVehicle']);
                 Route::get('/', [App\Http\Controllers\PartnerController::class, 'getVehicles']);
                 Route::get('/{id}', [App\Http\Controllers\PartnerController::class, 'getVehicle']);
+                Route::get('count/{id}', [App\Http\Controllers\PartnerController::class, 'countForVehicle']);
+
             });
             Route::prefix('rider')->group(function () {
                 Route::post('dismiss/{id}', [App\Http\Controllers\PartnerController::class, 'dismissRider']);
@@ -103,12 +108,16 @@ use Illuminate\Support\Facades\Route;
             Route::prefix('order')->group(function () {
                 Route::get('/all', [App\Http\Controllers\PartnerController::class, 'getOrders']);
                 Route::get('/{id}', [App\Http\Controllers\PartnerController::class, 'getOneOrder']);
+                Route::get('/status/{status}', [App\Http\Controllers\PartnerController::class, 'getOrderByStatus']);
+
             });
 
             Route::prefix('route')->group(function () {
                 Route::post('/set', [App\Http\Controllers\PartnerController::class, 'setRouteCosting']);
                 Route::post('/update/{id}', [App\Http\Controllers\PartnerController::class, 'updateRouteCosting']);
             });
+
+            Route::get('count', [App\Http\Controllers\PartnerController::class, 'count']);
 
             Route::post('subscribe', [App\Http\Controllers\PartnerController::class, 'subscribe']);
             Route::post('ophours/add', [App\Http\Controllers\PartnerController::class, 'addOperatingHours']);

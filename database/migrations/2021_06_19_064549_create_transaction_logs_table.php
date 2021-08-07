@@ -21,7 +21,6 @@ class CreateTransactionLogsTable extends Migration
             $table->foreignId('rider_id')->constrained()->nullable();
             $table->foreignId('partner_id')->constrained()->nullable();
             $table->timestamps();
-            $table->timestamps();
         });
     }
 

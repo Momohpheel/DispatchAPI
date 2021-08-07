@@ -58,8 +58,12 @@ class UserController extends Controller
         return $this->repository->payment($request);
     }
 
-    public function getOrderByStatus($status){
-        return $this->repository->getOrderByStatus($status);
+    public function dashboard($id){
+        return $this->repository->dashboard($id);
+    }
+
+    public function getOrderByStatus(Request $request, $status){
+        return $this->repository->getOrderByStatus($request, $status);
     }
 
     public function getUserHistory(){
@@ -86,8 +90,8 @@ class UserController extends Controller
         return $this->repository->saveAddress($request);
     }
 
-    public function count(){
-        return $this->repository->count();
+    public function count($id){
+        return $this->repository->count($id);
     }
 
     public function getSavedAddresses(){

@@ -85,7 +85,7 @@ class UserRepository implements UserRepositoryInterface{
                 ];
                 $this->history('Profile', $data['name']." created their profile", $data['id'], 'user');
 
-                return $this->success(false, "User created", $data, 200);
+                return $this->success(false, "User created", $data, 201);
             }else{
                 return $this->error(true, "User exists", 400);
             }
@@ -243,15 +243,12 @@ class UserRepository implements UserRepositoryInterface{
 
 
                                 }else{
-                                    //throw new Exception("Partner has exceeded her order limit");
                                     return $this->error(true, "Partner has exceeded her order limit", 400);
                                 }
                             }else{
-                                //throw new Exception("Partner is disabled");
                                 return $this->error(true, "Partner is disabled", 400);
                             }
                         }else{
-                            //throw new Exception("Partner is not active");
                             return $this->error(true, "Partner is not active", 400);
                         }
                     }
@@ -347,6 +344,7 @@ class UserRepository implements UserRepositoryInterface{
                     if (isset($getrider)){
                         //rider_id or vehicle_id
                         $newdropoff->rider_id = $getrider->id ?? null;
+                        $newdropoff->vehicle_id = $getrider->vehicle->id ?? null;
                         $newdropoff->price = $this->calculatePrice($min, $id) ?? 0;
                         $newdropoff->discount = 0;
 
@@ -548,21 +546,49 @@ class UserRepository implements UserRepositoryInterface{
     }
 
 
-    public function count(){
+    public function dashboard($id){
+        try{
+
+            $partner = Partner::find($id);
+            if (isset($partner)){
+                $count = $this->count($id);
+                $user = User::find(auth()->user()->id);
+                //$user = Auth::user();
+                $data = [
+                    'partner' => $partner,//only specific partner data should be displayed
+                    'orderCount' => $count,
+                    'user' => $user
+                ];
+                return $this->success(false, "Dashboard", $data, 200);
+            }else{
+                return $this->error(true, "No Partner found", 400);
+            }
+
+
+
+
+
+
+        }catch(Exception $e){
+            return $this->error(true, "Error creating user", 400);
+        }
+    }
+
+
+    public function count($id){
 
         try{
 
-            $orders = Order::with('dropoff')->where('user_id', auth()->user()->id)->get();
-            $pendings = Order::with('dropoff')->where('user_id', auth()->user()->id)->get(); //->where('status', 'pending')
-            $pickedUp = Order::with('dropoff')->where('user_id', auth()->user()->id)->get(); //->where('status', 'pickedUp')
-            $delivered = Order::with('dropoff')->where('user_id', auth()->user()->id)->get(); //->where('status', 'delivered')
+            $pendings = Order::with('dropoff')->where('partner_id', $id)->where('user_id', auth()->user()->id)->get(); //->where('status', 'pending')
+
+
             $data = [];
             $p_data = [];
             $d_data = [];
             $pu_data = [];
-            foreach ($orders as $order){
-               //$datum = $order->load('dropoff');
-                foreach ($order->dropoff as $dro){
+            foreach ($pendings as $pending){
+
+                foreach ($pending->dropoff as $dro){
                     array_push($data, $dro);
                 }
             }
@@ -573,32 +599,15 @@ class UserRepository implements UserRepositoryInterface{
                      if ($dro->status == 'pending'){
                         array_push($p_data, $dro);
                      }
-
-
-                 }
-            }
-
-            foreach ($pendings as $pending){
-                //$d_datum = $pending->load('dropoff');
-                 foreach ($pending->dropoff as $dro){
                      if ($dro->payment_status != 'paid'){
                         array_push($d_data, $dro);
                      }
-
-
-                 }
-            }
-
-            foreach ($pendings as $pending){
-                //$pu_datum = $pending->load('dropoff');
-                 foreach ($pending->dropoff as $dro){
                      if ($dro->status == 'picked'){
                         array_push($pu_data, $dro);
                      }
-
-
                  }
             }
+
 
 
             $data = [
@@ -608,19 +617,30 @@ class UserRepository implements UserRepositoryInterface{
                 "unpaid" => count($d_data), // $delivered->dropoff()->count(),
             ];
 
-            return $this->success(false, "User count orders", $data, 200);
+            return $data;
+            //return $this->success(false, "User count orders", $data, 200);
 
         }catch(Exception $e){
-            return $this->error(true, "ERROR!", 400);
+            return $this->error(true, "ERROR fetching count!", 400);
         }
 
     }
 
-    public function getOrderByStatus($status){
+    public function getOrderByStatus(Request $request, $status){
 
         try{
-            $orders = Order::with('dropoff')->where('user_id', auth()->user()->id)->get();
+            $validated = $request->validate([
+                'partner_id' => 'required'
+            ]);
+
+            $partner = Partner::find($request->partner_id);
+            if (empty($partner)){
+                return $this->error(true, "Wrong partner...", 400);
+            }
+
+            $orders = Order::with('dropoff')->where('partner_id', $request->partner_id)->where('user_id', auth()->user()->id)->get();
             $data = [];
+
 
             switch($status){
                 case 'pending':

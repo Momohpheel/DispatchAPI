@@ -62,6 +62,13 @@ interface PartnerRepositoryInterface{
 
     public function makeTopPartner();
 
+    public function count();
+
+    public function countForVehicle($id);
+
+    public function getOrderByStatus($status);
+
+
 
 
 }

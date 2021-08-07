@@ -30,13 +30,15 @@ interface UserRepositoryInterface{
 
     public function payment(Request $request);
 
-    public function getOrderByStatus($status);
+    public function getOrderByStatus(Request $request, $status);
 
     public function getUserHistory();
 
+    public function dashboard($id);
+
     public function rateRider(Request $request);
 
-    public function count();
+    public function count($id);
 
     public function orderHistory();
 

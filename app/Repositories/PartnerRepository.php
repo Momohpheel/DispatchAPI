@@ -807,7 +807,10 @@ class PartnerRepository implements PartnerRepositoryInterface{
         }
     }
 
-
+    public function dashboard(){
+        //partner profile
+        //order count
+    }
 
     public function count(){
         $id = auth()->user()->id;
@@ -819,12 +822,14 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
         foreach ($dropoffs as $dropoff){
             if ($dropoff->status == 'pending'){
-                $pending = array_push($pending, $dropoff);
-            }else if ($dropoff->status == 'delivered'){
+                array_push($pending, $dropoff);
+            }
+            if ($dropoff->status == 'delivered'){
                 array_push($delivered, $dropoff);
-            } else if ($dropoff->status == 'picked'){
+            }
+            if ($dropoff->status == 'picked'){
                 array_push($picked, $dropoff);
-            }else{}
+            }
         }
         $data = [
             'pending' => count($pending),
@@ -832,7 +837,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
             'picked' => count($picked),
         ];
 
-        $this->success(false, "Total Count", $data, 200);
+        return $this->success(false, "Total Count", $data, 200);
 
 
 
@@ -849,12 +854,14 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
         foreach ($dropoffs as $dropoff){
             if ($dropoff->status == 'pending'){
-                $pending = array_push($pending, $dropoff);
-            }else if ($dropoff->status == 'delivered'){
+                array_push($pending, $dropoff);
+            }
+            if ($dropoff->status == 'delivered'){
                 array_push($delivered, $dropoff);
-            } else if ($dropoff->status == 'picked'){
+            }
+            if ($dropoff->status == 'picked'){
                 array_push($picked, $dropoff);
-            }else{}
+            }
         }
         $data = [
             'pending' => count($pending),
@@ -862,10 +869,61 @@ class PartnerRepository implements PartnerRepositoryInterface{
             'picked' => count($picked),
         ];
 
-        $this->success(false, "Total Count for Vehicle", $data, 200);
+        return $this->success(false, "Total Count for Vehicle", $data, 200);
 
 
 
+    }
+
+    public function getOrderByStatus($status){
+
+        try{
+
+
+            $orders = Order::with('dropoff')->where('partner_id', auth()->user()->id)->get();
+            $data = [];
+
+
+            switch($status){
+                case 'pending':
+                    foreach ($orders as $order){
+                        foreach ($order->dropoff as $dro){
+                            if ($dro->status == 'pending'){
+                                array_push($data, $dro);
+                            }
+                        }
+                    }
+
+                    return $this->success(false, "Pending Orders", $data, 200);
+                case 'unpaid':
+                    foreach ($orders as $order){
+                        foreach ($order->dropoff as $dro){
+                            if ($dro->payment_status != 'paid'){
+                                array_push($data, $dro);
+                            }
+                        }
+                    }
+
+                    return $this->success(false, "Unpaid Orders", $data, 200);
+
+                case 'pickedup':
+                    foreach ($orders as $order){
+                        foreach ($order->dropoff as $dro){
+                            if ($dro->status == 'picked'){
+                                array_push($data, $dro);
+                            }
+                        }
+                    }
+
+                    return $this->success(false, "Picked-Up Orders", $data, 200);
+                default:
+                    return $this->error(true, "Couldn't get order...", 400);
+            }
+
+
+        }catch(Exception $e){
+            return $this->error(true, "Couldn't get order", 400);
+        }
     }
 
 }

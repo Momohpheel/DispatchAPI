@@ -126,5 +126,16 @@ class PartnerController extends Controller
         return $this->repository->makeTopPartner();
     }
 
+    public function count(){
+        return $this->repository->count();
+    }
+
+    public function countForVehicle($id){
+        return $this->repository->countForVehicle($id);
+    }
+
+    public function getOrderByStatus($status){
+        return $this->repository->getOrderByStatus($status);
+    }
 
 }
