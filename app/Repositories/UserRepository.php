@@ -469,6 +469,7 @@ class UserRepository implements UserRepositoryInterface{
 
 
             if (isset($dropoff) && $dropoff->order->user_id == auth()->user()->id){
+
                 $dropoff->delete();
 
                   //increase order limit of partner by 1
@@ -482,10 +483,6 @@ class UserRepository implements UserRepositoryInterface{
             }else{
                 return $this->error(true, "DropOff not found!", 200);
             }
-
-
-
-
 
         }catch(Exception $e){
             return $this->error(true, "Couldn't delete dropoff!", 400);
@@ -508,6 +505,7 @@ class UserRepository implements UserRepositoryInterface{
 
 
     }
+
 
     public function saveAddress(Request $request){
         try{

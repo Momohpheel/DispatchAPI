@@ -23,13 +23,11 @@ class RiderRepository implements RiderRepositoryInterface{
         try{
             $validated = $request->validate([
                 'workname' => "required|string",
-                "password" => "required|string",
-                "code_name" => "required|string"
+                "password" => "required|string"
             ]);
 
-            $partner = Partner::where('code_name', $validated['code_name'])->first();
-            if ($partner){
-                $rider = Rider::where('workname', $validated['workname'])->where('partner_id', $partner->id)->first();
+
+                $rider = Rider::where('workname', $validated['workname'])->first();
                 if ($rider){
                     $check = Hash::check($validated['password'], $rider->password);
                     if ($check){
@@ -37,14 +35,33 @@ class RiderRepository implements RiderRepositoryInterface{
                         $data = ["access_token" => $access_token];
                         return $this->success(false, "rider found", $data, 200);
                     }else{
-                        return $this->error(true, "Error logging rider", 400);
+                        return $this->error(true, "Password incorrect", 400);
                     }
+                }else{
+                    return $this->error(true, "Rider doesn't exist", 400);
                 }
 
-            }
+
 
         }catch(Exception $e){
             return $this->error(true, "Error logging partner", 400);
+        }
+    }
+
+    public function dashboard($id){
+        try{
+
+            $rider = Rider::find($id);
+
+            $data = [
+                'rider' => $rider,
+                'count' => $this->count($rider->partner_id)
+            ];
+
+            return $this->success(false, "Dashboard", $data, 200);
+
+        }catch(Exception $e){
+            return $this->error(true, "Error", 400);
         }
     }
 
@@ -181,4 +198,107 @@ class RiderRepository implements RiderRepositoryInterface{
 
     }
 
+    public function count($partner){
+
+        try{
+
+            $orders = Order::with('dropoff')->where('partner_id', $partner)->where('rider_id', auth()->user()->id)->get(); //->where('status', 'pending')
+
+
+            $data = [];
+            $p_data = [];
+            $d_data = [];
+            $pu_data = [];
+            foreach ($orders as $order){
+
+                foreach ($order->dropoff as $dro){
+                    array_push($data, $dro);
+                }
+            }
+
+            foreach ($orders as $order){
+                //$p_datum = $order->load('dropoff');
+                 foreach ($order->dropoff as $dro){
+                     if ($dro->status == 'pending'){
+                        array_push($p_data, $dro);
+                     }
+                     if ($dro->payment_status != 'delivered'){
+                        array_push($d_data, $dro);
+                     }
+                     if ($dro->status == 'picked'){
+                        array_push($pu_data, $dro);
+                     }
+
+                 }
+            }
+
+
+
+            $data = [
+                "orders" => count($data),
+                "pending" => count($p_data), //$pending->dropoff()->count(),
+                "pickedUp" => count($pu_data), //$pickedUp->dropoff()->count(),
+                "delivered" => count($d_data), // $delivered->dropoff()->count(),
+            ];
+
+            return $data;
+            //return $this->success(false, "User count orders", $data, 200);
+
+        }catch(Exception $e){
+            return $this->error(true, "ERROR fetching count!", 400);
+        }
+
+    }
+
+
+    public function getOrderByStatus($status){
+
+        try{
+
+            //$rider = Rider::find(auth()->user()->id);
+            $orders = Order::with('dropoff')->where('rider_id', auth()->user()->id)->get();
+            $data = [];
+
+
+            switch($status){
+                case 'pending':
+                    foreach ($orders as $order){
+                        foreach ($order->dropoff as $dro){
+                            if ($dro->status == 'pending'){
+                                array_push($data, $dro);
+                            }
+                        }
+                    }
+
+                    return $this->success(false, "Pending Orders", $data, 200);
+                case 'unpaid':
+                    foreach ($orders as $order){
+                        foreach ($order->dropoff as $dro){
+                            if ($dro->status == 'delivered'){
+                                array_push($data, $dro);
+                            }
+                        }
+                    }
+
+                    return $this->success(false, "Delivered Orders", $data, 200);
+
+                case 'pickedup':
+                    foreach ($orders as $order){
+                        foreach ($order->dropoff as $dro){
+                            if ($dro->status == 'picked'){
+                                array_push($data, $dro);
+                            }
+                        }
+                    }
+
+                    return $this->success(false, "Picked-Up Orders", $data, 200);
+                default:
+                    return $this->error(true, "Couldn't get order...", 400);
+            }
+
+
+        }catch(Exception $e){
+            return $this->error(true, "Couldn't get order", 400);
+        }
+    }
 }
