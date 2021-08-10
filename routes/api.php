@@ -62,10 +62,13 @@ use Illuminate\Support\Facades\Route;
             Route::post('order/start/{id}', [App\Http\Controllers\RiderController::class, 'start_order']);
             Route::post('order/end/{id}', [App\Http\Controllers\RiderController::class, 'end_order']);
             Route::get('/', [App\Http\Controllers\RiderController::class, 'getProfile']);
-            Route::get('orders', [App\Http\Controllers\RiderController::class, 'checkOrders']);
+            Route::get('orders', [App\Http\Controllers\RiderController::class, 'getOrders']);
             Route::get('history', [App\Http\Controllers\RiderController::class, 'history']);
             Route::put('phone/update', [App\Http\Controllers\RiderController::class, 'updatePhone']);
             Route::post('location/set', [App\Http\Controllers\RiderController::class, 'setDriverLocation']);
+
+            Route::get('dashboard/{id}', [App\Http\Controllers\RiderController::class, 'dashboard']);
+            Route::get('order/status/{status}', [App\Http\Controllers\RiderController::class, 'getOrderByStatus']);
 
             Route::post('order/status/{id}', [App\Http\Controllers\RiderController::class, 'changeOrderStatus']);
         });

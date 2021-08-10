@@ -25,7 +25,7 @@ class RiderController extends Controller
         return $this->repository->start_order($request, $id);
     }
 
-    public function checkOrders(Request $request){
+    public function getOrders(Request $request){
         return $this->repository->checkOrders($request);
     }
 
@@ -52,4 +52,15 @@ class RiderController extends Controller
     public function getProfile(){
         return $this->repository->getProfile();
     }
+
+
+    public function dashboard($id){
+        return $this->repository->dashboard($id);
+    }
+
+    public function getOrderByStatus($status){
+        return $this->repository->getOrderByStatus($status);
+    }
+
 }
+

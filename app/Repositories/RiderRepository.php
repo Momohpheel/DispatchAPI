@@ -77,6 +77,7 @@ class RiderRepository implements RiderRepositoryInterface{
                 'phone' => $rider->phone,
                 'image' => $rider->image,
                 'earnings' => $rider->earning,
+                'vehicle' => $rider->vehicle ?? []
             ];
 
             return $this->success(false, "Profile", $data, 200);
@@ -130,7 +131,7 @@ class RiderRepository implements RiderRepositoryInterface{
         }
     }
 
-    public function checkOrders(){
+    public function getOrders(){
         try{
             $orders = DropOff::where('rider_id', auth()->user()->id)->where('payment_status', 'paid')->get();
 
@@ -271,7 +272,7 @@ class RiderRepository implements RiderRepositoryInterface{
                     }
 
                     return $this->success(false, "Pending Orders", $data, 200);
-                case 'unpaid':
+                case 'delivered':
                     foreach ($orders as $order){
                         foreach ($order->dropoff as $dro){
                             if ($dro->status == 'delivered'){

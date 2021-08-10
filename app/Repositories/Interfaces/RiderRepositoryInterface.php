@@ -18,12 +18,13 @@ interface RiderRepositoryInterface{
 
     public function setDriverLocation(Request $request);
 
-    public function checkOrders();
+    public function getOrders();
 
     public function history();
 
     public function updatePhone(Request $request);
 
-
+    public function dashboard($id);
+    public function getOrderByStatus($status);
 
 }
