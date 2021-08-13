@@ -393,12 +393,12 @@ class UserRepository implements UserRepositoryInterface{
     }
 
 
-    public function getAllOrders(){
+    public function getAllOrders($id){
         try{
 
 
             $id = auth()->user()->id;
-            $orders = Order::with('dropoff')->where('user_id', $id)->get();
+            $orders = Order::with('dropoff')->where('partner_id', $id)->where('user_id', $id)->get();
 
             // if (isset($orders->dropoff)){
             //     foreach ($orders->dropoff as $dropoff){
@@ -800,10 +800,10 @@ class UserRepository implements UserRepositoryInterface{
 
     }
 
-    public function orderHistory(){
+    public function orderHistory($id){
         try{
 
-            $orders = Order::with('dropoff')->where('user_id', auth()->user()->id)->get();
+            $orders = Order::with('dropoff')->where('partner_id', $id)->where('user_id', auth()->user()->id)->get();
 
             $history = [];
             $drop_o = [];

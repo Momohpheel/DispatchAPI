@@ -641,9 +641,9 @@ class PartnerRepository implements PartnerRepositoryInterface{
     public function setRouteCosting(Request $request){
         try{
             $validated = $request->validate([
-                'fuel_cost' => "required",
-                'bike_fund' => "required",
-                'ops_fee' => "required",
+                'fuel_cost' => "required",//base_fare
+                'bike_fund' => "required",//partner_cost
+                'ops_fee' => "required",//express_markup
                 'easy_log' => "required",
                 'easy_disp' => "required",
                 'express' => "required",
@@ -652,6 +652,9 @@ class PartnerRepository implements PartnerRepositoryInterface{
             ]);
 
             $route_costing = new RouteCosting;
+            // $route_costing->base_fare = $validated['base_fare'];
+            // $route_costing->partner_cost = $validated['partner_cost'];
+            // $route_costing->express_markup = $validated['express_markup'];
             $route_costing->fuel_cost = $validated['fuel_cost'];
             $route_costing->bike_fund = $validated['bike_fund'];
             $route_costing->ops_fee = $validated['ops_fee'];
@@ -663,6 +666,9 @@ class PartnerRepository implements PartnerRepositoryInterface{
             $route_costing->partner_id = auth()->user()->id;
             $route_costing->save();
 
+            //$calculation = (($distance * $fuel_cost) + $rider_salary + ($distance * $bike_fund )) * $ops_fee * $easy_log * $easy_disp;
+            //dd($route_cost);
+
             return $this->success(false, "Route-Costing Added", $route_costing,200);
         }catch(Exception $e){
             return $this->error(true, "Error occured", 400);
@@ -672,9 +678,9 @@ class PartnerRepository implements PartnerRepositoryInterface{
     public function updateRouteCosting(Request $request, $id){
         try{
             $validated = $request->validate([
-                'fuel_cost' => "required",
-                'bike_fund' => "required",
-                'ops_fee' => "required",
+                'fuel_cost' => "required",//base_fare
+                'bike_fund' => "required",//partner_cost
+                'ops_fee' => "required",//express_markup
                 'easy_log' => "required",
                 'easy_disp' => "required",
                 'express' => "required",
@@ -683,7 +689,9 @@ class PartnerRepository implements PartnerRepositoryInterface{
             ]);
             $partner_id = auth()->user()->id;
             $route_costing = RouteCosting::where('id', $id)->where('partner_id', $partner_id)->first();
-
+            // $route_costing->base_fare = $validated['base_fare'] ?? $route_costing->base_fare;
+            // $route_costing->partner_cost = $validated['partner_cost'] ?? $route_costing->partner_cost;
+            // $route_costing->express_markup = $validated['express_markup'] ?? $route_costing->express_markup;
             $route_costing->fuel_cost = $validated['fuel_cost'] ?? $route_costing->fuel_cost;
             $route_costing->bike_fund = $validated['bike_fund'] ?? $route_costing->bike_fund;
             $route_costing->ops_fee = $validated['ops_fee'] ?? $route_costing->ops_fee;
