@@ -20,7 +20,7 @@ interface UserRepositoryInterface{
 
     public function order(Request $request, $id);
 
-    public function getAllOrders();
+    public function getAllOrders($id);
 
     public function getOrder($id);
 
@@ -40,7 +40,7 @@ interface UserRepositoryInterface{
 
     public function count($id);
 
-    public function orderHistory();
+    public function orderHistory($id);
 
     public function logout();
 
