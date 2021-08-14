@@ -800,10 +800,10 @@ class UserRepository implements UserRepositoryInterface{
 
     }
 
-    public function orderHistory($id){
+    public function orderHistory(){
         try{
-
-            $orders = Order::with('dropoff')->where('partner_id', $id)->where('user_id', auth()->user()->id)->get();
+            //$orders = Order::with('dropoff')->where('partner_id', $id)->where('user_id', auth()->user()->id)->get();
+            $orders = Order::with('dropoff')->where('user_id', auth()->user()->id)->get();
 
             $history = [];
             $drop_o = [];
@@ -986,6 +986,18 @@ class UserRepository implements UserRepositoryInterface{
         return $payment;
     }
 
+    public function allOrderHistory(){
+        try{
+            //partner_image
+            $user = User::find(auth()->user()->id);
+            $order = Order::with('dropoff')->where('user_id', auth()->user()->id)->get();
+
+
+
+        }catch(Exception $e){
+            return $this->error(true, "Error occured while processing payment!", 400);
+        }
+    }
 
 
 }
