@@ -430,13 +430,18 @@ class UserRepository implements UserRepositoryInterface{
 
             $totals = 0;
             $discounts = 0;
-            $orders = Order::with('dropoff')->where('user_id', auth()->user()->id)->where('id', $id)->first();
+            $orders = Order::where('user_id', auth()->user()->id)->where('id', $id)->first();
 
-            if (isset($orders->dropoff)){
-                foreach ($orders->dropoff as $dropoff){
-                    $totals += $dropoff->price;
-                    $discounts += $dropoff->discount;
-                }
+            $dropoffs = Dropoff::where('order_id', $orders->id)->where('status', '!=', 'cancelled')->get();
+
+            if (isset($dropoffs)){
+                    foreach ($dropoffs as $dropoff){
+                        if ($dropoff->status != 'cancelled'){
+                            $totals += $dropoff->price;
+                            $discounts += $dropoff->discount;
+
+                        }
+                    }
             }else{
                 return $this->error(true, "You dont have this order!", 400);
             }
@@ -449,6 +454,7 @@ class UserRepository implements UserRepositoryInterface{
             json_encode($calculations);
 
             $orders['calculation'] = $calculations;
+            $orders['dropoff'] = $dropoffs;
 
 
             return $this->success(false, "Order", $orders, 200);
@@ -470,7 +476,8 @@ class UserRepository implements UserRepositoryInterface{
 
             if (isset($dropoff) && $dropoff->order->user_id == auth()->user()->id){
 
-                $dropoff->delete();
+                $dropoff->status = 'cancelled';
+                $dropoff->save();
 
                   //increase order limit of partner by 1
                 $partner = Partner::find($dropoff->partner_id);
@@ -479,7 +486,7 @@ class UserRepository implements UserRepositoryInterface{
                     $partner->save();
                 }
 
-                return $this->success(false, "DropOff deleted!", [], 200);
+                return $this->success(false, "DropOff declared cancelled!", [], 200);
             }else{
                 return $this->error(true, "DropOff not found!", 200);
             }
@@ -645,6 +652,11 @@ class UserRepository implements UserRepositoryInterface{
                     foreach ($orders as $order){
                         foreach ($order->dropoff as $dro){
                             if ($dro->status == 'pending'){
+
+                                    $dro['dropoff'] = $this->getOneDropoff($dro->id);
+                                    $order = Order::find($dro->id);
+                                    $dro['order'] = $order;
+
                                 array_push($data, $dro);
                             }
                         }
@@ -655,6 +667,13 @@ class UserRepository implements UserRepositoryInterface{
                     foreach ($orders as $order){
                         foreach ($order->dropoff as $dro){
                             if ($dro->payment_status != 'paid'){
+
+                                $dro['dropoff'] = $this->getOneDropoff($dro->id);
+
+                                    $order = Order::find($dro->id);
+                                    $dro['order'] = $order;
+
+
                                 array_push($data, $dro);
                             }
                         }
@@ -666,6 +685,11 @@ class UserRepository implements UserRepositoryInterface{
                     foreach ($orders as $order){
                         foreach ($order->dropoff as $dro){
                             if ($dro->status == 'picked'){
+
+                                $dro['dropoff'] = $this->getOneDropoff($dro->id);
+                                    $order = Order::find($dro->id);
+                                    $dro['order'] = $order;
+
                                 array_push($data, $dro);
                             }
                         }
@@ -819,8 +843,11 @@ class UserRepository implements UserRepositoryInterface{
                             $dropoff_data = [
                                 'status' => $dropoff->status ?? null,
                                 'time' => $dropoff->created_at,
-                                'dropoff_id' => $dropoff->id
+                                'dropoff_id' => $dropoff->id,
+                                'dropoff' => $this->getOneDropoff($dropoff->id)
                             ];
+
+
                             $ar = array_merge($data, $dropoff_data);
                             array_push($history, $ar);
                     }
@@ -848,7 +875,8 @@ class UserRepository implements UserRepositoryInterface{
             $user = User::where('id', $dropoff->order->user_id)->first();
             $dropoff['user'] = $user;
             if (isset($dropoff)){
-                return $this->success(false, "Dropoff", $dropoff, 200);
+                //return $this->success(false, "Dropoff", $dropoff, 200);
+                return $dropoff;
             }else{
                 return $this->error(true, "No dropoff found", 400);
             }
