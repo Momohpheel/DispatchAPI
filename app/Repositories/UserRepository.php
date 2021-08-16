@@ -993,35 +993,42 @@ class UserRepository implements UserRepositoryInterface{
             $orders = Order::with(['dropoff', 'partner'])->where('user_id', auth()->user()->id)->get();
 
             $data = [];
+            if (isset($orders)){
+                foreach ($orders as $order){
+                    $user_order = [
+                        'partner' => $order->partner->name,
+                        'partner_image' => $order->partner->image,
+                    ];
 
-            foreach ($orders as $order){
-                $user_order = [
-                    'partner' => $order->partner->name,
-                    'partner_image' => $order->partner->image,
-                ];
+                    foreach ($order->dropoff as $dropoff) {
 
-                foreach ($order->dropoff as $dropoff) {
+                        if ($dropoff->payment_status == 'paid'){
+                            $user_drop = [
+                                'price' => $dropoff->price,
+                                'dropoff_id' => $dropoff->id,
+                                'time' => $dropoff->created_at->diffForHumans()
+                            ];
 
-                    if ($dropoff->payment_status == 'paid'){
-                        $user_drop = [
-                            'price' => $dropoff->price,
-                            'dropoff_id' => $dropoff->id,
-                            'time' => $dropoff->created_at->diffForHumans()
-                        ];
+                            $ar = array_merge($user_order, $user_drop);
 
-                        $ar = array_merge($user_order, $user_drop);
+                            array_push($data, $ar);
 
-                        array_push($data, $ar);
-
-                        if (count($data) == 3){
-                            return $this->success(false, "Last 3 user orders...", $data , 200);
+                            if (count($data) == 3){
+                                return $this->success(false, "Last 3 user orders...", $data , 200);
+                            }
+                        }else{
+                            return $this->error(true, "No orders" , 400);
                         }
+
                     }
+
 
                 }
 
-
+            }else{
+                return $this->error(true, "No Orders" , 400);
             }
+
 
 
 
