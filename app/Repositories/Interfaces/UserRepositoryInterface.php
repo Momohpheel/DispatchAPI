@@ -40,7 +40,7 @@ interface UserRepositoryInterface{
 
     public function count($id);
 
-    public function orderHistory($id);
+    public function orderHistory();
 
     public function logout();
 
