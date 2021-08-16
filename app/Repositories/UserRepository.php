@@ -1023,6 +1023,8 @@ class UserRepository implements UserRepositoryInterface{
 
                 }
 
+                return $this->success(false, "Last 3 user orders...", $data , 200);
+
             }else{
                 return $this->error(true, "No Orders" , 400);
             }
