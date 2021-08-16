@@ -15,4 +15,8 @@ class DropOff extends Model
     public function partner(){
         return $this->belongsTo(Partner::class);
     }
+
+    public function rider(){
+        return $this->belongsTo(Rider::class);
+    }
 }

@@ -21,6 +21,9 @@ class Rider extends Authenticatable
         return $this->belongsTo(Vehicle::class);
     }
 
+    public function dropoff(){
+        return $this->hasMany(DropOff::class);
+    }
 
      /**
      * The attributes that should be hidden for arrays.

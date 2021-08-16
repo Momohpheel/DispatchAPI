@@ -800,36 +800,35 @@ class UserRepository implements UserRepositoryInterface{
 
     }
 
-    public function orderHistory(){
+    public function orderHistory($id){
         try{
-            //$orders = Order::with('dropoff')->where('partner_id', $id)->where('user_id', auth()->user()->id)->get();
-            $orders = Order::with('dropoff')->where('user_id', auth()->user()->id)->get();
+            $orders = Order::with('dropoff')->where('partner_id', $id)->where('user_id', auth()->user()->id)->get();
+            //$orders = Order::with('dropoff')->where('user_id', auth()->user()->id)->get();
 
             $history = [];
             $drop_o = [];
 
             foreach ($orders as $order) {
                 $data = [
-                    'order_id' => $order->id,
+                    // 'order_id' => $order->id,
                     'pickup_address' => $order->o_address,
-                    'dropoff' => array()
                 ];
 
                 if (!empty($order->dropoff)){
                     foreach ($order->dropoff as $dropoff){
-                            $datu = [
-                                'address' => $dropoff->d_address ?? null,
+                            $dropoff_data = [
                                 'status' => $dropoff->status ?? null,
-                                'time' => $dropoff->created_at
+                                'time' => $dropoff->created_at,
+                                'dropoff_id' => $dropoff->id
                             ];
-                            array_push($data['dropoff'], $datu);
-
+                            $ar = array_merge($data, $dropoff_data);
+                            array_push($history, $ar);
                     }
 
                     //array_push($data['dropoff'], $drop_o);
                 }
 
-                array_push($history, $data);
+
             }
 
 
@@ -842,6 +841,21 @@ class UserRepository implements UserRepositoryInterface{
         }
     }
 
+    public function getOneDropoff($id){
+        try{
+            $dropoff = Dropoff::with(['order', 'rider'])->where('id', $id)->first();
+
+            $user = User::where('id', $dropoff->order->user_id)->first();
+            $dropoff['user'] = $user;
+            if (isset($dropoff)){
+                return $this->success(false, "Dropoff", $dropoff, 200);
+            }else{
+                return $this->error(true, "No dropoff found", 400);
+            }
+        }catch(Exception $e){
+            return $this->error(true, "Error occured!", 400);
+        }
+    }
 
     public function fundWallet($request){
         try{

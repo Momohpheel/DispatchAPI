@@ -47,9 +47,11 @@ use Illuminate\Support\Facades\Route;
             Route::get('order/{id}', [App\Http\Controllers\UserController::class, 'getOrder']);
             Route::get('orders/{id}', [App\Http\Controllers\UserController::class, 'getAllOrders']);
 
-            Route::get('history', [App\Http\Controllers\UserController::class, 'orderHistory']);
+            Route::get('history/{id}', [App\Http\Controllers\UserController::class, 'orderHistory']);
 
             Route::get('histories', [App\Http\Controllers\UserController::class, 'allOrderHistory']);
+
+            Route::get('dropoff/{id}', [App\Http\Controllers\UserController::class, 'getOneDropoff']);
 
             Route::post('payment/log', [App\Http\Controllers\UserController::class, 'payment']);
             Route::post('order/status/{status}', [App\Http\Controllers\UserController::class, 'getOrderByStatus']);

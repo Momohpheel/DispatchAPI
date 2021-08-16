@@ -82,12 +82,17 @@ class UserController extends Controller
         return $this->repository->ratePartner($request);
     }
 
-    public function orderHistory(){
-        return $this->repository->orderHistory();
+    public function orderHistory($id){
+        return $this->repository->orderHistory($id);
     }
 
     public function allOrderHistory(){
         return $this->repository->allOrderHistory();
+    }
+
+
+    public function getOneDropoff($id){
+        return $this->repository->getOneDropoff($id);
     }
 
     public function saveAddress(Request $request){

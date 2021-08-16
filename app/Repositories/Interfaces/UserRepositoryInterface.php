@@ -40,11 +40,13 @@ interface UserRepositoryInterface{
 
     public function count($id);
 
-    public function orderHistory();
+    public function orderHistory($id);
 
     public function logout();
 
     public function allOrderHistory();
+
+    public function getOneDropoff($id);
 
     public function ratePartner(Request $request);
 
