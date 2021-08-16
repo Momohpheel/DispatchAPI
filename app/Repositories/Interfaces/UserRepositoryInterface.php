@@ -44,6 +44,8 @@ interface UserRepositoryInterface{
 
     public function logout();
 
+    public function allOrderHistory();
+
     public function ratePartner(Request $request);
 
     public function saveAddress(Request $request);

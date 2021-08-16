@@ -30,4 +30,12 @@ class Partner extends Authenticatable
     public function riders(){
         return $this->hasMany(Rider::class);
     }
+
+    public function dropoff(){
+        return $this->hasMany(DropOff::class);
+    }
+
+    public function order(){
+        return $this->hasMany(Order::class);
+    }
 }

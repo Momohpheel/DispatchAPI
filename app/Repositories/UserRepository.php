@@ -989,8 +989,41 @@ class UserRepository implements UserRepositoryInterface{
     public function allOrderHistory(){
         try{
             //partner_image
-            $user = User::find(auth()->user()->id);
-            $order = Order::with('dropoff')->where('user_id', auth()->user()->id)->get();
+            //$user = User::find(auth()->user()->id);
+            $orders = Order::with(['dropoff', 'partner'])->where('user_id', auth()->user()->id)->get();
+
+            $data = [];
+
+            foreach ($orders as $order){
+                $user_order = [
+                    'partner' => $order->partner->name,
+                    'partner_image' => $order->partner->image,
+                ];
+
+                foreach ($order->dropoff as $dropoff) {
+
+                    if ($dropoff->payment_status == 'paid'){
+                        $user_drop = [
+                            'price' => $dropoff->price,
+                            'dropoff_id' => $dropoff->id,
+                            'time' => $dropoff->created_at->diffForHumans()
+                        ];
+
+                        $ar = array_merge($user_order, $user_drop);
+
+                        array_push($data, $ar);
+
+                        if (count($data) == 3){
+                            return $this->success(false, "Last 3 user orders...", $data , 200);
+                        }
+                    }
+
+                }
+
+
+            }
+
+
 
 
 

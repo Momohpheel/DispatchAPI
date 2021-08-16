@@ -86,6 +86,10 @@ class UserController extends Controller
         return $this->repository->orderHistory();
     }
 
+    public function allOrderHistory(){
+        return $this->repository->allOrderHistory();
+    }
+
     public function saveAddress(Request $request){
         return $this->repository->saveAddress($request);
     }
