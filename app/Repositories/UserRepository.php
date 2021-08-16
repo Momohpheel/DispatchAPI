@@ -654,8 +654,8 @@ class UserRepository implements UserRepositoryInterface{
                             if ($dro->status == 'pending'){
 
                                     $dro['dropoff'] = $this->getOneDropoff($dro->id);
-                                    $order = Order::find($dro->id);
-                                    $dro['order'] = $order;
+                                    // $order = Order::find($dro->id);
+                                    // $dro['order'] = $order;
 
                                 array_push($data, $dro);
                             }
@@ -670,8 +670,8 @@ class UserRepository implements UserRepositoryInterface{
 
                                 $dro['dropoff'] = $this->getOneDropoff($dro->id);
 
-                                    $order = Order::find($dro->id);
-                                    $dro['order'] = $order;
+                                    // $order = Order::find($dro->id);
+                                    // $dro['order'] = $order;
 
 
                                 array_push($data, $dro);
@@ -687,8 +687,8 @@ class UserRepository implements UserRepositoryInterface{
                             if ($dro->status == 'picked'){
 
                                 $dro['dropoff'] = $this->getOneDropoff($dro->id);
-                                    $order = Order::find($dro->id);
-                                    $dro['order'] = $order;
+                                    // $order = Order::find($dro->id);
+                                    // $dro['order'] = $order;
 
                                 array_push($data, $dro);
                             }
