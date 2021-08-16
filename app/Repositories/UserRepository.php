@@ -1016,15 +1016,12 @@ class UserRepository implements UserRepositoryInterface{
                             if (count($data) == 3){
                                 return $this->success(false, "Last 3 user orders...", $data , 200);
                             }
-                        }else{
-                            return $this->error(true, "No orders" , 400);
                         }
 
                     }
 
 
                 }
-                return $this->success(false, "Last 3 user orders...", $data , 200);
 
             }else{
                 return $this->error(true, "No Orders" , 400);
