@@ -49,6 +49,10 @@ class PartnerController extends Controller
         return $this->repository->updateProfile($request);
     }
 
+    public function getProfile(){
+        return $this->repository->getProfile();
+    }
+
     public function addVehicle(Request $request){
         return $this->repository->addVehicle($request);
     }

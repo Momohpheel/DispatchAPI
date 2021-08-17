@@ -14,6 +14,8 @@ interface PartnerRepositoryInterface{
 
     public function profile(Request $request);
 
+    public function getProfile();
+
     public function pauseAccount();
 
     public function updateProfile(Request $request);
@@ -70,7 +72,11 @@ interface PartnerRepositoryInterface{
 
     public function getOrderByStatus($status);
 
+    public function getOneDropoff($id);
 
+    public function getOrderbyVehicle($id);
 
+    public function dashboard();
 
+    public function forgotPassword();
 }

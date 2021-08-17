@@ -340,7 +340,7 @@ class UserRepository implements UserRepositoryInterface{
             'dropoff.*.product_name' => "required|string",
             'dropoff.*.receiver_name' => "required|string",
             'dropoff.*.receiver_phone' => "required|string",
-            'dropoff.*.receiver_email' => "required|string",
+            //'dropoff.*.receiver_email' => "string",
             'dropoff.*.quantity' => "required|string",
             'dropoff.*.vehicle_type' => 'required|string'
         ]);
@@ -371,7 +371,7 @@ class UserRepository implements UserRepositoryInterface{
                 $newdropoff->product_name = $dropoff['product_name'];
                 $newdropoff->receiver_name = $dropoff['receiver_name'];
                 $newdropoff->receiver_phone = $dropoff['receiver_phone'];
-                $newdropoff->receiver_email = $dropoff['receiver_email'];
+                //$newdropoff->receiver_email = $dropoff['receiver_email'] ?? null;
                 $newdropoff->quantity = $dropoff['quantity'];
 
                 //will it differ in each dropoff address
