@@ -146,4 +146,13 @@ class PartnerController extends Controller
         return $this->repository->getOrderByStatus($status);
     }
 
+
+    public function getOrderbyVehicle($id){
+        return $this->repository->getOrderbyVehicle($id);
+    }
+
+    public function dashboard(){
+        return $this->repository->dashboard();
+    }
+
 }
