@@ -90,6 +90,13 @@ class UserController extends Controller
         return $this->repository->allOrderHistory();
     }
 
+    public function forgotPassword(Request $request){
+        return $this->repository->forgotPassword($request);
+    }
+
+    public function resetPassword($token){
+        return $this->repository->resetPassword($token);
+    }
 
     public function getOneDropoff($id){
         return $this->repository->getOneDropoff($id);

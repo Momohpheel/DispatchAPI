@@ -23,7 +23,8 @@ use Illuminate\Support\Facades\Route;
             Route::post('onboard', [App\Http\Controllers\UserController::class, 'onboard']);
             Route::post('register', [App\Http\Controllers\UserController::class, 'profile']);
             Route::post('login', [App\Http\Controllers\UserController::class, 'login']);
-
+            Route::post('forgot-password', [App\Http\Controllers\UserController::class, 'forgotPassword']);
+            Route::post('reset-password/{token}', [App\Http\Controllers\UserController::class, 'resetPassword']);
         });
     });
 
@@ -85,6 +86,7 @@ use Illuminate\Support\Facades\Route;
         Route::post('signup', [App\Http\Controllers\PartnerController::class, 'signup']);
         Route::post('login', [App\Http\Controllers\PartnerController::class, 'login']);
         Route::get('all', [App\Http\Controllers\PartnerController::class, 'allPartner']);
+        Route::get('top/all', [App\Http\Controllers\PartnerController::class, 'allTopPartner']);
         Route::middleware(['auth:partner'])->group(function () {
             Route::post('pause-account', [App\Http\Controllers\PartnerController::class, 'pauseAccount']);
             Route::get('history', [App\Http\Controllers\PartnerController::class, 'getPartnerHistory']);

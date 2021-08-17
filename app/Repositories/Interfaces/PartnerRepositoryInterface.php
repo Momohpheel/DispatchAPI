@@ -38,6 +38,8 @@ interface PartnerRepositoryInterface{
 
     public function allPartner();
 
+    public function allTopPartner();
+
     public function disableRider($id);
 
     public function getRiders();

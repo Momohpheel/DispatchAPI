@@ -16,4 +16,8 @@ class Vehicle extends Model
     public function rider(){
         return $this->hasOne(Rider::class);
     }
+
+    public function dropoff(){
+        return $this->hasMany(Dropoff::class);
+    }
 }

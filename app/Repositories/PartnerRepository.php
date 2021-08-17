@@ -24,6 +24,16 @@ class PartnerRepository implements PartnerRepositoryInterface{
     use Response, Logs;
 
 
+    public function allTopPartner(){
+        try{
+            $partners = Partner::where('is_top_partner', true)->get();
+
+            return $this->success(false, "All Top Partners", $partners, 200);
+        }catch(Exception $e){
+            return $this->error(true, "Couldn't find all partners", 400);
+        }
+    }
+
     public function allPartner(){
         try{
             $partners = Partner::all();

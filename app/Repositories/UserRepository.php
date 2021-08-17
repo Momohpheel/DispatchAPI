@@ -19,6 +19,11 @@ use App\Traits\Response;
 use App\Models\routeCosting as RouteCosting;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use Carbon\Carbon;
+use Socialite;
+use DB;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\VerifyEmail;
+use App\Mail\ForgotPassword;
 
 class UserRepository implements UserRepositoryInterface{
 
@@ -125,6 +130,62 @@ class UserRepository implements UserRepositoryInterface{
 
         }catch(Exception $e){
             return $this->error(true, "Error logging user", 400);
+        }
+    }
+
+    public function forgotPassword(Request $request){
+        try{
+            $request->validate([
+                'email' => 'required|email|exists:users',
+            ]);
+
+            $token = Str::random(64);
+
+            DB::table('password_resets')->insert([
+                'email' => $request->email,
+                'token' => $token,
+                'created_at' => Carbon::now()
+              ]);
+
+           Mail::to($request->email)->send(new ForgotPassword($token));
+
+            return $this->success("Email to reset password has been sent...", [], 200);
+
+        }catch(Exception $e){
+            return $this->error(true, "Error Occured: $e->getMessage()", 400);
+        }
+    }
+
+
+    public function resetPassword($token){
+        try{
+
+            $request->validate([
+                'email' => 'required|email|exists:users',
+                'password' => 'required|string|min:6|confirmed',
+                'password_confirmation' => 'required'
+            ]);
+
+            $updatePassword = DB::table('password_resets')
+                                ->where([
+                                  'email' => $request->email,
+                                  'token' => $token
+                                ])
+                                ->first();
+
+            if(!$updatePassword){
+                return $this->error(true, "Invalid token!", 400);
+            }
+
+            $user = User::where('email', $request->email)
+                        ->update(['password' => Hash::make($request->password)]);
+
+            DB::table('password_resets')->where(['email'=> $request->email])->delete();
+
+            return $this->success("Reset Password Successfull...", $user, 200);
+
+        }catch(Exception $e){
+            return $this->error(true, "Error Occured: $e->getMessage()", 400);
         }
     }
 
@@ -320,44 +381,75 @@ class UserRepository implements UserRepositoryInterface{
 
                 //rider id
                 //check rider with specific vehicle type
-                //$riders = Rider::where('partner_id', $partner->id)->where('is_available', true)->get();
-                // foreach ($riders as $rider){
-                //     if ($rider->vehicle->type ==  $dropoff['vehicle_type']){
-                //             $rider_lat = $rider->latitude;
-                //             $rider_long = $rider->longitude;
-                //             $url = file_get_contents("https://maps.googleapis.com/maps/api/directions/json?origin=".$rider_lat.",".$rider_long."&destination=".$order->o_latitude.",".$order->o_longitude."&sensor=false&key=AIzaSyDiUJ5BCTHX1UG9SbCrcwNYbIxODhg1Fl8");
-                //             $url = json_decode($url);
+                $final_riders_proximity = array();
+                $riders = Rider::with('vehicle')->where('partner_id', $partner->id)->where('is_available', true)->get();
+                foreach ($riders as $rider){
+                    if ($rider->vehicle->type ==  $dropoff['vehicle_type']){
+                            $rider_lat = $rider->latitude;
+                            $rider_long = $rider->longitude;
+                            //get closest rider from final group
 
-                //             $meters = $url->{'routes'}[0]->{'legs'}[0]->{'distance'}->{'value'};
-                //             $time = $url->{'routes'}[0]->{'legs'}[0]->{'duration'}->{'value'};
-                //             $distance = $meters/1000;
-                //             if ($distance < $min) {
-                //                 $min = $distance;
-                //                 $getrider = $rider;
-                //             }
+                                    $proximity_sorted = array();
+                                    $earthRadius = 6371000;
 
-                //         }
+                                    // convert from degrees to radians
+                                    $latFrom = deg2rad($rider_lat);
+                                    $lonFrom = deg2rad($rider_long);
+                                    $latTo = deg2rad($order->latitude);
+                                    $lonTo = deg2rad($order->longitude);
+
+                                    $latDelta = $latTo - $latFrom;
+                                    $lonDelta = $lonTo - $lonFrom;
+
+                                    $angle = 2 * asin(sqrt(pow(sin($latDelta / 2), 2) +
+                                    cos($latFrom) * cos($latTo) * pow(sin($lonDelta / 2), 2)));
+
+                                    $distance =  $angle * $earthRadius;
+
+                                    $distance = $distance/1000;
 
 
-                //     }
+                                    $proximity_sorted['rider_id'] = $rider->id;
+                                    $proximity_sorted['distance'] = $distance;
+                                    array_push($final_riders_proximity, $proximity_sorted);
+
+                            }
+
+
+                    }
+
+                    function pxm($a, $b) {
+                        return $a['distance'] > $b['distance'];
+                    }
+
+                    uasort($final_riders_proximity, "pxm");
+
+                    $closest_rider = array();
+                    $closest_rider = array_splice($final_riders_proximity, 0, 1);
+
+                    foreach ($closest_rider as $pairing){
+
+                        $getrider = Rider::with('vehicle')->where('id', $pairing['rider_id'])->first();
+                    }
 
                     if (isset($getrider)){
                         //rider_id or vehicle_id
                         $newdropoff->rider_id = $getrider->id ?? null;
                         $newdropoff->vehicle_id = $getrider->vehicle->id ?? null;
+
+                        //calculate price and discount
                         $newdropoff->price = $this->calculatePrice($min, $id) ?? 0;
                         $newdropoff->discount = 0;
 
                         $totals += $newdropoff->price;
                         $discounts += $newdropoff->discount;
+                    }else{
+                        return $this->error(true, 'Sorry all our riders are fully booked and are unable to fulfill your orders at the moment, please try again', 400);
                     }
-                    // else{
-                    //     return $this->error(true, 'Sorry all our riders are fully booked and are unable to fulfill your orders at the moment, please try again', 400);
-                    // }
 
-                $newdropoff->payment_status = 'not paid';
-                $newdropoff->status = 'pending';
-                $newdropoff->save();
+                        $newdropoff->payment_status = 'not paid';
+                        $newdropoff->status = 'pending';
+                        $newdropoff->save();
 
 
                 //$order->dropoff()->attach($newdropoff);
@@ -870,7 +962,7 @@ class UserRepository implements UserRepositoryInterface{
 
     public function getOneDropoff($id){
         try{
-            $dropoff = Dropoff::with(['order', 'rider'])->where('id', $id)->first();
+            $dropoff = Dropoff::with(['order', 'rider', 'vehicle'])->where('id', $id)->first();
 
             $user = User::where('id', $dropoff->order->user_id)->first();
             $dropoff['user'] = $user;

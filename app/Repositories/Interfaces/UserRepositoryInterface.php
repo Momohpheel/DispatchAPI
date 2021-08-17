@@ -46,6 +46,10 @@ interface UserRepositoryInterface{
 
     public function allOrderHistory();
 
+    public function forgotPassword(Request $request);
+
+    public function resetPassword($token);
+
     public function getOneDropoff($id);
 
     public function ratePartner(Request $request);

@@ -21,6 +21,10 @@ class PartnerController extends Controller
         return $this->repository->allPartner();
     }
 
+    public function allTopPartner(){
+        return $this->repository->allTopPartner();
+    }
+
     public function signup(Request $request){
         return $this->repository->signup($request);
     }
