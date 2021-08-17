@@ -303,9 +303,9 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 $validated = $request->validate([
                     'name' => 'required|string',
                     'plate_number' => 'required|string',
-                    'color' => 'required|string',
-                    'model' => 'required|string',
-                    'type' => 'string'
+                    'color' => 'string',
+                    'model' => 'string',
+                    'type' => 'required|string'
                 ]);
                 $id = auth()->user()->id;
                 $vehicle = Vehicle::where('plate_number', $validated['plate_number'])->where('partner_id', $id)->first();
@@ -413,7 +413,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
     public function getVehicle($id){
         try{
             $pid = auth()->user()->id;
-            $vehicle = Vehicle::with('partner')->where('id', $id)->where('partner_id', $pid)->first();
+            $vehicle = Vehicle::with(['partner', 'rider'])->where('id', $id)->where('partner_id', $pid)->first();
 
             return $this->success(false, "Vehicle fetched", $vehicle, 200);
 
@@ -828,12 +828,26 @@ class PartnerRepository implements PartnerRepositoryInterface{
     public function dashboard(){
         //partner profile
         //order count
+        try{
+            $partner = Partner::find(auth()->user()->id);
+            if (isset($partner)){
+                $data = [
+                    'partner' => $partner,
+                    'count' => $this->count() //pickedup, vehicle,pending, delivered,
+                ];
+                return $this->success(false, "Dashboard", $data, 200);
+            }else{
+                return $this->error(true, "No Partner found", 400);
+            }
+        }catch(Exception $e){
+            return $this->error(true, "Error creating user", 400);
+        }
     }
 
     public function count(){
         $id = auth()->user()->id;
         $dropoffs = Dropoff::with('order')->where('partner_id', $id)->get();
-
+        $vehicles = Vehicle::where('partner_id', $id)->get();
         $pending = [];
         $delivered = [];
         $picked = [];
@@ -853,9 +867,10 @@ class PartnerRepository implements PartnerRepositoryInterface{
             'pending' => count($pending),
             'delivered' => count($delivered),
             'picked' => count($picked),
+            'vehicles' => count($vehicles)
         ];
 
-        return $this->success(false, "Total Count", $data, 200);
+        return $data;
 
 
 
@@ -893,6 +908,17 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
     }
 
+    public function getOrderbyVehicle($id){
+        try{
+            $partner_id = auth()->user()->id;
+            $orders = DropOff::with('order')->where('partner_id', $partner_id)->where('vehicle_id', $id)->get();
+
+            return $this->success(false, "Orders", $orders, 200);
+        }catch(Exception $e){
+            return $this->error(true, "Error fetching orders", 400);
+        }
+    }
+
     public function getOrderByStatus($status){
 
         try{
@@ -907,27 +933,30 @@ class PartnerRepository implements PartnerRepositoryInterface{
                     foreach ($orders as $order){
                         foreach ($order->dropoff as $dro){
                             if ($dro->status == 'pending'){
+                                $dro['dropoff'] = $this->getOneDropoff($dro->id);
                                 array_push($data, $dro);
                             }
                         }
                     }
 
                     return $this->success(false, "Pending Orders", $data, 200);
-                case 'unpaid':
+                case 'delivered':
                     foreach ($orders as $order){
                         foreach ($order->dropoff as $dro){
-                            if ($dro->payment_status != 'paid'){
+                            if ($dro->status == 'delivered'){
+                                $dro['dropoff'] = $this->getOneDropoff($dro->id);
                                 array_push($data, $dro);
                             }
                         }
                     }
 
-                    return $this->success(false, "Unpaid Orders", $data, 200);
+                    return $this->success(false, "Delivered Orders", $data, 200);
 
                 case 'pickedup':
                     foreach ($orders as $order){
                         foreach ($order->dropoff as $dro){
                             if ($dro->status == 'picked'){
+                                $dro['dropoff'] = $this->getOneDropoff($dro->id);
                                 array_push($data, $dro);
                             }
                         }
@@ -943,5 +972,23 @@ class PartnerRepository implements PartnerRepositoryInterface{
             return $this->error(true, "Couldn't get order", 400);
         }
     }
+
+        public function getOneDropoff($id){
+            try{
+                $dropoff = Dropoff::with(['order', 'rider', 'vehicle'])->where('id', $id)->first();
+
+                $user = User::where('id', $dropoff->order->user_id)->first();
+                $dropoff['user'] = $user;
+                if (isset($dropoff)){
+                    //return $this->success(false, "Dropoff", $dropoff, 200);
+                    return $dropoff;
+                }else{
+                    return $this->error(true, "No dropoff found", 400);
+                }
+            }catch(Exception $e){
+                return $this->error(true, "Error occured!", 400);
+            }
+        }
+
 
 }

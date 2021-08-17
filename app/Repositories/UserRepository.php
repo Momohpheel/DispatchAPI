@@ -426,10 +426,11 @@ class UserRepository implements UserRepositoryInterface{
 
                     $closest_rider = array();
                     $closest_rider = array_splice($final_riders_proximity, 0, 1);
-
+                    $price = 0;
                     foreach ($closest_rider as $pairing){
 
                         $getrider = Rider::with('vehicle')->where('id', $pairing['rider_id'])->first();
+                        $price = $this->calculatePrice($pairing['distance'], $id) ?? 0;
                     }
 
                     if (isset($getrider)){
@@ -438,7 +439,7 @@ class UserRepository implements UserRepositoryInterface{
                         $newdropoff->vehicle_id = $getrider->vehicle->id ?? null;
 
                         //calculate price and discount
-                        $newdropoff->price = $this->calculatePrice($min, $id) ?? 0;
+                        $newdropoff->price = $price;
                         $newdropoff->discount = 0;
 
                         $totals += $newdropoff->price;
@@ -457,11 +458,11 @@ class UserRepository implements UserRepositoryInterface{
                 $this->history('Jobs', auth()->user()->name." ordered a dispatch from ".$order->o_address." to ". $newdropoff->d_address, auth()->user()->id, 'user');
 
                     $partner = Partner::find($id);
-                //reduce partner order count
-                if ($partner->order_count_per_day != 'unlimited'){
-                    $partner->order_count_per_day--;
-                    $partner->save();
-                }
+                    //reduce partner order count
+                    if ($partner->order_count_per_day != 'unlimited'){
+                        $partner->order_count_per_day--;
+                        $partner->save();
+                    }
             }
         }
 
