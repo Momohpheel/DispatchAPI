@@ -31,11 +31,12 @@ trait Logs{
 
 
 
-    public function transactionLog($type, $data, $id, $user){
+    public function transactionLog($type, $data, $price , $id, $user){
 
         $trans = new TransactionLogs;
         $trans->log_type = $type;
         $trans->log_data = $data;
+        $trans->price = $price;
         //$trans->status = $status;
         if ($user == 'user'){
             $trans->user_id = $id;

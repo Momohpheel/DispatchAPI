@@ -56,6 +56,8 @@ use Illuminate\Support\Facades\Route;
 
             Route::post('payment/log', [App\Http\Controllers\UserController::class, 'payment']);
             Route::post('order/status/{status}', [App\Http\Controllers\UserController::class, 'getOrderByStatus']);
+
+            Route::post('transactions', [App\Http\Controllers\UserController::class, 'getTransactionHistory']);
         });
     });
 
@@ -92,6 +94,9 @@ use Illuminate\Support\Facades\Route;
             Route::get('history', [App\Http\Controllers\PartnerController::class, 'getPartnerHistory']);
             Route::post('top-partner', [App\Http\Controllers\PartnerController::class, 'makeTopPartner']);
 
+            Route::post('dashboard', [App\Http\Controllers\PartnerController::class, 'dashboard']);
+
+
             Route::prefix('profile')->group(function () {
                 Route::post('/', [App\Http\Controllers\PartnerController::class, 'profile']);
                 Route::post('update', [App\Http\Controllers\PartnerController::class, 'updateProfile']);
@@ -103,6 +108,7 @@ use Illuminate\Support\Facades\Route;
                 Route::get('/', [App\Http\Controllers\PartnerController::class, 'getVehicles']);
                 Route::get('/{id}', [App\Http\Controllers\PartnerController::class, 'getVehicle']);
                 Route::get('count/{id}', [App\Http\Controllers\PartnerController::class, 'countForVehicle']);
+                Route::get('orders', [App\Http\Controllers\PartnerController::class, 'getOrderbyVehicle']);
 
             });
             Route::prefix('rider')->group(function () {

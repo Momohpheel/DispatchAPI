@@ -43,12 +43,13 @@ class PartnerRepository implements PartnerRepositoryInterface{
             return $this->error(true, "Couldn't find all partners", 400);
         }
     }
+
+
+
     /*
-    *
     *
     *   PARTNER AUTHENTICATION
     *   (signup, login)
-    *
     */
     public function signup(Request $request){
         try{
@@ -406,10 +407,6 @@ class PartnerRepository implements PartnerRepositoryInterface{
         }
     }
 
-    // public function getCars(){}
-    // public function getBikes(){}
-    // public function getVans(){}
-
     public function getVehicle($id){
         try{
             $pid = auth()->user()->id;
@@ -643,10 +640,6 @@ class PartnerRepository implements PartnerRepositoryInterface{
             return $this->error(true, "Error fetching order", 400);
         }
     }
-
-
-
-
 
     public function setRouteCosting(Request $request){
         try{
@@ -973,7 +966,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
         }
     }
 
-        public function getOneDropoff($id){
+    public function getOneDropoff($id){
             try{
                 $dropoff = Dropoff::with(['order', 'rider', 'vehicle'])->where('id', $id)->first();
 
@@ -991,4 +984,4 @@ class PartnerRepository implements PartnerRepositoryInterface{
         }
 
 
-}
+    }

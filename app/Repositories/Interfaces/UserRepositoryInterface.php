@@ -58,6 +58,8 @@ interface UserRepositoryInterface{
 
     public function getSavedAddresses();
 
+    public function getTransactionHistory();
+
 
 
 

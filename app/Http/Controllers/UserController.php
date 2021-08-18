@@ -122,5 +122,7 @@ class UserController extends Controller
         return $this->repository->getProfile();
     }
 
-
+    public function getTransactionHistory(){
+        return $this->repository->getTransactionHistory();
+    }
 }

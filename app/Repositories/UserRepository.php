@@ -14,6 +14,7 @@ use App\Models\Rating;
 use App\Models\Rider;
 use App\Models\Payment;
 use App\Models\History;
+use App\Models\TransactionLogs;
 use App\Models\OperatingHours as OpHour;
 use App\Traits\Response;
 use App\Models\routeCosting as RouteCosting;
@@ -427,6 +428,7 @@ class UserRepository implements UserRepositoryInterface{
                     $closest_rider = array();
                     $closest_rider = array_splice($final_riders_proximity, 0, 1);
                     $price = 0;
+
                     foreach ($closest_rider as $pairing){
 
                         $getrider = Rider::with('vehicle')->where('id', $pairing['rider_id'])->first();
@@ -479,7 +481,6 @@ class UserRepository implements UserRepositoryInterface{
         $order['calculation'] = $calculations;
         $this->history('Jobs', auth()->user()->name." made ".$newdropoff->count()." orders", auth()->user()->id, 'user');
 
-        //array_merge($order, $calculations);
 
         return $this->success(false, "Order created! You are successfully paired with a rider", $order, 200);
 
@@ -488,26 +489,8 @@ class UserRepository implements UserRepositoryInterface{
 
     public function getAllOrders($id){
         try{
-
-
             $id = auth()->user()->id;
             $orders = Order::with('dropoff')->where('partner_id', $id)->where('user_id', $id)->get();
-
-            // if (isset($orders->dropoff)){
-            //     foreach ($orders->dropoff as $dropoff){
-            //         $totals += $dropoff->price;
-            //         $discounts += $dropoff->discount;
-            //     }
-            // }
-            // $calculations = [
-            //     "total_amount" => $totals ?? null,
-            //     "discount" => $discounts ?? null,
-            //     "total" => ($totals - $discounts) ?? null
-            // ];
-
-            // json_encode($calculations);
-
-            // $orders['calculation'] = $calculations;
 
             return $this->success(false, "User Order History", $orders, 200);
 
@@ -563,9 +546,6 @@ class UserRepository implements UserRepositoryInterface{
         //deleting the pivot data row/column
         try{
             $dropoff = Dropoff::with('order')->where('id', $d_id)->first();
-
-
-
 
             if (isset($dropoff) && $dropoff->order->user_id == auth()->user()->id){
 
@@ -662,11 +642,6 @@ class UserRepository implements UserRepositoryInterface{
                 return $this->error(true, "No Partner found", 400);
             }
 
-
-
-
-
-
         }catch(Exception $e){
             return $this->error(true, "Error creating user", 400);
         }
@@ -678,7 +653,6 @@ class UserRepository implements UserRepositoryInterface{
         try{
 
             $pendings = Order::with('dropoff')->where('partner_id', $id)->where('user_id', auth()->user()->id)->get(); //->where('status', 'pending')
-
 
             $data = [];
             $p_data = [];
@@ -989,7 +963,7 @@ class UserRepository implements UserRepositoryInterface{
                 //wallet history
                 $this->walletLogs('wallet', "You added ".$request['amount']." to your wallet", auth()->user()->id, 'user');
                 //trnasaction history
-                $this->transactionLog('Funding Wallet', $user->name. " added ".$request['amount']." to their wallet", auth()->user()->id, 'user');
+                $this->transactionLog('Funding Wallet', $user->name. " added ".$request['amount']." to their wallet", $request['amount'] ,auth()->user()->id, 'user');
                 //user history
 
                 $log = $this->paymentLog($request);
@@ -1075,7 +1049,7 @@ class UserRepository implements UserRepositoryInterface{
                      //wallet history
                      $this->walletLogs('wallet', $validated['amount']." was deducted from your wallet for a job", auth()->user()->id, 'user');
                      //trnasaction history
-                     $this->transactionLog('Order', $user->name." paid for an order", auth()->user()->id, 'user');
+                     $this->transactionLog('Order', $user->name." paid for an order", $request['amount'] , auth()->user()->id, 'user');
                      //user history
                     $log = $this->paymentLog($validated);
 
@@ -1164,15 +1138,19 @@ class UserRepository implements UserRepositoryInterface{
                 return $this->error(true, "No Orders" , 400);
             }
 
-
-
-
-
-
         }catch(Exception $e){
             return $this->error(true, "Error occured while processing payment!", 400);
         }
     }
 
 
+    public function getTransactionHistory(){
+        try{
+            $transLogs = TransactionLogs::where('user_id', auth()->user()->id)->get();
+
+            return $this->success(false, "Transaction history...", $transLogs , 200);
+        }catch(Exception $e){
+            return $this->error(true, "Error occured!", 400);
+        }
+    }
 }
