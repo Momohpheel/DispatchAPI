@@ -57,7 +57,7 @@ use Illuminate\Support\Facades\Route;
             Route::post('payment/log', [App\Http\Controllers\UserController::class, 'payment']);
             Route::post('order/status/{status}', [App\Http\Controllers\UserController::class, 'getOrderByStatus']);
 
-            Route::post('transactions', [App\Http\Controllers\UserController::class, 'getTransactionHistory']);
+            Route::get('transactions', [App\Http\Controllers\UserController::class, 'getTransactionHistory']);
         });
     });
 
