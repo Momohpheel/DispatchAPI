@@ -1049,7 +1049,7 @@ class UserRepository implements UserRepositoryInterface{
                      //wallet history
                      $this->walletLogs('wallet', $validated['amount']." was deducted from your wallet for a job", auth()->user()->id, 'user');
                      //trnasaction history
-                     $this->transactionLog('Order', $user->name." paid for an order", $request['amount'] , auth()->user()->id, 'user');
+                     $this->transactionLog('Delivery Fees', $user->name." paid for an order", $request['amount'] , auth()->user()->id, 'user');
                      //user history
                     $log = $this->paymentLog($validated);
 
