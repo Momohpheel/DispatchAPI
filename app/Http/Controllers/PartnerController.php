@@ -33,6 +33,14 @@ class PartnerController extends Controller
         return $this->repository->login($request);
     }
 
+    public function forgotPassword(Request $request){
+        return $this->repository->forgotPassword($request);
+    }
+
+    public function resetPassword($token){
+        return $this->repository->resetPassword($token);
+    }
+
     public function kyc(){
         return $this->repository->kyc();
     }
@@ -47,6 +55,10 @@ class PartnerController extends Controller
 
     public function updateProfile(Request $request){
         return $this->repository->updateProfile($request);
+    }
+
+    public function getRider($id){
+        return $this->repository->getRider($id);
     }
 
     public function getProfile(){

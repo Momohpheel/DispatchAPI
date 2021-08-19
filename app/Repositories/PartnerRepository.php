@@ -16,7 +16,11 @@ use App\Models\Vehicle;
 use App\Models\Address;
 use App\Traits\Logs;
 use App\Repositories\Interfaces\PartnerRepositoryInterface;
-
+use DB;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\VerifyEmail;
+use App\Mail\ForgotPassword;
+use Illuminate\Support\Str;
 
 class PartnerRepository implements PartnerRepositoryInterface{
 
@@ -126,7 +130,63 @@ class PartnerRepository implements PartnerRepositoryInterface{
         }
     }
 
-    public function forgotPassword(){}
+    public function forgotPassword(Request $request){
+        try{
+            $request->validate([
+                'email' => 'required|email|exists:users',
+            ]);
+
+            $token = Str::random(64);
+
+            DB::table('password_resets')->insert([
+                'email' => $request->email,
+                'token' => $token,
+                'created_at' => Carbon::now()
+              ]);
+
+            Mail::to($request->email)->send(new ForgotPassword($token));
+
+            return $this->success("Email to reset password has been sent...", [], 200);
+
+        }catch(Exception $e){
+            return $this->error(true, "Error Occured: $e->getMessage()", 400);
+        }
+    }
+
+
+    public function resetPassword($token){
+        try{
+
+            $request->validate([
+                'email' => 'required|email|exists:users',
+                'password' => 'required|string|min:6|confirmed',
+                'password_confirmation' => 'required'
+            ]);
+
+            $updatePassword = DB::table('password_resets')
+                                ->where([
+                                  'email' => $request->email,
+                                  'token' => $token
+                                ])
+                                ->first();
+
+            if(!$updatePassword){
+                return $this->error(true, "Invalid token!", 400);
+            }
+
+            $user = User::where('email', $request->email)
+                        ->update(['password' => Hash::make($request->password)]);
+
+            DB::table('password_resets')->where(['email'=> $request->email])->delete();
+
+            return $this->success("Reset Password Successfull...", $user, 200);
+
+        }catch(Exception $e){
+            return $this->error(true, "Error Occured: $e->getMessage()", 400);
+        }
+    }
+
+
 
 
 
@@ -565,9 +625,20 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
     public function getRiders(){
         try{
-            $riders = Rider::with(['partner', 'vehicle'])->where('partner_id', auth()->user()->id)->get();
+            $riders = Rider::with(['partner', 'vehicle'])->where('is_available', true)->where('partner_id', auth()->user()->id)->get();
 
             return $this->success(false, "Riders", $riders, 200);
+        }catch(Exception $e){
+            return $this->error(true, "Error fetching riders", 400);
+        }
+
+    }
+
+    public function getRider($id){
+        try{
+            $rider = Rider::with(['partner', 'vehicle'])->where('is_available', true)->where('partner_id', auth()->user()->id)->first();
+
+            return $this->success(false, "Rider", $rider, 200);
         }catch(Exception $e){
             return $this->error(true, "Error fetching riders", 400);
         }
@@ -583,7 +654,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
             ]);
 
             $order = DropOff::where('id', $validated['dropoff_id'])->where('partner_id', auth()->user()->id)->first();
-            $rider = Rider::where('id', $validated['rider_id'])->where('partner_id', auth()->user()->id)->first();
+            $rider = Rider::where('id', $validated['rider_id'])->where('is_available', true)->where('partner_id', auth()->user()->id)->first();
             if ($order){
 
                 if ($rider->vehicle->type == $order->vehicle_type){

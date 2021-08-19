@@ -907,16 +907,16 @@ class UserRepository implements UserRepositoryInterface{
 
                 if (!empty($order->dropoff)){
                     foreach ($order->dropoff as $dropoff){
-                            $dropoff_data = [
-                                'status' => $dropoff->status ?? null,
-                                'time' => $dropoff->created_at,
-                                'dropoff_id' => $dropoff->id,
-                                'dropoff' => $this->getOneDropoff($dropoff->id)
-                            ];
+                            // $dropoff_data = [
+                            //     'status' => $dropoff->status ?? null,
+                            //     'time' => $dropoff->created_at,
+                            //     'dropoff_id' => $dropoff->id,
+                            //     'dropoff' => $this->getOneDropoff($dropoff->id)
+                            // ];
 
-
-                            $ar = array_merge($data, $dropoff_data);
-                            array_push($history, $ar);
+                            $dropoff['dropoff'] = $this->getOneDropoff($dropoff->id);
+                            //$ar = array_merge($data, $dropoff_data);
+                            array_push($history, $dropoff);
                     }
 
                     //array_push($data['dropoff'], $drop_o);

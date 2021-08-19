@@ -87,8 +87,14 @@ use Illuminate\Support\Facades\Route;
     Route::prefix('partner')->group(function () {
         Route::post('signup', [App\Http\Controllers\PartnerController::class, 'signup']);
         Route::post('login', [App\Http\Controllers\PartnerController::class, 'login']);
+
         Route::get('all', [App\Http\Controllers\PartnerController::class, 'allPartner']);
         Route::get('top/all', [App\Http\Controllers\PartnerController::class, 'allTopPartner']);
+
+        Route::post('forgot-password', [App\Http\Controllers\User\AuthController::class, 'forgotPassword']);
+        Route::post('reset-password/{token}', [App\Http\Controllers\User\AuthController::class, 'resetPassword']);
+
+
         Route::middleware(['auth:partner'])->group(function () {
             Route::post('pause-account', [App\Http\Controllers\PartnerController::class, 'pauseAccount']);
             Route::get('history', [App\Http\Controllers\PartnerController::class, 'getPartnerHistory']);
@@ -118,6 +124,7 @@ use Illuminate\Support\Facades\Route;
                 Route::post('/', [App\Http\Controllers\PartnerController::class, 'createRider']);
                 Route::post('disable/{id}', [App\Http\Controllers\PartnerController::class, 'disableRider']);
                 Route::get('/', [App\Http\Controllers\PartnerController::class, 'getRiders']);
+                Route::get('/{id}', [App\Http\Controllers\PartnerController::class, 'getRider']);
                 Route::post('assign', [App\Http\Controllers\PartnerController::class, 'assignOrder']);
             });
             Route::prefix('order')->group(function () {

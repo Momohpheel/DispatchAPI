@@ -46,6 +46,8 @@ interface PartnerRepositoryInterface{
 
     public function getRiders();
 
+    public function getRider($id);
+
     public function assignOrder(Request $request);
 
     public function getOrders();
@@ -78,5 +80,7 @@ interface PartnerRepositoryInterface{
 
     public function dashboard();
 
-    public function forgotPassword();
+    public function forgotPassword(Request $request);
+
+    public function resetPassword($token);
 }
