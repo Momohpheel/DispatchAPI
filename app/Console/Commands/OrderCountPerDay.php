@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use App\Models\Partner;
 
 class OrderCountPerDay extends Command
 {
@@ -38,7 +39,7 @@ class OrderCountPerDay extends Command
     public function handle()
     {
         $partners = Partner::all();
-
+        \Log::info("Cron is working fine!");
         foreach ($partners as $partner){
             if (isset($partner->subscription_id) && $partner->subscription_status == 'paid'){
                 if ($partner->subscription_id == 1){
@@ -51,6 +52,7 @@ class OrderCountPerDay extends Command
                     $partner->order_count_per_day = 'unlimited';
                 }
 
+                $partner->save();
             }
         }
     }

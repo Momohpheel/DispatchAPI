@@ -24,6 +24,7 @@ use Socialite;
 use DB;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\VerifyEmail;
+use Illuminate\Support\Str;
 use App\Mail\ForgotPassword;
 
 class UserRepository implements UserRepositoryInterface{
@@ -907,15 +908,17 @@ class UserRepository implements UserRepositoryInterface{
 
                 if (!empty($order->dropoff)){
                     foreach ($order->dropoff as $dropoff){
-                            // $dropoff_data = [
-                            //     'status' => $dropoff->status ?? null,
-                            //     'time' => $dropoff->created_at,
-                            //     'dropoff_id' => $dropoff->id,
-                            //     'dropoff' => $this->getOneDropoff($dropoff->id)
-                            // ];
+
+                            $dropoff_data = [
+                                'status' => $dropoff->status ?? null,
+                                'time' => $dropoff->created_at,
+                                'dropoff_id' => $dropoff->id,
+                                'dropoff' => $this->getOneDropoff($dropoff->id)
+                            ];
 
                             $dropoff['dropoff'] = $this->getOneDropoff($dropoff->id);
-                            //$ar = array_merge($data, $dropoff_data);
+                            $ar = array_merge($data, $dropoff_data);
+                            json_encode($ar);
                             array_push($history, $dropoff);
                     }
 
