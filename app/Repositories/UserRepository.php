@@ -329,6 +329,11 @@ class UserRepository implements UserRepositoryInterface{
         }
     }
 
+    function pxm($a, $b) {
+        if ($a['distance']==$b['distance']) return 0;
+            return ($a['distance']<$b['distance'])?-1:1;
+        //return $a['distance'] > $b['distance'];
+    }
 
     public function job($request, $id){
         $validated = $request->validate([
@@ -429,7 +434,7 @@ class UserRepository implements UserRepositoryInterface{
                         //return $a['distance'] > $b['distance'];
                     }
 
-                    uasort($final_riders_proximity, "pxm");
+                    uasort($final_riders_proximity, "App\Repositories\pxm");
 
                     $closest_rider = array();
                     $closest_rider = array_splice($final_riders_proximity, 0, 1);
