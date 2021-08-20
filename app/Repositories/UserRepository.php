@@ -439,6 +439,7 @@ class UserRepository implements UserRepositoryInterface{
                     $closest_rider = array();
                     $closest_rider = array_splice($final_riders_proximity, 0, 1);
                     $price = 0;
+                    $getrider;
 
                     foreach ($closest_rider as $pairing){
 
