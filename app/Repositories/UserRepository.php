@@ -428,23 +428,27 @@ class UserRepository implements UserRepositoryInterface{
 
                     }
 
-                    function pxm($a, $b) {
-                        if ($a['distance']==$b['distance']) return 0;
-                            return ($a['distance']<$b['distance'])?-1:1;
-                        //return $a['distance'] > $b['distance'];
-                    }
-
                     uasort($final_riders_proximity, "App\Repositories\pxm");
 
                     $closest_rider = array();
                     $closest_rider = array_splice($final_riders_proximity, 0, 1);
                     $price = 0;
-                    $getrider;
+
 
                     foreach ($closest_rider as $pairing){
 
                         $getrider = Rider::with('vehicle')->where('id', $pairing['rider_id'])->first();
                         $price = $this->calculatePrice($pairing['distance'], $id) ?? 0;
+
+                        $newdropoff->rider_id = $getrider->id ?? null;
+                        $newdropoff->vehicle_id = $getrider->vehicle->id ?? null;
+
+                        //calculate price and discount
+                        $newdropoff->price = $price;
+                        $newdropoff->discount = 0;
+
+                        $totals += $newdropoff->price;
+                        $discounts += $newdropoff->discount;
                     }
 
                     if (isset($getrider)){
