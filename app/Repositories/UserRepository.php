@@ -329,7 +329,7 @@ class UserRepository implements UserRepositoryInterface{
         }
     }
 
-    public function pxm($a, $b) {
+    function pxm($a, $b) {
         if ($a['distance']==$b['distance']) return 0;
             return ($a['distance']<$b['distance'])?-1:1;
         //return $a['distance'] > $b['distance'];
