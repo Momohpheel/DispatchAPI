@@ -385,6 +385,9 @@ class UserRepository implements UserRepositoryInterface{
                 //check rider with specific vehicle type
                 $final_riders_proximity = array();
                 $riders = Rider::with('vehicle')->where('partner_id', $partner->id)->where('is_available', true)->get();
+                if (empty($riders)){
+                    return $this->error(true, 'This partner doesnt have a rider', 400);
+                }
                 foreach ($riders as $rider){
                     if ($rider->vehicle->type ==  $dropoff['vehicle_type']){
                             $rider_lat = $rider->latitude;
