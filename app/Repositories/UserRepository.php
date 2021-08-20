@@ -428,7 +428,7 @@ class UserRepository implements UserRepositoryInterface{
 
                     }
 
-                    uasort($final_riders_proximity, "App\Repositories\UserRepository\pxm");
+                    uasort($final_riders_proximity, 'App\Repositories\UserRepository\pxm');
 
                     $closest_rider = array();
                     $closest_rider = array_splice($final_riders_proximity, 0, 1);
