@@ -458,9 +458,10 @@ class UserRepository implements UserRepositoryInterface{
 
                         $totals += $newdropoff->price;
                         $discounts += $newdropoff->discount;
-                    }else{
-                        return $this->error(true, 'Sorry all our riders are fully booked and are unable to fulfill your orders at the moment, please try again', 400);
                     }
+                    // else{
+                    //     return $this->error(true, 'Sorry all our riders are fully booked and are unable to fulfill your orders at the moment, please try again', 400);
+                    // }
 
                         $newdropoff->payment_status = 'not paid';
                         $newdropoff->status = 'pending';
