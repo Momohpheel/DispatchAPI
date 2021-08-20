@@ -428,6 +428,12 @@ class UserRepository implements UserRepositoryInterface{
 
                     }
 
+                   function pxm($a, $b) {
+                        if ($a['distance']==$b['distance']) return 0;
+                            return ($a['distance']<$b['distance'])?-1:1;
+                        //return $a['distance'] > $b['distance'];
+                    }
+
                     uasort($final_riders_proximity, 'App\Repositories\pxm');
 
                     $closest_rider = array();
