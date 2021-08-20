@@ -982,7 +982,6 @@ class UserRepository implements UserRepositoryInterface{
 
 
     public function payment(Request $request){
-
         try {
             //transaction history
             //wallet history
@@ -1009,18 +1008,11 @@ class UserRepository implements UserRepositoryInterface{
 
             $orders = Order::with('dropoff')->where('id', intval($validated['order_id']))->where('user_id', auth()->user()->id)->get();
 
-            if ($validated['type'] == 'order'){
+            if ($validated['type'] == 'payOrderwithCard'){
 
                 if ($validated['trans_status'] == 'success'){
 
-                    //reduce user wallet
-                    $user = User::where('id', auth()->user()->id)->first();
-                    $user->wallet = $user->wallet - $validated['amount'];
-                    $user->save();
-
                     //increase partner's earninigs/wallet
-
-
                     foreach ($orders as $order){
                         $partner = Partner::find($order->partner_id);
                         $partner->wallet = $partner->wallet + $validated['amount'];
@@ -1050,7 +1042,7 @@ class UserRepository implements UserRepositoryInterface{
                     }
 
                      //wallet history
-                     $this->walletLogs('wallet', $validated['amount']." was deducted from your wallet for a job", auth()->user()->id, 'user');
+                     $this->walletLogs('wallet', $validated['amount']." was paid from your card for a job", auth()->user()->id, 'user');
                      //trnasaction history
                      $this->transactionLog('Delivery Fees', $user->name." paid for an order", $request['amount'] , auth()->user()->id, 'user');
                      //user history
@@ -1058,11 +1050,63 @@ class UserRepository implements UserRepositoryInterface{
 
 
 
+                }else{
+                    return $this->error(true, "Error while processing transactions!", 400);
                 }
 
 
-            }else if ($validated['type'] == 'wallet'){
+            }else if ($validated['type'] == 'fundWallet'){
                     $log =  $this->fundWallet($validated);
+            }else if ($validated['type'] == 'payOrderwithWallet'){
+
+                    //reduce user wallet
+                    $user = User::where('id', auth()->user()->id)->first();
+                    if ($user->wallet > $validated['amount']){
+                        $user->wallet = $user->wallet - $validated['amount'];
+                        $user->save();
+
+                        //increase partner's earninigs/wallet
+                        foreach ($orders as $order){
+                            $partner = Partner::find($order->partner_id);
+                            $partner->wallet = $partner->wallet + $validated['amount'];
+                            $partner->save();
+
+                            foreach ($order->dropoff as $dropoff){
+                                //increase rider and vehicle earnings
+                                $rider = Rider::with('vehicle')->where('id', $dropoff->rider_id)->first();
+                                $rider->earning = $rider->earning + $validated['amount'];
+                                $rider->save();
+
+                                $vehicle = Vehicle::find($rider->vehicle->id);
+                                $vehicle->earning = $vehicle->earning +  $validated['amount'];
+                                $vehicle->save();
+
+
+                                //dropoff payment-status change to paid if true
+                                $job = Dropoff::where('id', $dropoff->id)->first();
+                                $job->payment_status = 'paid';
+                                $job->save();
+
+                            }
+
+
+
+
+                        }
+
+                        //wallet history
+                        $this->walletLogs('wallet', $validated['amount']." was deducted from your wallet for a job", auth()->user()->id, 'user');
+                        //trnasaction history
+                        $this->transactionLog('Delivery Fees', $user->name." paid for an order", $request['amount'] , auth()->user()->id, 'user');
+                        //user history
+                        $log = $this->paymentLog($validated);
+
+
+                    }else{
+                        return $this->error(true, "User doesn't have enough in his wallet!", 400);
+                    }
+
+
             }else{
                 return $this->error(true, "The transaction type is unknown!", 400);
             }

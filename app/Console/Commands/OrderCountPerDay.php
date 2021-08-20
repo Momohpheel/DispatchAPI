@@ -43,11 +43,11 @@ class OrderCountPerDay extends Command
         foreach ($partners as $partner){
             if (isset($partner->subscription_id) && $partner->subscription_status == 'paid'){
                 if ($partner->subscription_id == 1){
-                    $partner->order_count_per_day += 5;
+                    $partner->order_count_per_day = 5;
                 }else if ($partner->subscription_id == 2){
-                    $partner->order_count_per_day += 15;
+                    $partner->order_count_per_day = 15;
                 }else if ($partner->subscription_id == 3){
-                    $partner->order_count_per_day += 25;
+                    $partner->order_count_per_day = 25;
                 }else {
                     $partner->order_count_per_day = 'unlimited';
                 }

@@ -15,6 +15,8 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         //
         Commands\OrderCountPerDay::class,
+        Commands\checkSubscriptionExpiration::class,
+        Commands\checkTopPartnerExpiration::class,
 
     ];
 
@@ -27,7 +29,10 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
+        $schedule->command('subscription:expiry')->everyMinute();
+        $schedule->command('toppartner:expiry')->everyMinute();
         $schedule->command('order:count')->everyMinute();
+
     }
 
     /**

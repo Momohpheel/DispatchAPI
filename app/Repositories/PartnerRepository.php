@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\VerifyEmail;
 use App\Mail\ForgotPassword;
 use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 class PartnerRepository implements PartnerRepositoryInterface{
 
@@ -47,7 +48,6 @@ class PartnerRepository implements PartnerRepositoryInterface{
             return $this->error(true, "Couldn't find all partners", 400);
         }
     }
-
 
 
     /*
@@ -784,35 +784,57 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
     public function subscribe(Request $request){
         $validated = $request->validate([
-            'subscription_id' => 'required'
+            'subscription_id' => 'required',
+            'payment_type' => 'required|string'
         ]);
+
 
         $subs = Subscription::find($validated['subscription_id']);
         if ($subs){
+
             //check if partner has enough in her wallet
             //take money from partner wallet
             $partner_id = auth()->user()->id;
             $partner = Partner::find($partner_id);
-            $partner->subscription_id = $subs->id;
-            $partner->subscription_status = 'paid';
-
-            if ($subs->name == 'Free'){
-                $partner->order_count_per_day = 5;
-                $partner->vehicle_count = 5;
-            }else if ($subs->name == 'Starter'){
-                $partner->order_count_per_day = 15;
-                $partner->vehicle_count = 15;
-            }else if ($subs->name == 'Business'){
-                $partner->order_count_per_day = 25;
-                $partner->vehicle_count = 25;
-            }else {
-                $partner->order_count_per_day = 'unlimited';
-                $partner->vehicle_count = 'unlimited';
+            if ($request->payment_type == 'wallet'){
+                if ($partner->wallet > $subs->price){
+                    $partner->wallet = $partner->wallet - $subs->price;
+                    $log = true;
+                }else{
+                    return $this->error(true, "Partner doesn't have enough funds in her wallet", 400);
+                }
+            }else if ($request->payment_type == 'card'){
+                //card...
+                $log = $this->payment($request);
             }
-             //check what type of subscription and input appropiately here
-            $partner->save();
 
-            return $this->success(false, "Subscribtion successful", $partner, 200);
+            if ($log){
+                $partner->subscription_id = $subs->id;
+                //check what type of subscription and input appropiately here
+                if ($subs->name == 'Free'){
+                    $partner->order_count_per_day = 5;
+                    $partner->vehicle_count = 5;
+                }else if ($subs->name == 'Starter'){
+                    $partner->order_count_per_day = 15;
+                    $partner->vehicle_count = 15;
+                }else if ($subs->name == 'Business'){
+                    $partner->order_count_per_day = 25;
+                    $partner->vehicle_count = 25;
+
+                }else {
+                    $partner->order_count_per_day = 'unlimited';
+                    $partner->vehicle_count = 'unlimited';
+                }
+
+                $partner->subscription_expiry_date = Carbon::now()->addDays(30);
+                $partner->subscription_date = Carbon::now();
+                $partner->subscription_status = 'paid';
+
+                $partner->save();
+
+
+                return $this->success(false, "Subscribtion successful", $partner, 200);
+            }
         }else{
             return $this->error(true, "Subscription not found", 400);
         }
@@ -880,7 +902,8 @@ class PartnerRepository implements PartnerRepositoryInterface{
             $id = auth()->user()->id;
             $partner = Partner::find($id);
             $partner->is_top_partner = true;
-            $partner->top_partner_pay_date = now();
+            $expiry_date = Carbon::now()->addDays(30)->toDateString();
+            $partner->top_partner_expiry_date = $expiry_date;
             $partner->save();
 
             return $this->success(false, "Partner has been made a top partner", $partner, 200);
@@ -1052,7 +1075,111 @@ class PartnerRepository implements PartnerRepositoryInterface{
             }catch(Exception $e){
                 return $this->error(true, "Error occured!", 400);
             }
+    }
+
+
+    public function fundWallet($request){
+        try{
+
+            $partner = Partner::where('id', auth()->user()->id)->first();
+            $partner->wallet = $partner->wallet + $request['amount'];
+            $partner->save();
+
+            if ($request['trans_status'] == 'success'){
+                //wallet history
+                $this->walletLogs('wallet', "You added ".$request['amount']." to your wallet", auth()->user()->id, 'partner');
+                //trnasaction history
+                $this->transactionLog('Funding Wallet', $partner->name. " added ".$request['amount']." to their wallet", $request['amount'] ,auth()->user()->id, 'partner');
+                //user history
+
+                $log = $this->paymentLog($request);
+
+                return $log;
+            }
+
+
+        }catch(Exception $e){
+            return $this->error(true, "Couldn't fund wallet", 400);
+        }
+    }
+
+
+    public function payment(Request $request){
+
+        try {
+            //transaction history
+            //wallet history
+            //user history
+            $validated = $request->validate([
+                'customer_name' => 'required',
+                'customer_email' => 'required',
+                'trans_description' => 'required',
+                'datetime' => 'required',
+                'trans_status' => 'required',
+                'order_id' => 'string',
+                'reference_num' => 'required',
+
+
+                'type' => 'required',
+                'status' => 'required',
+
+
+                'amount' => 'required',
+                'origin_of_payment' => 'required',
+                'paystack_message' => 'required'
+            ]);
+
+
+            if ($validated['type'] == 'subscriptionWithCard'){
+                //code...
+                $log = $this->paymentLog($request);
+
+                return $log;
+            }else if ($validated['type'] == 'fundWallet'){
+                    $log =  $this->fundWallet($validated);
+            }else{
+                return $this->error(true, "The transaction type is unknown!", 400);
+            }
+
+
+
+            return $this->success(false, "Logged Payment Successfully", $log , 200);
+
+
+
+        }catch(Exception $e){
+            return $this->error(true, "Error occured while processing payment!", 400);
         }
 
-
     }
+
+
+    public function paymentLog($validated){
+        $payment = new Payment;
+        $payment->customer_name = $validated['customer_name'];
+        $payment->customer_email = $validated['customer_email'];
+        $payment->trans_description = $validated['trans_description'];
+        $payment->datetime = $validated['datetime'];
+        $payment->trans_status = $validated['trans_status'];
+        $payment->order_id = $validated['order_id'] ?? null;
+        $payment->reference_num = $validated['reference_num'];
+        $payment->status = $validated['status'];
+        $payment->amount = $validated['amount'];
+        $payment->origin_of_payment = $validated['origin_of_payment'];
+        $payment->paystack_message = $validated['paystack_message'];
+        $payment->save();
+
+        return $payment;
+    }
+
+    public function getTransactionHistory(){
+           try{
+                $transLogs = TransactionLogs::where('partner_id', auth()->user()->id)->get();
+
+                return $this->success(false, "Transaction history...", $transLogs , 200);
+            }catch(Exception $e){
+                return $this->error(true, "Error occured!", 400);
+            }
+        }
+    }
+
