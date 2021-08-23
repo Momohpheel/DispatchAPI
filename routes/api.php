@@ -151,3 +151,25 @@ use Illuminate\Support\Facades\Route;
 
 
 
+
+    Route::prefix('admin')->group(function () {
+
+        Route::post('signup', [App\Http\Controllers\AdminController::class, 'signup']);
+        Route::post('login', [App\Http\Controllers\AdminController::class, 'login']);
+
+        Route::middleware(['auth:admin'])->group(function () {
+            // Route::post('order/start/{id}', [App\Http\Controllers\AdminController::class, 'start_order']);
+            // Route::post('order/end/{id}', [App\Http\Controllers\AdminController::class, 'end_order']);
+            // Route::get('/', [App\Http\Controllers\AdminController::class, 'getProfile']);
+            // Route::get('orders', [App\Http\Controllers\AdminController::class, 'getOrders']);
+            // Route::get('history', [App\Http\Controllers\AdminController::class, 'history']);
+            // Route::put('phone/update', [App\Http\Controllers\AdminController::class, 'updatePhone']);
+            // Route::post('location/set', [App\Http\Controllers\AdminController::class, 'setDriverLocation']);
+
+            // Route::get('dashboard/{id}', [App\Http\Controllers\AdminController::class, 'dashboard']);
+            // Route::get('order/status/{status}', [App\Http\Controllers\AdminController::class, 'getOrderByStatus']);
+
+            // Route::post('order/status/{id}', [App\Http\Controllers\AdminController::class, 'changeOrderStatus']);
+        });
+
+    });

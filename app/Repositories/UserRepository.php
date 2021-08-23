@@ -468,10 +468,11 @@ class UserRepository implements UserRepositoryInterface{
 
                         $totals += $newdropoff->price;
                         $discounts += $newdropoff->discount;
+                    }else{
+                        $order = Order::find($order->id);
+                        $order->delete();
+                        return $this->error(true, 'Sorry all our riders are fully booked and are unable to fulfill your orders at the moment, please try again', 400);
                     }
-                    // else{
-                    //     return $this->error(true, 'Sorry all our riders are fully booked and are unable to fulfill your orders at the moment, please try again', 400);
-                    // }
 
                         $newdropoff->payment_status = 'not paid';
                         $newdropoff->status = 'pending';
@@ -530,8 +531,12 @@ class UserRepository implements UserRepositoryInterface{
             $totals = 0;
             $discounts = 0;
             $orders = Order::where('user_id', auth()->user()->id)->where('id', $id)->first();
+            if (!$orders){
+                return $this->error(true, "This order can't be found", 400);
+            }
 
             $dropoffs = Dropoff::where('order_id', $orders->id)->where('status', '!=', 'cancelled')->get();
+
 
             if (isset($dropoffs)){
                     foreach ($dropoffs as $dropoff){
@@ -804,9 +809,10 @@ class UserRepository implements UserRepositoryInterface{
             $route_cost = RouteCosting::where('partner_id', $id)->where('min_km', '<=', $distance)->where('max_km', '>=', $distance)->first();
             //$calculation = (($distance * $fuel_cost) + $rider_salary + ($distance * $bike_fund )) * $ops_fee * $easy_log * $easy_disp;
             //dd($route_cost);
-            $calculation = (($distance_rnd * $route_cost->fuel_cost) + $route_cost->rider_salary + ($distance_rnd * $route_cost->bike_fund)) * $route_cost->ops_fee * $route_cost->easy_log * $route_cost->easy_disp;
-            $cal = ceil($calculation / 50) * 50;
-            $cost = number_format($cal, 2);
+            //$calculation = (($distance_rnd * $route_cost->fuel_cost) + $route_cost->rider_salary + ($distance_rnd * $route_cost->bike_fund)) * $route_cost->ops_fee * $route_cost->easy_log * $route_cost->easy_disp;
+            $new_calc = ($distance_rnd_up * $perkm) + $base_fare;
+            //$cal = ceil($calculation / 50) * 50;
+            //$cost = number_format($cal, 2);
 
             return $cost;
 

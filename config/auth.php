@@ -52,10 +52,16 @@ return [
             'provider' => 'partners',
             'hash' => false,
         ],
-        
+
         'rider' => [
             'driver' => 'passport',
             'provider' => 'riders',
+            'hash' => false,
+        ],
+
+        'admin' => [
+            'driver' => 'passport',
+            'provider' => 'admins',
             'hash' => false,
         ]
     ],
@@ -89,6 +95,10 @@ return [
         'riders' => [
             'driver' => 'eloquent',
             'model' => App\Models\Rider::class,
+        ],
+        'admins' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Admin::class,
         ],
 
         // 'users' => [
