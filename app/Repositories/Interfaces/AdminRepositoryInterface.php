@@ -2,6 +2,8 @@
 
 namespace App\Repositories\Interfaces;
 
+use Illuminate\Http\Request;
+
 interface AdminRepositoryInterface{
 
     public function signup(Request $request);
