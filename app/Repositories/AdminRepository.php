@@ -30,6 +30,8 @@ use Carbon\Carbon;
 
 class AdminRepository implements AdminRepositoryInterface{
 
+    use Response;
+
     public function signup(Request $request){
         try{
             $validated = $request->validate([
