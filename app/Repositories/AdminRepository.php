@@ -180,6 +180,12 @@ class AdminRepository implements AdminRepositoryInterface{
         try{
             $orders = Dropoff::with(['partner', 'order'])->where('partner_id', $id)->get();
 
+            foreach($orders as $order){
+                $userId = $order->order->user_id;
+                $user = User::where('id', $userId)->first();
+                $order['user'] = $user;
+            }
+
             return $this->success(false, "Partner's order", $orders, 200);
 
 
@@ -201,6 +207,12 @@ class AdminRepository implements AdminRepositoryInterface{
         try{
             $orders = Dropoff::with(['partner', 'order', 'vehicle', 'rider'])->get();
 
+            foreach($orders as $order){
+                $userId = $order->order->user_id;
+                $user = User::where('id', $userId)->first();
+                $order['user'] = $user;
+            }
+
             return $this->success(false, "All Orders", $orders, 200);
 
 
@@ -212,6 +224,12 @@ class AdminRepository implements AdminRepositoryInterface{
     public function oneOrder($id){
         try{
             $order = Dropoff::with(['partner', 'order', 'vehicle', 'rider'])->where('id', $id)->first();
+
+
+                $userId = $order->order->user_id;
+                $user = User::where('id', $userId)->first();
+                $order['user'] = $user;
+
 
             return $this->success(false, "Order", $order, 200);
 
