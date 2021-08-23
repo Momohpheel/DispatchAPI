@@ -181,7 +181,7 @@ class AdminRepository implements AdminRepositoryInterface{
             $orders = Dropoff::with(['partner', 'order'])->where('partner_id', $id)->get();
 
             foreach($orders as $order){
-                $userId = $order->order->user_id;
+                $userId = $order->order->user_id ?? null;
                 $user = User::where('id', $userId)->first() ?? null;
                 $order['user'] = $user;
             }
@@ -208,7 +208,7 @@ class AdminRepository implements AdminRepositoryInterface{
             $orders = Dropoff::with(['partner', 'order', 'vehicle', 'rider'])->all();
 
             foreach($orders as $order){
-                $userId = $order->order->user_id;
+                $userId = $order->order->user_id ?? null;
                 $user = User::where('id', $userId)->first() ?? null;
                 $order['user'] = $user;
             }
@@ -226,8 +226,8 @@ class AdminRepository implements AdminRepositoryInterface{
             $order = Dropoff::with(['partner', 'order', 'vehicle', 'rider'])->where('id', $id)->first();
 
 
-                $userId = $order->order->user_id;
-                $user = User::where('id', $userId)->first();
+                $userId = $order->order->user_id ?? null;
+                $user = User::where('id', $userId)->first() ?? null;
                 $order['user'] = $user;
 
 
