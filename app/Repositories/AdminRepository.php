@@ -33,6 +33,7 @@ class AdminRepository implements AdminRepositoryInterface{
     public function signup(Request $request){
         try{
             $validated = $request->validate([
+                'name' => "required|string",
                 'phone' => "required|string",
                 'email' => "required|string",
                 "password" => "required|string",
