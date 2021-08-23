@@ -158,11 +158,11 @@ use Illuminate\Support\Facades\Route;
         Route::post('login', [App\Http\Controllers\AdminController::class, 'login']);
 
         Route::middleware(['auth:admin'])->group(function () {
-            Route::post('partner/all', [App\Http\Controllers\AdminController::class, 'allPartners']);
-            Route::post('partner/top', [App\Http\Controllers\AdminController::class, 'allTopPartners']);
-            Route::get('partner/disable', [App\Http\Controllers\AdminController::class, 'disablePartner']);
-            Route::get('partner/rider', [App\Http\Controllers\AdminController::class, 'ridersByPartner']);
-            Route::get('partner/order', [App\Http\Controllers\AdminController::class, 'ordersByPartner']);
+            Route::get('partner/all', [App\Http\Controllers\AdminController::class, 'allPartners']);
+            Route::get('partner/top', [App\Http\Controllers\AdminController::class, 'allTopPartners']);
+            Route::get('partner/disable/{id}', [App\Http\Controllers\AdminController::class, 'disablePartner']);
+            Route::get('partner/rider/{id}', [App\Http\Controllers\AdminController::class, 'ridersByPartner']);
+            Route::get('partner/order/{id}', [App\Http\Controllers\AdminController::class, 'ordersByPartner']);
             // Route::put('phone/update', [App\Http\Controllers\AdminController::class, 'updatePhone']);
             // Route::post('location/set', [App\Http\Controllers\AdminController::class, 'setDriverLocation']);
 
