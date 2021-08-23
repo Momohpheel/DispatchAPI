@@ -197,8 +197,16 @@ class AdminRepository implements AdminRepositoryInterface{
 
     // }
 
-    // public function allOrders(){
+    public function allOrders(){
+        try{
+            $orders = Dropoff::with(['partner', 'order', 'vehicle', 'rider'])->get();
 
-    // }
+            return $this->success(false, "All Orders", $orders, 200);
+
+
+        }catch(Exception $e){
+            return $this->error(true, "Error: ".$e->getMessage(), 400);
+        }
+    }
 
 }

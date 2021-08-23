@@ -47,5 +47,8 @@ class AdminController extends Controller
         return $this->repository->ordersByPartner($id);
     }
 
+    public function allOrders(){
+        return $this->repository->allOrders();
+    }
 
 }
