@@ -10,6 +10,8 @@ interface AdminRepositoryInterface{
 
     public function login(Request $request);
 
+    public function allUsers();
+
     public function allPartners();
 
     public function disablePartner($id);

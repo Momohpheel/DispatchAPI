@@ -102,6 +102,16 @@ class AdminRepository implements AdminRepositoryInterface{
         }
     }
 
+    public function allUsers(){
+        try{
+            $users = User::all();
+
+            return $this->success(false, "All Users", $users, 200);
+        }catch(Exception $e){
+            return $this->error(true, "Couldn't find all users", 400);
+        }
+    }
+
     public function disablePartner($id){
         try{
             $partner = Partner::find($id);

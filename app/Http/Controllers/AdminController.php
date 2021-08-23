@@ -23,6 +23,10 @@ class AdminController extends Controller
         return $this->repository->login($request);
     }
 
+    public function allUsers(){
+        return $this->repository->allUsers();
+    }
+
     public function allPartners(){
         return $this->repository->allPartners();
     }
