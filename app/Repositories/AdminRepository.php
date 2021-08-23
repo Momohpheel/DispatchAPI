@@ -182,7 +182,7 @@ class AdminRepository implements AdminRepositoryInterface{
 
             foreach($orders as $order){
                 $userId = $order->order->user_id;
-                $user = User::where('id', $userId)->first();
+                $user = User::where('id', $userId)->first() ?? null;
                 $order['user'] = $user;
             }
 
@@ -205,11 +205,11 @@ class AdminRepository implements AdminRepositoryInterface{
 
     public function allOrders(){
         try{
-            $orders = Dropoff::with(['partner', 'order', 'vehicle', 'rider'])->get();
+            $orders = Dropoff::with(['partner', 'order', 'vehicle', 'rider'])->all();
 
             foreach($orders as $order){
                 $userId = $order->order->user_id;
-                $user = User::where('id', $userId)->first();
+                $user = User::where('id', $userId)->first() ?? null;
                 $order['user'] = $user;
             }
 
