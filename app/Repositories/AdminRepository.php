@@ -90,23 +90,89 @@ class AdminRepository implements AdminRepositoryInterface{
     }
 
     public function allPartners(){
+        try{
+            $partners = Partner::all();
 
+            return $this->success(false, "All Partners", $partners, 200);
+        }catch(Exception $e){
+            return $this->error(true, "Couldn't find all partners", 400);
+        }
     }
 
-    public function disablePartner(){
+    public function disablePartner($id){
+        try{
+            $partner = Partner::find($id);
+
+            if ($partner->is_enabled == false){
+                $partner->is_enabled = true;
+                $partner->save();
+
+                //disable all riders under partner
+                $riders = Rider::where('partner_id', auth()->user()->id)->get();
+                if ($riders){
+                    foreach ($riders as $rider) {
+                            $rider->is_enabled = true;
+                            $rider->save();
+
+                    }
+                }
+
+                return $this->success(false, "Partner has been enabled from operating", $partner, 200);
+            }else{
+                $partner->is_enabled = false;
+                $partner->save();
+
+                    //enable all riders under partner
+                    $riders = Rider::where('partner_id', auth()->user()->id)->get();
+                    if ($riders){
+                        foreach ($riders as $rider) {
+                            $rider->is_enabled = false;
+                            $rider->save();
+
+                        }
+                    }
+            return $this->success(false, "Partner has been disabled from operating", $partner, 200);
+            }
+
+        }catch(Exception $e){
+            return $this->error(true, "Error pausing partner", 400);
+        }
 
     }
 
     public function allTopPartners(){
+        try{
+            $partners = Partner::where('is_top_partner', true)->get();
+
+            return $this->success(false, "All Top Partners", $partners, 200);
+        }catch(Exception $e){
+            return $this->error(true, "Couldn't find all partners", 400);
+        }
+    }
+
+    public function ridersByPartner($id){
+        try{
+            $partner = Partner::with('rider')->where('id', $id)->first();
+
+            return $this->success(false, "Partner's riders", $partner, 200);
+
+
+        }catch(Exception $e){
+            return $this->error(true, "Error: ".$e->getMessage(), 400);
+        }
 
     }
 
-    public function ridersByPartner(){
+    public function ordersByPartner($id){
+        try{
+            $orders = Dropoff::with(['partner', 'order'])->where('partner_id', $id)->get();
 
-    }
+            return $this->success(false, "Partner's order", $order, 200);
 
-    public function ordersByPartner(){
 
+        }catch(Exception $e){
+            return $this->error(true, "Error: ".$e->getMessage(), 400);
+        }
     }
 
 
