@@ -10,17 +10,17 @@ interface AdminRepositoryInterface{
 
     public function allPartners();
 
-    public function disablePartner();
+    public function disablePartner($id);
 
     public function allTopPartners();
 
-    public function ridersByPartner();
+    public function ridersByPartner($id);
 
-    public function ordersByPartner();
+    public function ordersByPartner($id);
 
-    public function allTransactions();
+    // public function allTransactions();
 
-    public function transactionByPartner();
+    // public function transactionByPartner();
 
-    public function allOrders();
+    // public function allOrders();
 }

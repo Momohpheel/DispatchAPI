@@ -176,16 +176,16 @@ class AdminRepository implements AdminRepositoryInterface{
     }
 
 
-    public function allTransactions(){
+    // public function allTransactions(){
 
-    }
+    // }
 
-    public function transactionByPartner(){
+    // public function transactionByPartner(){
 
-    }
+    // }
 
-    public function allOrders(){
+    // public function allOrders(){
 
-    }
+    // }
 
 }
