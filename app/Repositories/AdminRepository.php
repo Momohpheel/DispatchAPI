@@ -155,7 +155,7 @@ class AdminRepository implements AdminRepositoryInterface{
 
     public function ridersByPartner($id){
         try{
-            $partner = Partner::with('rider')->where('id', $id)->first();
+            $partner = Partner::with('riders')->where('id', $id)->first();
 
             return $this->success(false, "Partner's riders", $partner, 200);
 
@@ -170,7 +170,7 @@ class AdminRepository implements AdminRepositoryInterface{
         try{
             $orders = Dropoff::with(['partner', 'order'])->where('partner_id', $id)->get();
 
-            return $this->success(false, "Partner's order", $order, 200);
+            return $this->success(false, "Partner's order", $orders, 200);
 
 
         }catch(Exception $e){
