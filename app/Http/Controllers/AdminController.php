@@ -27,8 +27,16 @@ class AdminController extends Controller
         return $this->repository->allUsers();
     }
 
+    public function oneUser($id){
+        return $this->repository->oneUser($id);
+    }
+
     public function allPartners(){
         return $this->repository->allPartners();
+    }
+
+    public function onePartner($id){
+        return $this->repository->onePartner($id);
     }
 
     public function disablePartner($id){
@@ -49,6 +57,10 @@ class AdminController extends Controller
 
     public function allOrders(){
         return $this->repository->allOrders();
+    }
+
+    public function oneOrder($id){
+        return $this->repository->oneOrder($id);
     }
 
 }

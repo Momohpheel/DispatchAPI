@@ -22,6 +22,12 @@ interface AdminRepositoryInterface{
 
     public function ordersByPartner($id);
 
+    public function oneOrder($id);
+
+    public function onePartner($id);
+
+    public function oneUser($id);
+
     // public function allTransactions();
 
     // public function transactionByPartner();
