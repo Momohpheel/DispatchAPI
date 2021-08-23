@@ -23,4 +23,25 @@ class AdminController extends Controller
         return $this->repository->login($request);
     }
 
+    public function allPartners(){
+        return $this->repository->allPartners();
+    }
+
+    public function disablePartner($id){
+        return $this->repository->login($id);
+    }
+
+    public function allTopPartners(){
+        return $this->repository->allTopPartners();
+    }
+
+    public function ridersByPartner($id){
+        return $this->repository->ridersByPartner($id);
+    }
+
+    public function ordersByPartner($id){
+        return $this->repository->ordersByPartner($id);
+    }
+
+
 }
