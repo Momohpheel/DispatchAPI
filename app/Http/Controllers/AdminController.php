@@ -44,7 +44,7 @@ class AdminController extends Controller
     }
 
     public function disablePartner($id){
-        return $this->repository->login($id);
+        return $this->repository->disablePartner($id);
     }
 
     public function allTopPartners(){
