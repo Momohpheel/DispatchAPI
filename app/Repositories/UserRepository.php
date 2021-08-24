@@ -273,13 +273,20 @@ class UserRepository implements UserRepositoryInterface{
 
     public function order(Request $request, $id){
         try{
-            $partner = Partner::where('id', $id)->first();
+            $partner = Partner::with('subscription')->where('id', $id)->first();
             if (!$partner){
                 return $this->error(true, "Partner not found!", 400);
             }
+
             $now = Carbon::now()->addHour();
             $day = $now->format('l');
             $c_time =  Carbon::now()->addHour();
+
+            $todaysDropoff = Dropoff::where('partner_id', $id)->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->get();
+
+            return $partner->subscription->no_of_orders. ' '. $todaysDropoff;
+
+
 
             //check if order is place within partner's operating hours
 
@@ -424,11 +431,7 @@ class UserRepository implements UserRepositoryInterface{
 
                     }
 
-                    // function pxm($a, $b) {
-                    //     if ($a['distance']==$b['distance']) return 0;
-                    //         return ($a['distance']<$b['distance'])?-1:1;
-                    //     //return $a['distance'] > $b['distance'];
-                    // }
+
 
                     uasort($final_riders_proximity, function ($a, $b) {
                         if ($a['distance']==$b['distance']) return 0;

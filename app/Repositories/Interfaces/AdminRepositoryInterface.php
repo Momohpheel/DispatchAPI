@@ -28,6 +28,8 @@ interface AdminRepositoryInterface{
 
     public function oneUser($id);
 
+    public function dashboard();
+
     // public function allTransactions();
 
     // public function transactionByPartner();

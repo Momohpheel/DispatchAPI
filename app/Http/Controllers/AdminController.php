@@ -15,6 +15,10 @@ class AdminController extends Controller
     }
 
 
+    public function dashboard(){
+        return $this->repository->dashboard();
+    }
+
     public function signup(Request $request){
         return $this->repository->signup($request);
     }

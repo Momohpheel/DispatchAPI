@@ -92,6 +92,67 @@ class AdminRepository implements AdminRepositoryInterface{
         }
     }
 
+    public function dashboard(){
+
+        try{
+
+                $admin = Admin::find(auth()->user()->id);
+
+                $data = [
+                    'adminProfile' => $admin,
+                    'count' => $this->count()
+                ];
+
+                return $this->success(false, "Dashboard", $data, 200);
+
+        }catch(Exception $e){
+            return $this->error(true, "Error creating user", 400);
+        }
+    }
+
+    public function count(){
+
+        //count -  partners, users, orders, pending orders, cancelled orders, delivered, cancelled orders
+
+        $partners = Partner::all();
+        $dropoffs = Dropoff::all();
+        $users = User::all();
+
+        $pending = [];
+        $delivered = [];
+        $picked = [];
+        $cancelled = [];
+
+        foreach ($dropoffs as $dropoff){
+            if ($dropoff->status == 'pending'){
+                array_push($pending, $dropoff);
+            }
+            if ($dropoff->status == 'delivered'){
+                array_push($delivered, $dropoff);
+            }
+            if ($dropoff->status == 'picked'){
+                array_push($picked, $dropoff);
+            }
+            if ($dropoff->status == 'cancelled'){
+                array_push($cancelled, $dropoff);
+            }
+        }
+        $data = [
+            'users' => count($users),
+            'partners' => count($partners),
+            'orders' => count($dropoffs),
+            'pendingOrders' => count($pending),
+            'deliveredOrders' => count($delivered),
+            'pickedOrders' => count($picked),
+            'cancelledOrders' => count($cancelled)
+        ];
+
+        return $data;
+
+
+
+    }
+
     public function allPartners(){
         try{
             $partners = Partner::all();

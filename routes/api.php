@@ -158,6 +158,8 @@ use Illuminate\Support\Facades\Route;
         Route::post('login', [App\Http\Controllers\AdminController::class, 'login']);
 
         Route::middleware(['auth:admin'])->group(function () {
+            Route::get('dashboard', [App\Http\Controllers\AdminController::class, 'dashboard']);
+
             Route::get('user/all', [App\Http\Controllers\AdminController::class, 'allUsers']);
             Route::get('partner/all', [App\Http\Controllers\AdminController::class, 'allPartners']);
             Route::get('partner/top', [App\Http\Controllers\AdminController::class, 'allTopPartners']);

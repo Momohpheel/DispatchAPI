@@ -38,4 +38,8 @@ class Partner extends Authenticatable
     public function order(){
         return $this->hasMany(Order::class);
     }
+
+    public function subscription(){
+        return $this->belongsTo(Subscription::class);
+    }
 }
