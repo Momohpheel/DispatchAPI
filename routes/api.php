@@ -163,7 +163,7 @@ use Illuminate\Support\Facades\Route;
             Route::get('user/all', [App\Http\Controllers\AdminController::class, 'allUsers']);
             Route::get('partner/all', [App\Http\Controllers\AdminController::class, 'allPartners']);
             Route::get('partner/top', [App\Http\Controllers\AdminController::class, 'allTopPartners']);
-            Route::get('partner/disable/{id}', [App\Http\Controllers\AdminController::class, 'disablePartner']);
+            Route::post('partner/disable/{id}', [App\Http\Controllers\AdminController::class, 'disablePartner']);
             Route::get('partner/rider/{id}', [App\Http\Controllers\AdminController::class, 'ridersByPartner']);
             Route::get('partner/order/{id}', [App\Http\Controllers\AdminController::class, 'ordersByPartner']);
             Route::get('order', [App\Http\Controllers\AdminController::class, 'allOrders']);
