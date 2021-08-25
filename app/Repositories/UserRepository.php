@@ -447,7 +447,7 @@ class UserRepository implements UserRepositoryInterface{
                     foreach ($closest_rider as $pairing){
 
                         $getrider = Rider::with('vehicle')->where('id', $pairing['rider_id'])->first();
-                        $price = $this->calculatePrice($pairing['distance'], $id) ?? 0;
+                        $price = $this->calculatePrice($order->o_latitude, $order->o_longitude, $validated['d_latitude'], $validated['d_longitude'], $earthRadius = 6371000, $id) ?? 0;
 
                         $newdropoff->rider_id = $getrider->id ?? null;
                         $newdropoff->vehicle_id = $getrider->vehicle->id ?? null;
@@ -804,18 +804,27 @@ class UserRepository implements UserRepositoryInterface{
         }
     }
 
-    public function calculatePrice($distance, $id){
+    public function calculatePrice($latitudeFrom, $longitudeFrom, $latitudeTo, $longitudeTo, $earthRadius = 6371000, $id){
         try{
 
             $partner = Partner::find($id);
-            $distance_rnd = number_format($distance,2);
-            $route_cost = RouteCosting::where('partner_id', $id)->where('min_km', '<=', $distance)->where('max_km', '>=', $distance)->first();
-            //$calculation = (($distance * $fuel_cost) + $rider_salary + ($distance * $bike_fund )) * $ops_fee * $easy_log * $easy_disp;
-            //dd($route_cost);
-            //$calculation = (($distance_rnd * $route_cost->fuel_cost) + $route_cost->rider_salary + ($distance_rnd * $route_cost->bike_fund)) * $route_cost->ops_fee * $route_cost->easy_log * $route_cost->easy_disp;
-            $new_calc = ($distance_rnd_up * $perkm) + $base_fare;
-            //$cal = ceil($calculation / 50) * 50;
-            //$cost = number_format($cal, 2);
+            $latFrom = deg2rad($latitudeFrom);
+            $lonFrom = deg2rad($longitudeFrom);
+            $latTo = deg2rad($latitudeTo);
+            $lonTo = deg2rad($longitudeTo);
+
+            $latDelta = $latTo - $latFrom;
+            $lonDelta = $lonTo - $lonFrom;
+
+            $angle = 2 * asin(sqrt(pow(sin($latDelta / 2), 2) +
+              cos($latFrom) * cos($latTo) * pow(sin($lonDelta / 2), 2)));
+
+            $distance =  $angle * $earthRadius;
+            $distance = $distance/1000;
+            $distance_rnd_up = number_format($distance,2);
+            $route_cost = RouteCosting::where('partner_id', $id)->first();
+
+            $cost = ($distance_rnd_up * $route_cost->cost_perkm) + $route_cost->base_fare;
 
             return $cost;
 
