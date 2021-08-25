@@ -284,7 +284,7 @@ class UserRepository implements UserRepositoryInterface{
 
             $todaysDropoff = Dropoff::where('partner_id', $id)->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->get();
 
-            return $partner->subscription->no_of_orders. ' '. $todaysDropoff;
+            //return $partner->subscription->no_of_orders. ' '. $todaysDropoff;
 
 
 
