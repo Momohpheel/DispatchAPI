@@ -517,7 +517,7 @@ class UserRepository implements UserRepositoryInterface{
     public function getAllOrders($id){
         try{
             $id = auth()->user()->id;
-            $orders = Order::with('dropoff')->where('partner_id', $id)->where('user_id', $id)->get();
+            $orders = Order::with('dropoff')->where('partner_id', $id)->where('user_id', $id)->latest()->get();
 
             return $this->success(false, "User Order History", $orders, 200);
 
@@ -741,7 +741,7 @@ class UserRepository implements UserRepositoryInterface{
                 return $this->error(true, "Wrong partner...", 400);
             }
 
-            $orders = Order::with('dropoff')->where('partner_id', $request->partner_id)->where('user_id', auth()->user()->id)->get();
+            $orders = Order::with('dropoff')->where('partner_id', $request->partner_id)->where('user_id', auth()->user()->id)->latest()->get();
             $data = [];
 
 
@@ -934,7 +934,7 @@ class UserRepository implements UserRepositoryInterface{
 
     public function orderHistory($id){
         try{
-            $orders = Order::with('dropoff')->where('partner_id', $id)->where('user_id', auth()->user()->id)->get();
+            $orders = Order::with('dropoff')->where('partner_id', $id)->where('user_id', auth()->user()->id)->latest()->get();
             //$orders = Order::with('dropoff')->where('user_id', auth()->user()->id)->get();
 
             $history = [];
@@ -1186,7 +1186,7 @@ class UserRepository implements UserRepositoryInterface{
         try{
             //partner_image
             //$user = User::find(auth()->user()->id);
-            $orders = Order::with(['dropoff', 'partner'])->where('user_id', auth()->user()->id)->get();
+            $orders = Order::with(['dropoff', 'partner'])->where('user_id', auth()->user()->id)->latest()->get();
 
             $data = [];
             if (isset($orders)){
