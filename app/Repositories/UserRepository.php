@@ -447,7 +447,7 @@ class UserRepository implements UserRepositoryInterface{
                     foreach ($closest_rider as $pairing){
 
                         $getrider = Rider::with('vehicle')->where('id', $pairing['rider_id'])->first();
-                        $price = $this->calculatePrice($order->o_latitude, $order->o_longitude, $validated['d_latitude'], $validated['d_longitude'], $earthRadius = 6371000, $id) ?? 0;
+                        $price = $this->calculatePrice($order->o_latitude, $order->o_longitude, $dropoff['d_latitude'], $dropoff['d_longitude'], $earthRadius = 6371000, $id) ?? 0;
 
                         $newdropoff->rider_id = $getrider->id ?? null;
                         $newdropoff->vehicle_id = $getrider->vehicle->id ?? null;
