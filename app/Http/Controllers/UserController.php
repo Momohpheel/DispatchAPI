@@ -50,9 +50,6 @@ class UserController extends Controller
         return $this->repository->logout();
     }
 
-    public function calculatePrice($distance, $id){
-        return $this->repository->calculatePrice($distance, $id);
-    }
 
     public function payment(Request $request){
         return $this->repository->payment($request);
