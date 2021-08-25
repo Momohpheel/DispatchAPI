@@ -668,7 +668,7 @@ class UserRepository implements UserRepositoryInterface{
                     'orderCount' => $count,
                     'user' => $user
                 ];
-                return $this->success(false, "Dashboard", $data, 200);
+                //return $this->error(false, "Dashboard", $data, 200);
             }else{
                 return $this->error(true, "No Partner found", 400);
             }
