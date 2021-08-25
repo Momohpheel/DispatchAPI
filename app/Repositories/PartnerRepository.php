@@ -715,33 +715,18 @@ class PartnerRepository implements PartnerRepositoryInterface{
     public function setRouteCosting(Request $request){
         try{
             $validated = $request->validate([
-                'fuel_cost' => "required",//base_fare
-                'bike_fund' => "required",//partner_cost
-                'ops_fee' => "required",//express_markup
-                'easy_log' => "required",
-                'easy_disp' => "required",
                 'express' => "required",
-                'max_km' => "required",
-                'min_km' => "required",
+                'base_fare' => "required",
+                'cost_perkm' => "required",
             ]);
 
             $route_costing = new RouteCosting;
-            // $route_costing->base_fare = $validated['base_fare'];
-            // $route_costing->partner_cost = $validated['partner_cost'];
-            // $route_costing->express_markup = $validated['express_markup'];
-            $route_costing->fuel_cost = $validated['fuel_cost'];
-            $route_costing->bike_fund = $validated['bike_fund'];
-            $route_costing->ops_fee = $validated['ops_fee'];
-            $route_costing->easy_log = $validated['easy_log'];
-            $route_costing->easy_disp = $validated['easy_disp'];
+            $route_costing->base_fare = $validated['fuel_cost'];
+            $route_costing->cost_perkm = $validated['bike_fund'];
             $route_costing->express = $validated['express'];
-            $route_costing->min_km = $validated['min_km'];
-            $route_costing->max_km = $validated['max_km'];
             $route_costing->partner_id = auth()->user()->id;
             $route_costing->save();
 
-            //$calculation = (($distance * $fuel_cost) + $rider_salary + ($distance * $bike_fund )) * $ops_fee * $easy_log * $easy_disp;
-            //dd($route_cost);
 
             return $this->success(false, "Route-Costing Added", $route_costing,200);
         }catch(Exception $e){
@@ -752,28 +737,16 @@ class PartnerRepository implements PartnerRepositoryInterface{
     public function updateRouteCosting(Request $request, $id){
         try{
             $validated = $request->validate([
-                'fuel_cost' => "required",//base_fare
-                'bike_fund' => "required",//partner_cost
-                'ops_fee' => "required",//express_markup
-                'easy_log' => "required",
-                'easy_disp' => "required",
-                'express' => "required",
-                'max_km' => "required",
-                'min_km' => "required",
+                'express' => "string",
+                'base_fare' => "string",
+                'cost_perkm' => "string",
             ]);
             $partner_id = auth()->user()->id;
             $route_costing = RouteCosting::where('id', $id)->where('partner_id', $partner_id)->first();
-            // $route_costing->base_fare = $validated['base_fare'] ?? $route_costing->base_fare;
-            // $route_costing->partner_cost = $validated['partner_cost'] ?? $route_costing->partner_cost;
-            // $route_costing->express_markup = $validated['express_markup'] ?? $route_costing->express_markup;
-            $route_costing->fuel_cost = $validated['fuel_cost'] ?? $route_costing->fuel_cost;
-            $route_costing->bike_fund = $validated['bike_fund'] ?? $route_costing->bike_fund;
-            $route_costing->ops_fee = $validated['ops_fee'] ?? $route_costing->ops_fee;
-            $route_costing->easy_log = $validated['easy_log'] ?? $route_costing->easy_log;
-            $route_costing->easy_disp = $validated['easy_disp'] ?? $route_costing->easy_disp;
+            $route_costing->base_fare = $validated['fuel_cost'] ?? $route_costing->fuel_cost;
+            $route_costing->cost_perkm = $validated['bike_fund'] ?? $route_costing->bike_fund;
             $route_costing->express = $validated['express'] ?? $route_costing->express;
-            $route_costing->min_km = $validated['min_km'] ?? $route_costing->min_km;
-            $route_costing->max_km = $validated['max_km'] ?? $route_costing->max_km;
+            $route_costing->partner_id = auth()->user()->id;
             $route_costing->save();
 
             return $this->success(false, "Route-Costing Updating", $route_costing, 200);
