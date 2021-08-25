@@ -826,7 +826,7 @@ class UserRepository implements UserRepositoryInterface{
 
             $cost = ($distance_rnd_up * $route_cost->cost_perkm) + $route_cost->base_fare;
 
-            return $cost;
+            return (int)$cost;
 
         }catch(Exception $e){
             return $this->error(true, "error in getting price", 400);
