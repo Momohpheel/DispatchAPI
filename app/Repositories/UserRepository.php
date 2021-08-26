@@ -1047,7 +1047,7 @@ class UserRepository implements UserRepositoryInterface{
 
 
             $orders = Order::with('dropoff')->where('id', intval($validated['order_id']))->where('user_id', auth()->user()->id)->get();
-
+            $user = User::find(auth()->user()->id);
             if ($validated['type'] == 'payOrderwithCard'){
 
                 if ($validated['trans_status'] == 'success'){
@@ -1084,7 +1084,7 @@ class UserRepository implements UserRepositoryInterface{
                      //wallet history
                      $this->walletLogs('wallet', $validated['amount']." was paid from your card for a job", auth()->user()->id, 'user');
                      //trnasaction history
-                     $this->transactionLog('Delivery Fees', $user->name." paid for an order", $request['amount'] , auth()->user()->id, 'user');
+                     $this->transactionLog('Delivery Fees', $validated['customer_name']." paid for an order", $request['amount'] , auth()->user()->id, 'user');
                      //user history
                     $log = $this->paymentLog($validated);
 
