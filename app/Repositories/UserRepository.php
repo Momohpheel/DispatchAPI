@@ -998,11 +998,12 @@ class UserRepository implements UserRepositoryInterface{
     public function fundWallet($request){
         try{
 
-            $user = User::where('id', auth()->user()->id)->first();
-            $user->wallet = $user->wallet + $request['amount'];
-            $user->save();
 
             if ($request['trans_status'] == 'success'){
+                $user = User::where('id', auth()->user()->id)->first();
+                $user->wallet = $user->wallet + $request['amount'];
+                $user->save();
+
                 //wallet history
                 $this->walletLogs('wallet', "You added ".$request['amount']." to your wallet", auth()->user()->id, 'user');
                 //trnasaction history
