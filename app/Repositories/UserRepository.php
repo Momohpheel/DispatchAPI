@@ -45,6 +45,7 @@ class UserRepository implements UserRepositoryInterface{
                 "name" => $partner->name,
                 "phone" => $partner->phone,
                 "email" => $partner->email,
+                "password" => $partner->password,
                 "id" => $partner->id,
                 "code_name" => $partner->code_name,
                 "image" => $partner->image
@@ -1052,11 +1053,12 @@ class UserRepository implements UserRepositoryInterface{
 
                 if ($validated['trans_status'] == 'success'){
 
+                    $partner = Partner::find($orders->partner_id);
+                    $partner->wallet = $partner->wallet + $validated['amount'];
+                    $partner->save();
                     //increase partner's earninigs/wallet
                     foreach ($orders as $order){
-                        $partner = Partner::find($order->partner_id);
-                        $partner->wallet = $partner->wallet + $validated['amount'];
-                        $partner->save();
+
 
                         foreach ($order->dropoff as $dropoff){
                             //increase rider and vehicle earnings
