@@ -45,7 +45,6 @@ class UserRepository implements UserRepositoryInterface{
                 "name" => $partner->name,
                 "phone" => $partner->phone,
                 "email" => $partner->email,
-                "password" => $partner->password,
                 "id" => $partner->id,
                 "code_name" => $partner->code_name,
                 "image" => $partner->image
@@ -1034,7 +1033,7 @@ class UserRepository implements UserRepositoryInterface{
                 'datetime' => 'required',
                 'trans_status' => 'required',
                 'order_id' => 'string',
-                'reference_num' => 'required',
+                'reference_num' => 'string',
 
 
                 'type' => 'required',
@@ -1043,7 +1042,7 @@ class UserRepository implements UserRepositoryInterface{
 
                 'amount' => 'required',
                 'origin_of_payment' => 'required',
-                'paystack_message' => 'required'
+                'paystack_message' => 'string'
             ]);
 
 
