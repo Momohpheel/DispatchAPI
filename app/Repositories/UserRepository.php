@@ -1063,11 +1063,11 @@ class UserRepository implements UserRepositoryInterface{
                         foreach ($order->dropoff as $dropoff){
                             //increase rider and vehicle earnings
                             $rider = Rider::with('vehicle')->where('id', $dropoff->rider_id)->first();
-                            $rider->earning = $rider->earning + $validated['amount'];
+                            $rider->earning = $rider->earning + $dropoff->price;
                             $rider->save();
 
                             $vehicle = Vehicle::find($rider->vehicle->id);
-                            $vehicle->earning = $vehicle->earning +  $validated['amount'];
+                            $vehicle->earning = $vehicle->earning +  $dropoff->price;
                             $vehicle->save();
 
 
@@ -1076,6 +1076,7 @@ class UserRepository implements UserRepositoryInterface{
                             $job->payment_status = 'paid';
                             $job->save();
 
+                            $this->transactionLog('Delivery Fees', $validated['customer_name']." paid for an order", $dropoff->price , auth()->user()->id, 'user');
                        }
 
 
@@ -1086,7 +1087,7 @@ class UserRepository implements UserRepositoryInterface{
                      //wallet history
                      $this->walletLogs('wallet', $validated['amount']." was paid from your card for a job", auth()->user()->id, 'user');
                      //trnasaction history
-                     $this->transactionLog('Delivery Fees', $validated['customer_name']." paid for an order", $request['amount'] , auth()->user()->id, 'user');
+                     //$this->transactionLog('Delivery Fees', $validated['customer_name']." paid for an order", $request['amount'] , auth()->user()->id, 'user');
                      //user history
                     $log = $this->paymentLog($validated);
 
@@ -1116,11 +1117,11 @@ class UserRepository implements UserRepositoryInterface{
                             foreach ($order->dropoff as $dropoff){
                                 //increase rider and vehicle earnings
                                 $rider = Rider::with('vehicle')->where('id', $dropoff->rider_id)->first();
-                                $rider->earning = $rider->earning + $validated['amount'];
+                                $rider->earning = $rider->earning + $dropoff->price;
                                 $rider->save();
 
                                 $vehicle = Vehicle::find($rider->vehicle->id);
-                                $vehicle->earning = $vehicle->earning +  $validated['amount'];
+                                $vehicle->earning = $vehicle->earning +  $dropoff->price;
                                 $vehicle->save();
 
 
@@ -1128,6 +1129,8 @@ class UserRepository implements UserRepositoryInterface{
                                 $job = Dropoff::where('id', $dropoff->id)->first();
                                 $job->payment_status = 'paid';
                                 $job->save();
+
+                                $this->transactionLog('Delivery Fees', $validated['customer_name']." paid for an order", $dropoff->price , auth()->user()->id, 'user');
 
                             }
 
@@ -1139,7 +1142,7 @@ class UserRepository implements UserRepositoryInterface{
                         //wallet history
                         $this->walletLogs('wallet', $validated['amount']." was deducted from your wallet for a job", auth()->user()->id, 'user');
                         //trnasaction history
-                        $this->transactionLog('Delivery Fees', $user->name." paid for an order", $request['amount'] , auth()->user()->id, 'user');
+                        //$this->transactionLog('Delivery Fees', $user->name." paid for an order", $request['amount'] , auth()->user()->id, 'user');
                         //user history
                         $log = $this->paymentLog($validated);
 
