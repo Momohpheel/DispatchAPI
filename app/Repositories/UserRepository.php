@@ -278,15 +278,12 @@ class UserRepository implements UserRepositoryInterface{
                 return $this->error(true, "Partner not found!", 400);
             }
 
+
             $now = Carbon::now()->addHour();
             $day = $now->format('l');
             $c_time =  Carbon::now()->addHour();
 
             $todaysDropoff = Dropoff::where('partner_id', $id)->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->get();
-
-            //return $partner->subscription->no_of_orders. ' '. $todaysDropoff;
-
-
 
             //check if order is place within partner's operating hours
 
@@ -305,16 +302,18 @@ class UserRepository implements UserRepositoryInterface{
 
                         if ($partner->is_paused == false){
                             if ($partner->is_enabled == true){
-                                if ($partner->order_count_per_day > 0){
-
+                                //if ($partner->order_count_per_day > 0){
+                                if ($partner->subscription->no_of_orders > count($todaysDropoff) || $partner->subscription->no_of_orders == 'unlimited'){
 
                                         ///make order
                                         return $this->job($request, $id);
 
-
                                 }else{
                                     return $this->error(true, "Partner has exceeded her order limit", 400);
                                 }
+                                // }else{
+                                //     return $this->error(true, "Partner has exceeded her order limit", 400);
+                                // }
                             }else{
                                 return $this->error(true, "Partner is disabled", 400);
                             }
@@ -447,6 +446,7 @@ class UserRepository implements UserRepositoryInterface{
                     foreach ($closest_rider as $pairing){
 
                         $getrider = Rider::with('vehicle')->where('id', $pairing['rider_id'])->first();
+
                         $price = $this->calculatePrice($order->o_latitude, $order->o_longitude, $dropoff['d_latitude'], $dropoff['d_longitude'], $earthRadius = 6371000, $id) ?? 0;
 
                         $newdropoff->rider_id = $getrider->id ?? null;
@@ -804,7 +804,7 @@ class UserRepository implements UserRepositoryInterface{
         }
     }
 
-    public function calculatePrice($latitudeFrom, $longitudeFrom, $latitudeTo, $longitudeTo, $earthRadius = 6371000, $id){
+    public function calculatePrice($latitudeFrom, $longitudeFrom, $latitudeTo, $longitudeTo, $earthRadius, $id){
         try{
 
             $partner = Partner::find($id);

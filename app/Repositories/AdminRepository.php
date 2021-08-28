@@ -255,14 +255,25 @@ class AdminRepository implements AdminRepositoryInterface{
         }
     }
 
+    public function getVehicles($id){
+        try{
+            $partner = Partner::with('vehicles')->where('id', $id)->first();
 
-    // public function allTransactions(){
+            return $this->success(false, "Partner's vehicles", $partner, 200);
+
+
+        }catch(Exception $e){
+            return $this->error(true, "Error: ".$e->getMessage(), 400);
+        }
+
+    }
 
     // }
 
     // public function transactionByPartner(){
 
     // }
+
 
     public function allOrders(){
         try{
