@@ -54,6 +54,8 @@ use Illuminate\Support\Facades\Route;
 
             Route::get('dropoff/{id}', [App\Http\Controllers\UserController::class, 'getOneDropoff']);
 
+            Route::get('vehicle/available/{id}', [App\Http\Controllers\UserController::class, 'checkVehiclesAvailablePerPartner']);
+
             Route::post('payment/log', [App\Http\Controllers\UserController::class, 'payment']);
             Route::post('order/status/{status}', [App\Http\Controllers\UserController::class, 'getOrderByStatus']);
 

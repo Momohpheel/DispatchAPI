@@ -26,6 +26,8 @@ interface UserRepositoryInterface{
 
     public function deleteDropOff($d_id);
 
+    public function checkVehiclesAvailablePerPartner($id);
+
     public function calculatePrice($latitudeFrom, $longitudeFrom, $latitudeTo, $longitudeTo, $earthRadius, $id);
 
     public function payment(Request $request);

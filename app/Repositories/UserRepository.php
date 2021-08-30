@@ -338,6 +338,29 @@ class UserRepository implements UserRepositoryInterface{
     public function checkVehiclesAvailablePerPartner($id){
         try{
             $partner = Partner::find($id);
+            $vehicles = Vehicle::where('partner_id', $id)->where('is_enabled', true)->where('is_removed', false)->get();
+
+            $data = [
+                'car' => false,
+                'bike' => false,
+                'van' => false
+            ];
+
+            foreach ($vehicles as $vehicle){
+                if ($vehicle->type == 'car'){
+                    $data['car'] = true;
+                }
+
+                if ($vehicle->type == 'bike'){
+                    $data['bike'] = true;
+                }
+
+                if ($vehicle->type == 'van'){
+                    $data['van'] = true;
+                }
+            }
+
+            return $this->success(false, "Vehicles available...", $data, 200);
         }catch(Exception $e){
             return $this->error(true, "Error occured!" , 400);
         }

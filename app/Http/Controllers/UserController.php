@@ -67,6 +67,10 @@ class UserController extends Controller
         return $this->repository->getUserHistory();
     }
 
+    public function checkVehiclesAvailablePerPartner($id){
+        return $this->repository->checkVehiclesAvailablePerPartner($id);
+    }
+
     public function uploadImage(Request $request){
         return $this->repository->uploadImage($request);
     }
