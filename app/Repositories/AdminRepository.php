@@ -278,14 +278,14 @@ class AdminRepository implements AdminRepositoryInterface{
     public function allOrders(){
         try{
 
-            return 'yes';
+
             $orders = Dropoff::with(['partner', 'order', 'vehicle', 'rider'])->get();
 
-            foreach($orders as $order){
-                $userId = $order->order->user_id ?? null;
-                $user = User::where('id', $userId)->first() ?? null;
-                $order['user'] = $user;
-            }
+            // foreach($orders as $order){
+            //     $userId = $order->order->user_id ?? null;
+            //     $user = User::where('id', $userId)->first() ?? null;
+            //     $order['user'] = $user;
+            // }
 
             return $this->success(false, "All Orders", $orders, 200);
 
