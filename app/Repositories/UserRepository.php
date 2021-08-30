@@ -335,7 +335,13 @@ class UserRepository implements UserRepositoryInterface{
         }
     }
 
-
+    public function checkVehiclesAvailablePerPartner($id){
+        try{
+            $partner = Partner::find($id);
+        }catch(Exception $e){
+            return $this->error(true, "Error occured!" , 400);
+        }
+    }
 
     public function job($request, $id){
         $validated = $request->validate([
@@ -1007,7 +1013,7 @@ class UserRepository implements UserRepositoryInterface{
                 //wallet history
                 $this->walletLogs('wallet', "You added ".$request['amount']." to your wallet", auth()->user()->id, 'user');
                 //trnasaction history
-                $this->transactionLog('Funding Wallet', $user->name. " added ".$request['amount']." to their wallet", $request['amount'] ,auth()->user()->id, 'user');
+                $this->transactionLog('Funding Wallet', $user->name. " added ".$request['amount']." to their wallet", (int)$request['amount'] ,auth()->user()->id, 'user');
                 //user history
 
                 $log = $this->paymentLog($request);
@@ -1076,7 +1082,7 @@ class UserRepository implements UserRepositoryInterface{
                             $job->payment_status = 'paid';
                             $job->save();
 
-                            $this->transactionLog('Delivery Fees', $validated['customer_name']." paid for an order", $dropoff->price , auth()->user()->id, 'user');
+                            $this->transactionLog('Delivery Fees', $validated['customer_name']." paid for an order", (int)$dropoff->price , auth()->user()->id, 'user');
                        }
 
 
@@ -1238,7 +1244,7 @@ class UserRepository implements UserRepositoryInterface{
 
     public function getTransactionHistory(){
         try{
-            $transLogs = TransactionLogs::where('user_id', auth()->user()->id)->get();
+            $transLogs = TransactionLogs::where('user_id', auth()->user()->id)->latest()->get();
 
             return $this->success(false, "Transaction history...", $transLogs , 200);
         }catch(Exception $e){
