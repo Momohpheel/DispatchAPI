@@ -279,8 +279,7 @@ class AdminRepository implements AdminRepositoryInterface{
         try{
 
 
-            $orders = Dropoff::all();
-            //with(['partner', 'order', 'vehicle', 'rider'])->where('id', 1)->first();
+            $orders = Dropoff::with(['partner', 'order', 'vehicle', 'rider'])->where('id', 1)->first();
 
             // foreach($orders as $order){
             //     $userId = $order->order->user_id ?? null;
