@@ -126,4 +126,8 @@ class UserController extends Controller
     public function getTransactionHistory(){
         return $this->repository->getTransactionHistory();
     }
+
+    public function getAllTransactionHistory(){
+        return $this->repository->getAllTransactionHistory();
+    }
 }

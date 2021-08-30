@@ -73,7 +73,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 $partner->email = $validated['email'];
                 $partner->code_name = $validated['code_name'];
                 $partner->password = Hash::make($validated['password']);
-                $partner->image =   env('APP_URL') .'/storage/images/defaultPartner.png';
+                //$partner->image =   env('APP_URL') .'/storage/images/defaultPartner.png';
                 $partner->subscription_id = 1;
                 $partner->order_count_per_day = 5;
                 $partner->save();
@@ -225,7 +225,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
             $id = auth()->user()->id;
             $partner = Partner::find($id);
-            $partner->image =  env('APP_URL') .'/storage/images/'.$image_to_store ?? env('APP_URL') .'/storage/images/defaultPartner.png';
+            $partner->image =  env('APP_URL') .'/storage/images/'.$image_to_store;
             $partner->name = $validated['business_name'];
             $partner->description = $validated['business_description'];
             $partner->phone = $validated['business_phone'];

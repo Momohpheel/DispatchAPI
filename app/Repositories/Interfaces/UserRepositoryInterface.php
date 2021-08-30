@@ -62,6 +62,7 @@ interface UserRepositoryInterface{
 
     public function getTransactionHistory();
 
+    public function getAllTransactionHistory();
 
 
 

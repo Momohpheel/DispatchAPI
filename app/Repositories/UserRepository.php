@@ -562,11 +562,12 @@ class UserRepository implements UserRepositoryInterface{
 
             $totals = 0;
             $discounts = 0;
+            $user = User::find(auth()->user()->id);
             $orders = Order::where('user_id', auth()->user()->id)->where('id', $id)->first();
             if (!$orders){
                 return $this->error(true, "This order can't be found", 400);
             }
-
+            $orders['wallet'] = $user->wallet;
             $dropoffs = Dropoff::where('order_id', $orders->id)->where('status', '!=', 'cancelled')->get();
 
 

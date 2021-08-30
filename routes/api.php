@@ -60,6 +60,7 @@ use Illuminate\Support\Facades\Route;
             Route::post('order/status/{status}', [App\Http\Controllers\UserController::class, 'getOrderByStatus']);
 
             Route::get('transactions', [App\Http\Controllers\UserController::class, 'getTransactionHistory']);
+            Route::get('transactions/all', [App\Http\Controllers\UserController::class, 'getAllTransactionHistory']);
         });
     });
 
