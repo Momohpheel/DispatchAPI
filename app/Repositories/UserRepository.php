@@ -722,7 +722,10 @@ class UserRepository implements UserRepositoryInterface{
             foreach ($pendings as $pending){
 
                 foreach ($pending->dropoff as $dro){
-                    array_push($data, $dro);
+                    if ($dro->status == 'delivered'){
+                        array_push($data, $dro);
+                     }
+                    //array_push($data, $dro);
                 }
             }
 
@@ -988,10 +991,11 @@ class UserRepository implements UserRepositoryInterface{
 
                             if ($dropoff->status == 'delivered'){
                                 $dropoff['dropoff'] = $this->getOneDropoff($dropoff->id);
+                                array_push($history, $dropoff);
                             }
                                 $ar = array_merge($data, $dropoff_data);
                                 json_encode($ar);
-                                array_push($history, $dropoff);
+
 
                     }
 
