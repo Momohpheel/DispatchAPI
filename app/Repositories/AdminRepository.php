@@ -277,6 +277,8 @@ class AdminRepository implements AdminRepositoryInterface{
 
     public function allOrders(){
         try{
+
+            return 'yes';
             $orders = Dropoff::with(['partner', 'order', 'vehicle', 'rider'])->get();
 
             foreach($orders as $order){
