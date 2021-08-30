@@ -1267,6 +1267,16 @@ class UserRepository implements UserRepositoryInterface{
 
     public function getTransactionHistory(){
         try{
+            $transLogs = TransactionLogs::limit(5)->where('user_id', auth()->user()->id)->latest()->get();
+
+            return $this->success(false, "Transaction history...", $transLogs , 200);
+        }catch(Exception $e){
+            return $this->error(true, "Error occured!", 400);
+        }
+    }
+
+    public function getAllTransactionHistory(){
+        try{
             $transLogs = TransactionLogs::where('user_id', auth()->user()->id)->latest()->get();
 
             return $this->success(false, "Transaction history...", $transLogs , 200);
