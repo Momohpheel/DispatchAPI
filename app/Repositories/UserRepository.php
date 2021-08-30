@@ -1077,10 +1077,10 @@ class UserRepository implements UserRepositoryInterface{
             ]);
 
 
-            $orders = Order::with('dropoff')->where('id', intval($validated['order_id']))->where('user_id', auth()->user()->id)->get();
-            $user = User::find(auth()->user()->id);
-            if ($validated['type'] == 'payOrderwithCard'){
 
+            if ($validated['type'] == 'payOrderwithCard'){
+                $orders = Order::with('dropoff')->where('id', intval($validated['order_id']))->where('user_id', auth()->user()->id)->get();
+                $user = User::find(auth()->user()->id);
                 if ($validated['trans_status'] == 'success'){
 
                     $partner = Partner::find($orders->partner_id);
