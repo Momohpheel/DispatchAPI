@@ -1131,7 +1131,8 @@ class UserRepository implements UserRepositoryInterface{
             }else if ($validated['type'] == 'fundWallet'){
                     $log =  $this->fundWallet($validated);
             }else if ($validated['type'] == 'payOrderwithWallet'){
-
+                $orders = Order::with('dropoff')->where('id', intval($validated['order_id']))->where('user_id', auth()->user()->id)->get();
+                $user = User::find(auth()->user()->id);
                     //reduce user wallet
                     $user = User::where('id', auth()->user()->id)->first();
                     if ($user->wallet > $validated['amount']){
