@@ -986,10 +986,13 @@ class UserRepository implements UserRepositoryInterface{
                                 'dropoff' => $this->getOneDropoff($dropoff->id)
                             ];
 
-                            $dropoff['dropoff'] = $this->getOneDropoff($dropoff->id);
-                            $ar = array_merge($data, $dropoff_data);
-                            json_encode($ar);
-                            array_push($history, $dropoff);
+                            if ($dropoff->status == 'delivered'){
+                                $dropoff['dropoff'] = $this->getOneDropoff($dropoff->id);
+                            }
+                                $ar = array_merge($data, $dropoff_data);
+                                json_encode($ar);
+                                array_push($history, $dropoff);
+
                     }
 
                     //array_push($data['dropoff'], $drop_o);
