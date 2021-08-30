@@ -489,22 +489,22 @@ class UserRepository implements UserRepositoryInterface{
                         $discounts += $newdropoff->discount;
                     }
 
-                    if (isset($getrider)){
-                        //rider_id or vehicle_id
-                        $newdropoff->rider_id = $getrider->id ?? null;
-                        $newdropoff->vehicle_id = $getrider->vehicle->id ?? null;
+                    // if (isset($getrider)){
+                    //     //rider_id or vehicle_id
+                    //     $newdropoff->rider_id = $getrider->id ?? null;
+                    //     $newdropoff->vehicle_id = $getrider->vehicle->id ?? null;
 
-                        //calculate price and discount
-                        $newdropoff->price = $price;
-                        $newdropoff->discount = 0;
+                    //     //calculate price and discount
+                    //     $newdropoff->price = $price;
+                    //     $newdropoff->discount = 0;
 
-                        $totals += $newdropoff->price;
-                        $discounts += $newdropoff->discount;
-                    }else{
-                        $order = Order::find($order->id);
-                        $order->delete();
-                        return $this->error(true, 'Sorry all our riders are fully booked and are unable to fulfill your orders at the moment, please try again', 400);
-                    }
+                    //     $totals += $newdropoff->price;
+                    //     $discounts += $newdropoff->discount;
+                    // }else{
+                    //     $order = Order::find($order->id);
+                    //     $order->delete();
+                    //     return $this->error(true, 'Sorry all our riders are fully booked and are unable to fulfill your orders at the moment, please try again', 400);
+                    // }
 
                         $newdropoff->payment_status = 'not paid';
                         $newdropoff->status = 'pending';
