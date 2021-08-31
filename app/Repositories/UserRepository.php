@@ -185,7 +185,7 @@ class UserRepository implements UserRepositoryInterface{
 
             DB::table('password_resets')->where(['email'=> $request->email])->delete();
 
-            return $this->success("Reset Password Successfull...", $user, 200);
+            return $this->success(false, "Reset Password Successfull...", $user, 200);
 
         }catch(Exception $e){
             return $this->error(true, "Error Occured: $e->getMessage()", 400);
