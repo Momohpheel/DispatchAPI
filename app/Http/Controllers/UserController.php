@@ -95,7 +95,7 @@ class UserController extends Controller
         return $this->repository->forgotPassword($request);
     }
 
-    public function resetPassword($token){
+    public function resetPassword(Request $request, $token){
         return $this->repository->resetPassword($token);
     }
 
