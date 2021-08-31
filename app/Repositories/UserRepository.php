@@ -78,6 +78,7 @@ class UserRepository implements UserRepositoryInterface{
                 $user->name = $validated['name'];
                 $user->phone = $validated['phone'];
                 $user->email = $validated['email'];
+                $user->image = env('APP_URL') .'/storage/images/user.png';
                 $user->password = Hash::make($validated['password']);
                 $user->save();
 
@@ -1215,11 +1216,11 @@ class UserRepository implements UserRepositoryInterface{
         $payment->datetime = $validated['datetime'];
         $payment->trans_status = $validated['trans_status'];
         $payment->order_id = $validated['order_id'] ?? null;
-        $payment->reference_num = $validated['reference_num'];
+        $payment->reference_num = $validated['reference_num'] ?? null;
         $payment->status = $validated['status'];
         $payment->amount = $validated['amount'];
         $payment->origin_of_payment = $validated['origin_of_payment'];
-        $payment->paystack_message = $validated['paystack_message'];
+        $payment->paystack_message = $validated['paystack_message'] ?? null;
         $payment->save();
 
         return $payment;
