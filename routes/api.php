@@ -177,6 +177,8 @@ use Illuminate\Support\Facades\Route;
 
             Route::get('rider/order/{id}', [App\Http\Controllers\AdminController::class, 'ridersOrders']);
 
+            Route::get('partner/vehicle/{id}', [App\Http\Controllers\AdminController::class, 'getVehicles']);
+
             Route::post('order/status/{id}', [App\Http\Controllers\AdminController::class, 'changeOrderStatus']);
 
             // Route::put('phone/update', [App\Http\Controllers\AdminController::class, 'updatePhone']);

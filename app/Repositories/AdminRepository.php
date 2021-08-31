@@ -253,7 +253,7 @@ class AdminRepository implements AdminRepositoryInterface{
 
     public function getVehicles($id){
         try{
-            $vehicle = Vehicle::where('partner_id', $id)->latest()->first();
+            $vehicle = Vehicle::where('partner_id', $id)->latest()->get();
 
             return $this->success(false, "Partner's vehicles", $vehicle, 200);
 
