@@ -96,7 +96,7 @@ class UserController extends Controller
     }
 
     public function resetPassword(Request $request, $token){
-        return $this->repository->resetPassword($token);
+        return $this->repository->resetPassword($request, $token);
     }
 
     public function getOneDropoff($id){
