@@ -43,6 +43,9 @@ class AdminController extends Controller
         return $this->repository->onePartner($id);
     }
 
+    public function getVehicles($id){
+        return $this->repository->getVehicles($id);
+    }
     public function disablePartner($id){
         return $this->repository->disablePartner($id);
     }

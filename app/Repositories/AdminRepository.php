@@ -95,7 +95,6 @@ class AdminRepository implements AdminRepositoryInterface{
     public function dashboard(){
 
         try{
-
                 $admin = Admin::find(auth()->user()->id);
 
                 $data = [
@@ -148,9 +147,6 @@ class AdminRepository implements AdminRepositoryInterface{
         ];
 
         return $data;
-
-
-
     }
 
     public function allPartners(){
@@ -268,17 +264,8 @@ class AdminRepository implements AdminRepositoryInterface{
 
     }
 
-    // }
-
-    // public function transactionByPartner(){
-
-    // }
-
-
     public function allOrders(){
         try{
-
-
             $orders = Dropoff::latest()->get();
 
             foreach($orders as $order){
@@ -288,6 +275,29 @@ class AdminRepository implements AdminRepositoryInterface{
             }
 
             return $this->success(false, "All Orders", $orders, 200);
+
+
+        }catch(Exception $e){
+            return $this->error(true, "Error: ".$e->getMessage(), 400);
+        }
+    }
+
+
+    public function changeOrderStatus(Request $request, $id){
+        try{
+            $validated = $request->validate([
+                'status' => 'required|string'
+            ]);
+
+            if ($validated['status'] != 'pending' || $validated['status'] != 'delivered' || $validated['status'] != 'picked' || $validated['status'] != 'cancelled'){
+                $order = Dropoff::where('id', $id)->first();
+                $order->status = $validated['status'];
+                $order->save();
+            }else{
+                return $this->error(true, "Wrong status", 400);
+            }
+
+            return $this->success(false, "Order", $order, 200);
 
 
         }catch(Exception $e){
@@ -313,6 +323,7 @@ class AdminRepository implements AdminRepositoryInterface{
         }
     }
 
+
     public function onePartner($id){
         try{
             $partner = Partner::where('id', $id)->first();
@@ -325,6 +336,7 @@ class AdminRepository implements AdminRepositoryInterface{
         }
     }
 
+
     public function oneUser($id){
         try{
             $user = User::where('id', $id)->first();
@@ -336,4 +348,5 @@ class AdminRepository implements AdminRepositoryInterface{
             return $this->error(true, "Error: ".$e->getMessage(), 400);
         }
     }
+
 }

@@ -30,6 +30,8 @@ interface AdminRepositoryInterface{
 
     public function dashboard();
 
+    public function getVehicles($id);
+
     // public function allTransactions();
 
     // public function transactionByPartner();
