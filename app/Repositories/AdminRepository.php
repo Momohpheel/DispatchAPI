@@ -165,7 +165,7 @@ class AdminRepository implements AdminRepositoryInterface{
 
     public function allUsers(){
         try{
-            $users = User::all();
+            $users = User::latestall();
 
             return $this->success(false, "All Users", $users, 200);
         }catch(Exception $e){
