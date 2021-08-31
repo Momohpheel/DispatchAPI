@@ -10,31 +10,59 @@
     <link rel="icon" type="image/png" sizes="16x16" href="https://scrcpybackend.herokuapp.com/css/assets/images/favicon.png">
     <title>Admin</title>
     <script>window.Laravel = { csrfToken: '{{csrf_token()}}'} </script>
-    <link href="https://scrcpybackend.herokuapp.com/css/style.min.css" rel="stylesheet">
+
+    <style>
+        *{
+                transition: all 0.6s;
+            }
+
+            html {
+                height: 100%;
+            }
+
+            body{
+                font-family: 'Lato', sans-serif;
+                color: #888;
+                margin: 0;
+            }
+
+            #main{
+                display: table;
+                width: 100%;
+                height: 100vh;
+                text-align: center;
+            }
+
+            .fof{
+                display: table-cell;
+                vertical-align: middle;
+            }
+
+            .fof h1{
+                font-size: 50px;
+                display: inline-block;
+                padding-right: 12px;
+                animation: type .5s alternate infinite;
+            }
+
+            @keyframes type{
+                from{box-shadow: inset -3px 0px 0px #888;}
+                to{box-shadow: inset -3px 0px 0px transparent;}
+            }
+    </style>
 </head>
 
 <body>
 
-   <div id="app">
-       <p>No no no</p>
-   </div>
+   <<div id="main">
+    <div class="fof">
+            <h1>Error 404</h1>
+    </div>
+    </div>
 
 </body>
 
 
-<script src=" {{secure_asset('js/app.js')}} "></script>
-<script src="{{secure_asset("js/assets/libs/jquery/dist/jquery.min.js")}} "></script>
-<script src="{{secure_asset("js/assets/libs/popper.js/dist/umd/popper.min.js")}}"></script>
-<script src="{{secure_asset("js/assets/libs/bootstrap/dist/js/bootstrap.min.js")}}"></script>
-<script src="{{secure_asset("js/dist/js/app-style-switcher.js")}}"></script>
-<script src="{{secure_asset("js/dist/js/feather.min.js")}}"></script>
-<script src="{{secure_asset("js/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js")}}"></script>
-<script src="{{secure_asset("js/assets/extra-libs/sparkline/sparkline.js")}}"></script>
-<script src="{{secure_asset("js/dist/js/sidebarmenu.js")}}"></script>
-<script src="{{secure_asset("js/dist/js/custom.min.js")}}"></script>
-{{-- <script src="{{asset("js/assets/libs/jquery/dist/jquery.min.js")}} "></script>
-<script src="{{asset("js/assets/libs/popper.js/dist/umd/popper.min.js")}} "></script> --}}
-<script src="{{secure_asset("js/assets/libs/bootstrap/dist/js/bootstrap.min.js")}} "></script>
 
 
 </html>
