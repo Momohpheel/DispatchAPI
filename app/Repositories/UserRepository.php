@@ -165,14 +165,12 @@ class UserRepository implements UserRepositoryInterface{
 
             $validator = $request->validate([
                 'email' => 'required|email|exists:users',
-                'password' => 'required|string|min:6|confirmed',
-                //'password_confirmation' => 'required'
+                'password' => 'required|string',
+                'password_confirmation' => 'required'
             ]);
 
-            if ($validator->fails()) {
-                return redirect('/user/reset-password')
-                            ->withErrors($validator)
-                            ->withInput();
+            if ($validator['password'] != $validator['password_confirmation']) {
+                return back()->with('error', 'Passwords do not match');
             }
 
             $updatePassword = DB::table('password_resets')
