@@ -1094,7 +1094,7 @@ class UserRepository implements UserRepositoryInterface{
                 $user = User::find(auth()->user()->id);
                 if ($validated['trans_status'] == 'success'){
 
-                    $partner = Partner::find($orders->partner_id);
+                    $partner = Partner::where('id',$orders->partner_id)->first();
                     $partner->wallet = $partner->wallet + $validated['amount'];
                     $partner->save();
                     //increase partner's earninigs/wallet
