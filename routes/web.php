@@ -13,6 +13,16 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+Route::get('/user/reset-password', function () {
+    return view('auth.passwords.reset');
 });
+
+Route::get('/user/reset-password/success', function () {
+    return view('auth.register');
+});
+
+Route::get('/user/reset-password/error', function () {
+    return view('auth.login');
+});
+
+

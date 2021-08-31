@@ -166,7 +166,7 @@ class UserRepository implements UserRepositoryInterface{
             $request->validate([
                 'email' => 'required|email|exists:users',
                 'password' => 'required|string|min:6|confirmed',
-                'password_confirmation' => 'required'
+                //'password_confirmation' => 'required'
             ]);
 
             $updatePassword = DB::table('password_resets')
@@ -177,7 +177,8 @@ class UserRepository implements UserRepositoryInterface{
                                 ->first();
 
             if(!$updatePassword){
-                return $this->error(true, "Invalid token!", 400);
+                //return $this->error(true, "Invalid token!", 400);
+                return redirect('/user/reset-password/error');
             }
 
             $user = User::where('email', $request->email)
@@ -185,7 +186,9 @@ class UserRepository implements UserRepositoryInterface{
 
             DB::table('password_resets')->where(['email'=> $request->email])->delete();
 
-            return $this->success(false, "Reset Password Successfull...", $user, 200);
+
+            return redirect('/user/reset-password/success');
+            //return $this->success(false, "Reset Password Successfull...", $user, 200);
 
         }catch(Exception $e){
             return $this->error(true, "Error Occured: $e->getMessage()", 400);
