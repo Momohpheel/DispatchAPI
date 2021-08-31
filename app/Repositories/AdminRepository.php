@@ -171,7 +171,7 @@ class AdminRepository implements AdminRepositoryInterface{
 
     public function disablePartner($id){
         try{
-            $partner = Partner::where('id', $id)->latest()->get();
+            $partner = Partner::where('id', $id)->latest()->first();
 
             if ($partner->is_enabled == false){
                 $partner->is_enabled = true;
