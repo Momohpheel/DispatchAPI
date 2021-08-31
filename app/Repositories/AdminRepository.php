@@ -289,7 +289,7 @@ class AdminRepository implements AdminRepositoryInterface{
                 'status' => 'required|string'
             ]);
 
-            if ($validated['status'] != 'pending' || $validated['status'] != 'delivered' || $validated['status'] != 'picked' || $validated['status'] != 'cancelled'){
+            if ($validated['status'] == 'pending' || $validated['status'] == 'delivered' || $validated['status'] == 'picked' || $validated['status'] == 'cancelled'){
                 $order = Dropoff::where('id', $id)->first();
                 $order->status = $validated['status'];
                 $order->save();
