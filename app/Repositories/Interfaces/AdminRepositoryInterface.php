@@ -24,11 +24,15 @@ interface AdminRepositoryInterface{
 
     public function oneOrder($id);
 
+    public function ridersOrders($id);
+
     public function onePartner($id);
 
     public function oneUser($id);
 
     public function dashboard();
+
+    public function changeOrderStatus(Request $request, $id);
 
     public function getVehicles($id);
 

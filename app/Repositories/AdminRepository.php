@@ -305,6 +305,23 @@ class AdminRepository implements AdminRepositoryInterface{
         }
     }
 
+    public function ridersOrders($id){
+        try{
+            $orders = Dropoff::where('rider_id', $id)->latest()->get();
+
+            foreach($orders as $order){
+                $userId = $order->order->user_id ?? null;
+                $user = User::where('id', $userId)->first() ?? null;
+                $order['user'] = $user;
+            }
+
+            return $this->success(false, "Riders Orders...", $orders, 200);
+
+
+        }catch(Exception $e){
+            return $this->error(true, "Error: ".$e->getMessage(), 400);
+        }
+    }
     public function oneOrder($id){
         try{
             $order = Dropoff::with(['partner', 'order', 'vehicle', 'rider'])->where('id', $id)->first();

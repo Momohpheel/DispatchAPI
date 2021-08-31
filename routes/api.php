@@ -175,8 +175,11 @@ use Illuminate\Support\Facades\Route;
             Route::get('partner/{id}', [App\Http\Controllers\AdminController::class, 'onePartner']);
             Route::get('order/{id}', [App\Http\Controllers\AdminController::class, 'oneOrder']);
 
+            Route::get('rider/order/{id}', [App\Http\Controllers\AdminController::class, 'ridersOrders']);
+
+            Route::post('order/status/{id}', [App\Http\Controllers\AdminController::class, 'changeOrderStatus']);
+
             // Route::put('phone/update', [App\Http\Controllers\AdminController::class, 'updatePhone']);
-            // Route::post('location/set', [App\Http\Controllers\AdminController::class, 'setDriverLocation']);
 
             // Route::get('dashboard/{id}', [App\Http\Controllers\AdminController::class, 'dashboard']);
             // Route::get('order/status/{status}', [App\Http\Controllers\AdminController::class, 'getOrderByStatus']);
