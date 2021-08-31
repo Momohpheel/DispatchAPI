@@ -1090,7 +1090,7 @@ class UserRepository implements UserRepositoryInterface{
 
 
             if ($validated['type'] == 'payOrderwithCard'){
-                $orders = Order::with('dropoff')->where('id', intval($validated['order_id']))->where('user_id', auth()->user()->id)->get();
+                $orders = Order::with('dropoff')->where('id', intval($validated['order_id']))->where('user_id', auth()->user()->id)->first();
                 $user = User::find(auth()->user()->id);
                 if ($validated['trans_status'] == 'success'){
 
@@ -1098,10 +1098,10 @@ class UserRepository implements UserRepositoryInterface{
                     $partner->wallet = $partner->wallet + $validated['amount'];
                     $partner->save();
                     //increase partner's earninigs/wallet
-                    foreach ($orders as $order){
+                    // foreach ($orders as $order){
 
 
-                        foreach ($order->dropoff as $dropoff){
+                        foreach ($orders->dropoff as $dropoff){
                             //increase rider and vehicle earnings
                             $rider = Rider::with('vehicle')->where('id', $dropoff->rider_id)->first();
                             $rider->earning = $rider->earning + $dropoff->price;
@@ -1118,7 +1118,7 @@ class UserRepository implements UserRepositoryInterface{
                             $job->save();
 
                             $this->transactionLog('Delivery Fees', $validated['customer_name']." paid for an order", (int)$dropoff->price , auth()->user()->id, 'user');
-                       }
+                        // }
 
 
 
