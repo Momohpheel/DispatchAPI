@@ -165,7 +165,7 @@ class AdminRepository implements AdminRepositoryInterface{
 
     public function allUsers(){
         try{
-            $users = User::latestall();
+            $users = User::latest()->get();
 
             return $this->success(false, "All Users", $users, 200);
         }catch(Exception $e){
@@ -175,7 +175,7 @@ class AdminRepository implements AdminRepositoryInterface{
 
     public function disablePartner($id){
         try{
-            $partner = Partner::find($id);
+            $partner = Partner::where('id', $id)->latest()->get();
 
             if ($partner->is_enabled == false){
                 $partner->is_enabled = true;
@@ -216,7 +216,7 @@ class AdminRepository implements AdminRepositoryInterface{
 
     public function allTopPartners(){
         try{
-            $partners = Partner::where('is_top_partner', true)->get();
+            $partners = Partner::where('is_top_partner', true)->latest()->get();
 
             return $this->success(false, "All Top Partners", $partners, 200);
         }catch(Exception $e){
@@ -226,9 +226,9 @@ class AdminRepository implements AdminRepositoryInterface{
 
     public function ridersByPartner($id){
         try{
-            $partner = Partner::with('riders')->where('id', $id)->first();
+            $rider = Rider::where('partner_id', $id)->latest()->get();
 
-            return $this->success(false, "Partner's riders", $partner, 200);
+            return $this->success(false, "Partner's riders", $rider, 200);
 
 
         }catch(Exception $e){
@@ -239,7 +239,7 @@ class AdminRepository implements AdminRepositoryInterface{
 
     public function ordersByPartner($id){
         try{
-            $orders = Dropoff::with(['partner', 'order'])->where('partner_id', $id)->get();
+            $orders = Dropoff::with(['partner', 'order'])->where('partner_id', $id)->latest()->get();
 
             foreach($orders as $order){
                 $userId = $order->order->user_id ?? null;
@@ -257,9 +257,9 @@ class AdminRepository implements AdminRepositoryInterface{
 
     public function getVehicles($id){
         try{
-            $partner = Partner::with('vehicles')->where('id', $id)->first();
+            $vehicle = Vehicle::where('partner_id', $id)->latest()->first();
 
-            return $this->success(false, "Partner's vehicles", $partner, 200);
+            return $this->success(false, "Partner's vehicles", $vehicle, 200);
 
 
         }catch(Exception $e){
@@ -279,7 +279,7 @@ class AdminRepository implements AdminRepositoryInterface{
         try{
 
 
-            $orders = Dropoff::all();
+            $orders = Dropoff::latest()->get();
 
             foreach($orders as $order){
                 $userId = $order->order->user_id ?? null;
