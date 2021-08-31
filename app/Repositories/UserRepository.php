@@ -160,7 +160,7 @@ class UserRepository implements UserRepositoryInterface{
     }
 
 
-    public function resetPassword($token){
+    public function resetPassword(Request $request, $token){
         try{
 
             $request->validate([
