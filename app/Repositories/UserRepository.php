@@ -465,11 +465,12 @@ class UserRepository implements UserRepositoryInterface{
         $totals = 0;
         $discounts = 0;
         $partner = Partner::find($id);
-        $todaysDropoff = Dropoff::where('partner_id', $id)->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->get();
+        $now = Carbon::now()->addHour();
         //pair with rider who is under the partner
         //and is not disabled or dismissed and nearby
         //dd($validated['dropoff'][0]);
         foreach($validated['dropoff'] as $dropoff ){
+
             $todaysDropoff = Dropoff::where('partner_id', $id)->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->get();
             if ($partner->subscription->no_of_orders > count($todaysDropoff) || $partner->subscription->no_of_orders == 'unlimited'){
                 $newdropoff = new DropOff;
