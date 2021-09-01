@@ -422,10 +422,10 @@ class UserRepository implements UserRepositoryInterface{
                         $data['pmessage'] = 'Partner is currently not available';
                     }
 
-                }else{
+                }
                     $data['partner'] = false;
                     $data['pmessage'] = 'Partner is not available today..';
-                }
+
             }
 
             return $this->success(false, "Vehicles available, Partner Available...", $data, 200);
