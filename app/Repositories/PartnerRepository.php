@@ -510,7 +510,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 'name' => 'string',
                 'workname' => 'string',
                 'phone' => 'string',
-                'password' => 'string',
+                'password' => 'string|max:4',
                 'image' => 'image|mimes:png,jpeg,jpg|max:2000',
                 'vehicle_id' => 'string'
             ]);
@@ -563,7 +563,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 'name' => 'required|string',
                 'workname' => 'required|string',
                 'phone' => 'required|string',
-                'password' => 'required|string',
+                'password' => 'required|string|max:4',
                 'image' => 'required|image|mimes:png,jpeg,jpg|max:2000',
                 'vehicle_id' => 'required'
             ]);
@@ -817,9 +817,9 @@ class PartnerRepository implements PartnerRepositoryInterface{
     public function addOperatingHours(Request $request){
         try{
             $validated = $request->validate([
-                'day' => 'required|string',
-                'start_time' => 'required|string',
-                'end_time' => 'required|string'
+                'day.*' => 'required|string',
+                'day.start_time' => 'required|string',
+                'day.end_time' => 'required|string'
             ]);
 
             $operating_hours = new OperatingHours;

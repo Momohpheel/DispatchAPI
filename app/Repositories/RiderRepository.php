@@ -23,7 +23,7 @@ class RiderRepository implements RiderRepositoryInterface{
         try{
             $validated = $request->validate([
                 'workname' => "required|string",
-                "password" => "required|string"
+                "password" => "required|string|max:4"
             ]);
 
 
