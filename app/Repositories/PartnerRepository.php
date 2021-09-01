@@ -58,11 +58,14 @@ class PartnerRepository implements PartnerRepositoryInterface{
     public function signup(Request $request){
         try{
             $validated = $request->validate([
-                'name' => "required|string",
-                'phone' => "required|string",
-                'email' => "required|string",
                 "password" => "required|string",
-                "code_name" => "required|string"
+                "code_name" => "required|string",
+                'image' => "required|image|mimes:jpg,png,jpeg|max:2000",
+                'business_name' => 'required|string',
+                'business_phone' => 'required|string',
+                'business_email' => 'required|string',
+                'business_bank_account' => 'required|string',
+                'business_bank_name' => 'required|string',
             ]);
 
             $partner = Partner::where('code_name', $validated['code_name'])->where('name', $validated['name'])->first();

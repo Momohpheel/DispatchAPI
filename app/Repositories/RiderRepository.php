@@ -29,7 +29,7 @@ class RiderRepository implements RiderRepositoryInterface{
 
                 $rider = Rider::where('workname', $validated['workname'])->first();
                 if ($rider){
-                    $check = Hash::check($validated['password'], $rider->password);
+                    $check = Hash::check($validated['pin'], $rider->password);
                     if ($check){
                         $access_token = $rider->createToken('authToken')->accessToken;
                         $data = ["access_token" => $access_token];
@@ -44,7 +44,7 @@ class RiderRepository implements RiderRepositoryInterface{
 
 
         }catch(Exception $e){
-            return $this->error(true, "Error logging partner", 400);
+            return $this->error(true, "Error logging rider", 400);
         }
     }
 

@@ -103,7 +103,7 @@ use Illuminate\Support\Facades\Route;
             Route::get('history', [App\Http\Controllers\PartnerController::class, 'getPartnerHistory']);
             Route::post('top-partner', [App\Http\Controllers\PartnerController::class, 'makeTopPartner']);
 
-            Route::post('dashboard', [App\Http\Controllers\PartnerController::class, 'dashboard']);
+            Route::get('dashboard', [App\Http\Controllers\PartnerController::class, 'dashboard']);
 
 
             Route::prefix('profile')->group(function () {
@@ -120,6 +120,7 @@ use Illuminate\Support\Facades\Route;
                 Route::get('orders', [App\Http\Controllers\PartnerController::class, 'getOrderbyVehicle']);
 
             });
+
             Route::prefix('rider')->group(function () {
                 Route::post('dismiss/{id}', [App\Http\Controllers\PartnerController::class, 'dismissRider']);
                 Route::post('update/{id}', [App\Http\Controllers\PartnerController::class, 'updateRider']);
