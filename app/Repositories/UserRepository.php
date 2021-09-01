@@ -424,7 +424,7 @@ class UserRepository implements UserRepositoryInterface{
 
                 }else{
                     $data['partner'] = false;
-                    $data['pmessage'] = 'Partner is currently not available';
+                    $data['pmessage'] = 'Partner is not available today..';
                 }
             }
 
