@@ -890,6 +890,10 @@ class PartnerRepository implements PartnerRepositoryInterface{
         //partner profile
         //order count
         try{
+            //manually check top-partner expiry
+            //manually check subscription expiry
+
+
             $partner = Partner::find(auth()->user()->id);
             if (isset($partner)){
                 $data = [

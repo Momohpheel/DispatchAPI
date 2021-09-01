@@ -285,7 +285,7 @@ class UserRepository implements UserRepositoryInterface{
             if (!$partner){
                 return $this->error(true, "Partner not found!", 400);
             }
-
+            //check if the subscription has been paid for
 
             $now = Carbon::now()->addHour();
             $day = $now->format('l');
@@ -351,7 +351,9 @@ class UserRepository implements UserRepositoryInterface{
             $data = [
                 'car' => false,
                 'bike' => false,
-                'van' => false
+                'van' => false,
+                // 'partner' => true,
+                // 'pmessage' => 'Partner is okay to continue'
             ];
 
             foreach ($vehicles as $vehicle){
@@ -368,7 +370,65 @@ class UserRepository implements UserRepositoryInterface{
                 }
             }
 
-            return $this->success(false, "Vehicles available...", $data, 200);
+
+            $partner = Partner::with('subscription')->where('id', $id)->first();
+            if (!$partner){
+                $data['partner'] = false;
+                $data['pmessage'] = 'Wrong Partner';
+            }
+
+
+            $now = Carbon::now()->addHour();
+            $day = $now->format('l');
+            $c_time =  Carbon::now()->addHour();
+
+
+            $todaysDropoff = Dropoff::where('partner_id', $id)->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->get();
+
+            $dayTime = OpHour::where('partner_id', $partner->id)->get();
+            $current_day = strtolower($day);
+
+            foreach ($dayTime as $day){
+                if ($current_day == $day->day){
+                    $time = OpHour::where('day', $day->day)->where('partner_id', $partner->id)->first();
+                    $stime = Carbon::parse($time->start_time);
+                    $etime = Carbon::parse($time->end_time);
+
+                    if ($c_time->gt($stime) && $c_time->lessThan($etime)){
+
+                        if ($partner->is_paused == false){
+                            if ($partner->is_enabled == true){
+
+                                if ($partner->subscription->no_of_orders > count($todaysDropoff) || $partner->subscription->no_of_orders == 'unlimited'){
+
+                                    $data['partner'] = true;
+                                    $data['pmessage'] = 'Partner is okay to continue';
+
+                                }else{
+                                    $data['partner'] = false;
+                                    $data['pmessage'] = 'Partner has exceeded order count limit';
+                                }
+
+                            }else{
+                                $data['partner'] = false;
+                                $data['pmessage'] = 'Partner is currently disabled';
+                            }
+                        }else{
+                            $data['partner'] = false;
+                            $data['pmessage'] = 'Partner is currently disabled';
+                        }
+                    }else{
+                        $data['partner'] = false;
+                        $data['pmessage'] = 'Partner is currently not available';
+                    }
+
+                }else{
+                    $data['partner'] = false;
+                    $data['pmessage'] = 'Partner is currently not available';
+                }
+            }
+
+            return $this->success(false, "Vehicles available, Partner Available...", $data, 200);
         }catch(Exception $e){
             return $this->error(true, "Error occured!" , 400);
         }
@@ -410,6 +470,7 @@ class UserRepository implements UserRepositoryInterface{
         //dd($validated['dropoff'][0]);
         foreach($validated['dropoff'] as $dropoff ){
 
+            if ($partner->subscription->no_of_orders > count($todaysDropoff) || $partner->subscription->no_of_orders == 'unlimited'){
                 $newdropoff = new DropOff;
                 $newdropoff->d_address = $dropoff['d_address'];
                 $newdropoff->d_latitude = $dropoff['d_latitude'];
@@ -519,9 +580,9 @@ class UserRepository implements UserRepositoryInterface{
                         $newdropoff->save();
 
 
-                //$order->dropoff()->attach($newdropoff);
+                    //$order->dropoff()->attach($newdropoff);
 
-                $this->history('Jobs', auth()->user()->name." ordered a dispatch from ".$order->o_address." to ". $newdropoff->d_address, auth()->user()->id, 'user');
+                    $this->history('Jobs', auth()->user()->name." ordered a dispatch from ".$order->o_address." to ". $newdropoff->d_address, auth()->user()->id, 'user');
 
                     $partner = Partner::find($id);
                     //reduce partner order count
@@ -529,7 +590,7 @@ class UserRepository implements UserRepositoryInterface{
                         $partner->order_count_per_day--;
                         $partner->save();
                     }
-
+                }
         }
 
 
