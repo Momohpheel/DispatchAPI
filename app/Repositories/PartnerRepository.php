@@ -98,7 +98,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 //     "access_token" => $access_token
                 // ];
                 $partner['access_token'] = $access_token;
-                return $this->success(false,"Partner registered", $data, 200);
+                return $this->success(false,"Partner registered", $partner, 200);
             }else{
                 return $this->error(true, "Partner exists", 400);
             }
