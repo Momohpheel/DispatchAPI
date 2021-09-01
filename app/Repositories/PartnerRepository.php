@@ -70,12 +70,23 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
             $partner = Partner::where('code_name', $validated['code_name'])->where('name', $validated['name'])->first();
             if (!$partner){
+                if ($request->hasFile('image')){
+                    $image_name = $validated['image']->getClientOriginalName();
+                    $image_name_withoutextensions =  pathinfo($image_name, PATHINFO_FILENAME);
+                    $name = str_replace(" ", "", $image_name_withoutextensions);
+                    $image_extension = $validated['image']->getClientOriginalExtension();
+                    $image_to_store = $name . '_' . time() . '.' . $image_extension;
+                    $path = $validated['image']->storeAs('public/images', trim($image_to_store));
+            }
                 $partner = new Partner;
-                $partner->name = $validated['name'];
-                $partner->phone = $validated['phone'];
-                $partner->email = $validated['email'];
+                $partner->name = $validated['business_name'];
+                $partner->phone = $validated['business_phone'];
+                $partner->email = $validated['business_email'];
                 $partner->code_name = $validated['code_name'];
                 $partner->password = Hash::make($validated['password']);
+                $partner->image =  env('APP_URL') .'/storage/images/'.$image_to_store;
+                $partner->bank_account = $validated['business_bank_account'];
+                $partner->bank_name = $validated['business_bank_name'];
                 //$partner->image =   env('APP_URL') .'/storage/images/defaultPartner.png';
                 $partner->subscription_id = 1;
                 $partner->order_count_per_day = 5;
