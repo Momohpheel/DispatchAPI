@@ -32,8 +32,9 @@ class RiderRepository implements RiderRepositoryInterface{
                     $check = Hash::check($validated['pin'], $rider->password);
                     if ($check){
                         $access_token = $rider->createToken('authToken')->accessToken;
-                        $data = ["access_token" => $access_token];
-                        return $this->success(false, "rider found", $data, 200);
+                        //$data = ["access_token" => $access_token];
+                        $rider['access_token'] =  $access_token;
+                        return $this->success(false, "rider found", $rider, 200);
                     }else{
                         return $this->error(true, "Password incorrect", 400);
                     }

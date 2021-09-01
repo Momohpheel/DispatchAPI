@@ -93,10 +93,11 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 $partner->save();
                 $access_token = $partner->createToken('authToken')->accessToken;
 
-                $data = [
-                    "partner" => $partner,
-                    "access_token" => $access_token
-                ];
+                // $data = [
+                //     "partner" => $partner,
+                //     "access_token" => $access_token
+                // ];
+                $partner['access_token'] = $access_token;
                 return $this->success(false,"Partner registered", $data, 200);
             }else{
                 return $this->error(true, "Partner exists", 400);
