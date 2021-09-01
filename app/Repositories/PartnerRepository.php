@@ -68,7 +68,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 'business_bank_name' => 'required|string',
             ]);
 
-            $partner = Partner::where('code_name', $validated['code_name'])->where('name', $validated['name'])->first();
+            $partner = Partner::where('code_name', $validated['code_name'])->where('name', $validated['business_name'])->first();
             if (!$partner){
                 if ($request->hasFile('image')){
                     $image_name = $validated['image']->getClientOriginalName();
