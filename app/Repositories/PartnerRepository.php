@@ -510,7 +510,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 'name' => 'string',
                 'workname' => 'string',
                 'phone' => 'string',
-                'password' => 'string|max:4',
+                'pin' => 'string|max:4',
                 'image' => 'image|mimes:png,jpeg,jpg|max:2000',
                 'vehicle_id' => 'string'
             ]);
