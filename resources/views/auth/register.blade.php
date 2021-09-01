@@ -1,6 +1,14 @@
 <html>
   <head>
     <link href="https://fonts.googleapis.com/css?family=Nunito+Sans:400,400i,700,900&display=swap" rel="stylesheet">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    {{-- <link rel="icon" type="image/png" sizes="16x16" href="https://scrcpybackend.herokuapp.com/css/assets/images/favicon.png"> --}}
+    <title>Yougo | Success</title>
+    <script>window.Laravel = { csrfToken: '{{csrf_token()}}'} </script>
 
 </head>
     <style>

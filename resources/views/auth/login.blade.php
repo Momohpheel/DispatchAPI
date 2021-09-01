@@ -7,8 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" type="image/png" sizes="16x16" href="https://scrcpybackend.herokuapp.com/css/assets/images/favicon.png">
-    <title>Admin</title>
+    {{-- <link rel="icon" type="image/png" sizes="16x16" href="https://scrcpybackend.herokuapp.com/css/assets/images/favicon.png"> --}}
+    <title>Yougo | Error</title>
     <script>window.Laravel = { csrfToken: '{{csrf_token()}}'} </script>
 
     <style>
