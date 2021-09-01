@@ -403,6 +403,7 @@ class UserRepository implements UserRepositoryInterface{
 
                                     $data['partner'] = true;
                                     $data['pmessage'] = 'Partner is okay to continue';
+                                    return $this->success(false, "Vehicles available, Partner Available...", $data, 200);
 
                                 }else{
                                     $data['partner'] = false;
