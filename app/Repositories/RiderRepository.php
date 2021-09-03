@@ -266,7 +266,7 @@ class RiderRepository implements RiderRepositoryInterface{
         try{
 
             //$rider = Rider::find(auth()->user()->id);
-            $orders = Dropoff::with('order')->where('rider_id', auth()->user()->id)->where('payment_status', 'paid')->get();
+            $orders = Dropoff::where('rider_id', auth()->user()->id)->where('payment_status', 'paid')->get();
             $data = [];
 
 
