@@ -276,7 +276,7 @@ class RiderRepository implements RiderRepositoryInterface{
 
                             if ($order->status == 'pending'){
 
-                                $order['dropoff'] = $this->getOneDropoff($dro->id);
+                                $order['dropoff'] = $this->getOneDropoff($order->id);
                                 // $order = Order::find($dro->id);
                                 // $dro['order'] = $order;
 
@@ -291,7 +291,7 @@ class RiderRepository implements RiderRepositoryInterface{
                     foreach ($orders as $order){
 
                             if ($order->status == 'delivered'){
-                                $order['dropoff'] = $this->getOneDropoff($dro->id);
+                                $order['dropoff'] = $this->getOneDropoff($order->id);
                                 array_push($data, $order);
                             }
 
@@ -302,7 +302,7 @@ class RiderRepository implements RiderRepositoryInterface{
                 case 'pickedup':
                     foreach ($orders as $order){
                         if ($order->status == 'picked'){
-                            $order['dropoff'] = $this->getOneDropoff($dro->id);
+                            $order['dropoff'] = $this->getOneDropoff($order->id);
                             array_push($data, $order);
                         }
                     }
