@@ -134,7 +134,13 @@ class RiderRepository implements RiderRepositoryInterface{
 
     public function getOrders(){
         try{
-            $orders = DropOff::where('rider_id', auth()->user()->id)->where('payment_status', 'paid')->get();
+            $orders = DropOff::with('order')->where('rider_id', auth()->user()->id)->where('payment_status', 'paid')->get();
+
+            foreach ($orders as $order){
+                $id = $order->order->user_id;
+                $user = User::find($id);
+                $order['user'] = $user;
+            }
 
             return $this->success(false, "Rider's orders", $orders, 200);
         }catch(Exception $e){
@@ -204,7 +210,7 @@ class RiderRepository implements RiderRepositoryInterface{
 
         try{
 
-            $orders = Order::with('dropoff')->where('partner_id', $partner)->where('rider_id', auth()->user()->id)->get(); //->where('status', 'pending')
+            $orders = Order::with('dropoff')->where('partner_id', $partner)->where('rider_id', auth()->user()->id)->where('payment_status', 'paid')->get(); //->where('status', 'pending')
 
 
             $data = [];
@@ -253,12 +259,14 @@ class RiderRepository implements RiderRepositoryInterface{
     }
 
 
+
+
     public function getOrderByStatus($status){
 
         try{
 
             //$rider = Rider::find(auth()->user()->id);
-            $orders = Order::with('dropoff')->where('rider_id', auth()->user()->id)->get();
+            $orders = Order::with('dropoff')->where('rider_id', auth()->user()->id)->where('payment_status', 'paid')->get();
             $data = [];
 
 
@@ -267,6 +275,12 @@ class RiderRepository implements RiderRepositoryInterface{
                     foreach ($orders as $order){
                         foreach ($order->dropoff as $dro){
                             if ($dro->status == 'pending'){
+
+                                $dro['dropoff'] = $this->getOneDropoff($dro->id);
+                                // $order = Order::find($dro->id);
+                                // $dro['order'] = $order;
+
+
                                 array_push($data, $dro);
                             }
                         }
@@ -277,6 +291,7 @@ class RiderRepository implements RiderRepositoryInterface{
                     foreach ($orders as $order){
                         foreach ($order->dropoff as $dro){
                             if ($dro->status == 'delivered'){
+                                $dro['dropoff'] = $this->getOneDropoff($dro->id);
                                 array_push($data, $dro);
                             }
                         }
@@ -288,6 +303,7 @@ class RiderRepository implements RiderRepositoryInterface{
                     foreach ($orders as $order){
                         foreach ($order->dropoff as $dro){
                             if ($dro->status == 'picked'){
+                                $dro['dropoff'] = $this->getOneDropoff($dro->id);
                                 array_push($data, $dro);
                             }
                         }
@@ -301,6 +317,23 @@ class RiderRepository implements RiderRepositoryInterface{
 
         }catch(Exception $e){
             return $this->error(true, "Couldn't get order", 400);
+        }
+    }
+
+    public function getOneDropoff($id){
+        try{
+            $dropoff = Dropoff::with(['order', 'rider', 'vehicle'])->where('id', $id)->first();
+
+            $user = User::where('id', $dropoff->order->user_id)->first();
+            $dropoff['user'] = $user;
+            if (isset($dropoff)){
+                //return $this->success(false, "Dropoff", $dropoff, 200);
+                return $dropoff;
+            }else{
+                return $this->error(true, "No dropoff found", 400);
+            }
+        }catch(Exception $e){
+            return $this->error(true, "Error occured!", 400);
         }
     }
 }
