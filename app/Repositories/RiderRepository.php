@@ -266,46 +266,44 @@ class RiderRepository implements RiderRepositoryInterface{
         try{
 
             //$rider = Rider::find(auth()->user()->id);
-            $orders = Order::with('dropoff')->where('rider_id', auth()->user()->id)->where('payment_status', 'paid')->get();
+            $orders = Dropoff::with('order')->where('rider_id', auth()->user()->id)->where('payment_status', 'paid')->get();
             $data = [];
 
 
             switch($status){
                 case 'pending':
                     foreach ($orders as $order){
-                        foreach ($order->dropoff as $dro){
-                            if ($dro->status == 'pending'){
 
-                                $dro['dropoff'] = $this->getOneDropoff($dro->id);
+                            if ($order->status == 'pending'){
+
+                                $order['dropoff'] = $this->getOneDropoff($dro->id);
                                 // $order = Order::find($dro->id);
                                 // $dro['order'] = $order;
 
 
-                                array_push($data, $dro);
+                                array_push($data, $order);
                             }
-                        }
+
                     }
 
                     return $this->success(false, "Pending Orders", $data, 200);
                 case 'delivered':
                     foreach ($orders as $order){
-                        foreach ($order->dropoff as $dro){
-                            if ($dro->status == 'delivered'){
-                                $dro['dropoff'] = $this->getOneDropoff($dro->id);
-                                array_push($data, $dro);
+
+                            if ($order->status == 'delivered'){
+                                $order['dropoff'] = $this->getOneDropoff($dro->id);
+                                array_push($data, $order);
                             }
-                        }
+
                     }
 
                     return $this->success(false, "Delivered Orders", $data, 200);
 
                 case 'pickedup':
                     foreach ($orders as $order){
-                        foreach ($order->dropoff as $dro){
-                            if ($dro->status == 'picked'){
-                                $dro['dropoff'] = $this->getOneDropoff($dro->id);
-                                array_push($data, $dro);
-                            }
+                        if ($order->status == 'picked'){
+                            $order['dropoff'] = $this->getOneDropoff($dro->id);
+                            array_push($data, $order);
                         }
                     }
 
