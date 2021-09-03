@@ -26,7 +26,7 @@ class RiderController extends Controller
     }
 
     public function getOrders(Request $request){
-        return $this->repository->checkOrders($request);
+        return $this->repository->getOrders($request);
     }
 
     public function history(){
