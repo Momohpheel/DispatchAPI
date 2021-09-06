@@ -601,6 +601,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 $rider->vehicle_id = $validated['vehicle_id'];
                 $rider->image = env('APP_URL') .'/storage/images/'.$image_to_store; //$validated['image'];
                 $rider->password = Hash::make($validated['password']);
+                $rider->rating = 0;
                 $rider->partner_id = auth()->user()->id;
                 $rider->save();
 

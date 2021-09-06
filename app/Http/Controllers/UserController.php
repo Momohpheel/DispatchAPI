@@ -18,6 +18,13 @@ class UserController extends Controller
         $this->repository = $repository;
     }
 
+    public function home(){
+        return response()->json([
+            "error" => false,
+            "message" => "You're welcome, This is the Yougo Backend App"
+        ], 200);
+    }
+
     public function onboard(Request $request){
         return $this->repository->onboard($request);
     }

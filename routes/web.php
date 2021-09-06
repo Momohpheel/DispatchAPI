@@ -25,4 +25,5 @@ Route::get('/user/reset-password/error', function () {
     return view('auth.login');
 });
 
+Route::get('/', [App\Http\Controllers\UserController::class, 'home']);
 
