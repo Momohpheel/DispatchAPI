@@ -371,8 +371,10 @@ class PartnerRepository implements PartnerRepositoryInterface{
     public function addVehicle(Request $request){
         try{
 
-            $partner = Partner::find(auth()->user()->id);
-            if ($partner->vehicle_count > 0 || $partner->vehicle_count == 'unlimited'){
+            $partner = Partner::with('subscription')->where('id',auth()->user()->id)->first();
+            $vehicles = Vehicle::where('partner_id', $partner->id)->get();
+            //if ($partner->vehicle_count > 0 || $partner->vehicle_count == 'unlimited'){
+                if ($partner->subscription->vehicle_count > count($vehicles) || $partner->subscription->vehicle_count == 'unlimited'){
                 $validated = $request->validate([
                     'name' => 'required|string',
                     'plate_number' => 'required|string',
