@@ -831,7 +831,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
             $validated = $request->validate([
                 'time.*.day' => 'required|string',
                 'time.*.start_time' => 'required|string',
-                'time.*.day.end_time' => 'required|string'
+                'time.*.end_time' => 'required|string'
             ]);
 
             $operating_hours = new OperatingHours;
