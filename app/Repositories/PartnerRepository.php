@@ -912,7 +912,27 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
 
             $partner = Partner::find(auth()->user()->id);
+
             if (isset($partner)){
+                if ($partner->is_top_partner == true){
+                    $now = Carbon::now()->addHour();
+                    if ($partner->top_partner_expiry_date == $now){
+                        $partner->is_top_partner = false;
+                        $partner->top_partner_expiry_date = null;
+                        $partner->save();
+                    }
+                }
+
+                if (isset($partner->subscription_expiry_date)){
+                    $now = Carbon::now()->addHour();
+                    if ($partner->subscription_expiry_date == $now){
+                        $partner->subscription_id = 1;
+                        $partner->subscription_date = null;
+                        $partner->subscription_expiry_date = null;
+                        $partner->save();
+                    }
+                }
+
                 $data = [
                     'partner' => $partner,
                     'count' => $this->count() //pickedup, vehicle,pending, delivered,
