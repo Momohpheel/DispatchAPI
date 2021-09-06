@@ -829,18 +829,20 @@ class PartnerRepository implements PartnerRepositoryInterface{
     public function addOperatingHours(Request $request){
         try{
             $validated = $request->validate([
-                'day.*' => 'required|string',
-                'day.start_time' => 'required|string',
-                'day.end_time' => 'required|string'
+                'time.*.day' => 'required|string',
+                'time.*.start_time' => 'required|string',
+                'time.*.day.end_time' => 'required|string'
             ]);
 
             $operating_hours = new OperatingHours;
 
-            $operating_hours->day = strtolower($validated['day']);
-            $operating_hours->start_time = $validated['start_time'];
-            $operating_hours->end_time = $validated['end_time'];
-            $operating_hours->partner_id = auth()->user()->id;
-            $operating_hours->save();
+            foreach ($validated['time'] as $time){
+                $operating_hours->day = strtolower($time['day']);
+                $operating_hours->start_time = $time['start_time'];
+                $operating_hours->end_time = $time['end_time'];
+                $operating_hours->partner_id = auth()->user()->id;
+                $operating_hours->save();
+            }
 
             return $this->success(false, "Operating Hours added", $operating_hours, 200);
         }catch(Exception $e){
