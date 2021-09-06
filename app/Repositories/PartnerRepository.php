@@ -834,9 +834,10 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 'time.*.end_time' => 'required|string'
             ]);
 
-            $operating_hours = new OperatingHours;
+
 
             foreach ($validated['time'] as $time){
+                $operating_hours = new OperatingHours;
                 $operating_hours->day = strtolower($time['day']);
                 $operating_hours->start_time = $time['start_time'];
                 $operating_hours->end_time = $time['end_time'];
