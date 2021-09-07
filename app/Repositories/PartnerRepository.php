@@ -428,24 +428,26 @@ class PartnerRepository implements PartnerRepositoryInterface{
             $partner_id = auth()->user()->id;
             $vehicle = Vehicle::where('id', $id)->where('partner_id', $partner_id)->first();
             $vehicle_exists_somewhere = Vehicle::where('id','!=', $id)->where('plate_number', $validated['plate_number'])->where('partner_id', $partner_id)->first();
-            if ($vehicle_exists_somewhere){
-                return $this->error(true, "Vehicle already belongs to partner", 400);
-            }else{
+
 
                 if ($vehicle){
-                    $vehicle->name = $validated['name'] ?? $vehicle->name;
-                    $vehicle->plate_number = $validated['plate_number'] ?? $vehicle->plate_number;
-                    $vehicle->color = $validated['color'] ?? $vehicle->color;
-                    $vehicle->model = $validated['model'] ?? $vehicle->model;
-                    $vehicle->type = $validated['type'] ?? $vehicle->type;
-                    $vehicle->partner_id = $id ?? $vehicle->partner_id; //auth()->user()->id;
-                    $vehicle->save();
+                    if ($vehicle_exists_somewhere){
+                        return $this->error(true, "Vehicle already belongs to partner", 400);
+                    }else{
+                        $vehicle->name = $validated['name'] ?? $vehicle->name;
+                        $vehicle->plate_number = $validated['plate_number'] ?? $vehicle->plate_number;
+                        $vehicle->color = $validated['color'] ?? $vehicle->color;
+                        $vehicle->model = $validated['model'] ?? $vehicle->model;
+                        $vehicle->type = $validated['type'] ?? $vehicle->type;
+                        $vehicle->partner_id = $id ?? $vehicle->partner_id; //auth()->user()->id;
+                        $vehicle->save();
 
-                    return $this->success(false, "vehicle updated", $vehicle, 200);
+                        return $this->success(false, "vehicle updated", $vehicle, 200);
+                    }
                 }else{
                     return $this->error(true, "vehicle doesn't exists", 400);
                 }
-            }
+
         }catch(Exception $e){
             return $this->error(true, "Error updating vehicle", 400);
         }
@@ -478,7 +480,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
     public function getVehicles(){
         try{
             $id = auth()->user()->id;
-            $vehicles = Vehicle::with(['partner', 'rider'])->where('partner_id', $id)->get();
+            $vehicles = Vehicle::with('rider')->where('partner_id', $id)->get();
 
             return $this->success(false, "Vehicles fetched", $vehicles, 200);
 
@@ -490,7 +492,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
     public function getVehicle($id){
         try{
             $pid = auth()->user()->id;
-            $vehicle = Vehicle::with(['partner', 'rider'])->where('id', $id)->where('partner_id', $pid)->first();
+            $vehicle = Vehicle::with('rider')->where('id', $id)->where('partner_id', $pid)->first();
 
             return $this->success(false, "Vehicle fetched", $vehicle, 200);
 
