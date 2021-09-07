@@ -1044,7 +1044,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                     foreach ($orders as $order){
                         foreach ($order->dropoff as $dro){
                             if ($dro->status == 'pending'){
-                                //$dro['dropoff'] = $this->getOneDropoff($dro->id);
+                                $dro['dropoff'] = $this->getOneDropoff($dro->id);
                                 array_push($data, $dro);
                             }
                         }
