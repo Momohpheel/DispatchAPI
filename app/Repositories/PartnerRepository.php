@@ -426,7 +426,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 'type' => 'string'
             ]);
             $id = auth()->user()->id;
-            $vehicle = Vehicle::where('plate_number', $validated['plate_number'])->where('partner_id', $id)->first();
+            $vehicle = Vehicle::where('id', $id)->where('partner_id', $id)->first();
             if ($vehicle){
                 $vehicle->name = $validated['name'] ?? $vehicle->name;
                 $vehicle->plate_number = $validated['plate_number'] ?? $vehicle->plate_number;
