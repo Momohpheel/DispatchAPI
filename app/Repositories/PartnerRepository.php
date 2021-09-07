@@ -427,18 +427,24 @@ class PartnerRepository implements PartnerRepositoryInterface{
             ]);
             $partner_id = auth()->user()->id;
             $vehicle = Vehicle::where('id', $id)->where('partner_id', $partner_id)->first();
-            if ($vehicle){
-                $vehicle->name = $validated['name'] ?? $vehicle->name;
-                $vehicle->plate_number = $validated['plate_number'] ?? $vehicle->plate_number;
-                $vehicle->color = $validated['color'] ?? $vehicle->color;
-                $vehicle->model = $validated['model'] ?? $vehicle->model;
-                $vehicle->type = $validated['type'] ?? $vehicle->type;
-                $vehicle->partner_id = $id ?? $vehicle->partner_id; //auth()->user()->id;
-                $vehicle->save();
-
-                return $this->success(false, "vehicle updated", $vehicle, 200);
+            $vehicle_exists_somewhere = Vehicle::where('id','!=', $id)->where('plate_number', $validated['plate_number'])->where('partner_id', $partner_id)->first();
+            if ($vehicle_exists_somewhere){
+                return $this->error(true, "Vehicle already belongs to partner", 400);
             }else{
-                return $this->error(true, "vehicle with given plate number doesn't exists", 400);
+
+                if ($vehicle){
+                    $vehicle->name = $validated['name'] ?? $vehicle->name;
+                    $vehicle->plate_number = $validated['plate_number'] ?? $vehicle->plate_number;
+                    $vehicle->color = $validated['color'] ?? $vehicle->color;
+                    $vehicle->model = $validated['model'] ?? $vehicle->model;
+                    $vehicle->type = $validated['type'] ?? $vehicle->type;
+                    $vehicle->partner_id = $id ?? $vehicle->partner_id; //auth()->user()->id;
+                    $vehicle->save();
+
+                    return $this->success(false, "vehicle updated", $vehicle, 200);
+                }else{
+                    return $this->error(true, "vehicle doesn't exists", 400);
+                }
             }
         }catch(Exception $e){
             return $this->error(true, "Error updating vehicle", 400);
