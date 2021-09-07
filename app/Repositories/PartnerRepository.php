@@ -1104,11 +1104,12 @@ class PartnerRepository implements PartnerRepositoryInterface{
     public function fundWallet($request){
         try{
 
-            $partner = Partner::where('id', auth()->user()->id)->first();
-            $partner->wallet = $partner->wallet + $request['amount'];
-            $partner->save();
+
 
             if ($request['trans_status'] == 'success'){
+                $partner = Partner::where('id', auth()->user()->id)->first();
+                $partner->wallet = $partner->wallet + $request['amount'];
+                $partner->save();
                 //wallet history
                 $this->walletLogs('wallet', "You added ".$request['amount']." to your wallet", auth()->user()->id, 'partner');
                 //trnasaction history
@@ -1139,10 +1140,10 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 'trans_description' => 'required',
                 'datetime' => 'required',
                 'trans_status' => 'required',
-                'order_id' => 'string',
+
                 'reference_num' => 'required',
 
-
+                'subscription_id' => 'string',
                 'type' => 'required',
                 'status' => 'required',
 
@@ -1151,15 +1152,94 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 'origin_of_payment' => 'required',
                 'paystack_message' => 'required'
             ]);
-
+            $partner = Partner::find(auth()->user()->id);
 
             if ($validated['type'] == 'subscriptionWithCard'){
                 //code...
-                $log = $this->paymentLog($request);
 
-                return $log;
-            }else if ($validated['type'] == 'fundWallet'){
-                    $log =  $this->fundWallet($validated);
+                $partner = Partner::find(auth()->user()->id);
+                if ($validated['trans_status'] == 'success'){
+                    $subs = Subscription::find($validated['subscription_id']);
+                    if ($subs){
+                        $partner->subscription_id = $validated['subscription_id'];
+                        $partner->subscription_expiry_date = Carbon::now()->addDays(30);
+                        $partner->subscription_date = Carbon::now();
+                        $partner->subscription_status = 'paid';
+                        $partner->save();
+                    }
+
+                    //log transactions
+                    //$this->transactionLog('Delivery Fees', $validated['customer_name']." paid for an order", (int)$dropoff->price , auth()->user()->id, 'user');
+                    //$this->walletLogs('wallet', $validated['amount']." was paid from your card for a job", auth()->user()->id, 'user');
+
+                    $log = $this->paymentLog($validated);
+
+                    return $log;
+
+
+
+                }
+
+
+            }else if ($validated['type'] == 'subscriptionWithWallet'){
+                $subs = Subscription::find($validated['subscription_id']);
+                if ($subs){
+                    if ($partner->wallet > $subs->price){
+                        $partner->wallet = $partner->wallet - $subs->price;
+
+                        $partner->subscription_id = $validated['subscription_id'];
+                        $partner->subscription_expiry_date = Carbon::now()->addDays(30);
+                        $partner->subscription_date = Carbon::now();
+                        $partner->subscription_status = 'paid';
+                        $partner->save();
+
+                        $log = $this->paymentLog($validated);
+
+                        return $log;
+                    }else{
+                        return $this->error(true, "Partner doesn't have enough funds in her wallet", 400);
+                    }
+                }
+            }
+            else if ($validated['type'] == 'fundWallet'){
+                $log =  $this->fundWallet($validated);
+            }
+            else if ($validated['type'] == 'topPartnerwithCard'){
+
+                if ($validated['trans_status'] == 'success'){
+
+                        $partner->is_top_partner = true;
+                        $partner->top_partner_expiry_date = Carbon::now()->addDays(30);
+                        $partner->save();
+
+
+                    //log transactions
+                    //$this->transactionLog('Delivery Fees', $validated['customer_name']." paid for an order", (int)$dropoff->price , auth()->user()->id, 'user');
+                    //$this->walletLogs('wallet', $validated['amount']." was paid from your card for a job", auth()->user()->id, 'user');
+
+                    $log = $this->paymentLog($validated);
+
+                    return $log;
+
+                }
+            }
+            else if ($validated['type'] == 'topPartnerwithWallet'){
+                if ($validated['trans_status'] == 'success'){
+                    $toppartnerPrice = (int)$validated['amount'];
+                    if ($partner->wallet > $toppartnerPrice){
+
+                        $partner->wallet = $partner->wallet - $toppartnerPrice;
+                        $partner->is_top_partner = true;
+                        $partner->top_partner_expiry_date = Carbon::now()->addDays(30);
+                        $partner->save();
+
+                        $log = $this->paymentLog($validated);
+
+                        return $log;
+                    }else{
+                        return $this->error(true, "Partner doesn't have enough funds in her wallet", 400);
+                    }
+                }
             }else{
                 return $this->error(true, "The transaction type is unknown!", 400);
             }
