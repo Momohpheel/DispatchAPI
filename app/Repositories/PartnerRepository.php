@@ -10,6 +10,7 @@ use App\Models\History;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Order;
+use App\Models\User;
 use App\Models\routeCosting as RouteCosting;
 use App\Models\DropOff;
 use App\Models\Vehicle;
