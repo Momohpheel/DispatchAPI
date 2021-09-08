@@ -745,8 +745,8 @@ class PartnerRepository implements PartnerRepositoryInterface{
             ]);
 
             $route_costing = new RouteCosting;
-            $route_costing->base_fare = $validated['fuel_cost'];
-            $route_costing->cost_perkm = $validated['bike_fund'];
+            $route_costing->base_fare = $validated['base_fare'];
+            $route_costing->cost_perkm = $validated['cost_perkm'];
             $route_costing->express = $validated['express'];
             $route_costing->partner_id = auth()->user()->id;
             $route_costing->save();
@@ -767,8 +767,8 @@ class PartnerRepository implements PartnerRepositoryInterface{
             ]);
             $partner_id = auth()->user()->id;
             $route_costing = RouteCosting::where('id', $id)->where('partner_id', $partner_id)->first();
-            $route_costing->base_fare = $validated['fuel_cost'] ?? $route_costing->fuel_cost;
-            $route_costing->cost_perkm = $validated['bike_fund'] ?? $route_costing->bike_fund;
+            $route_costing->base_fare = $validated['base_fare'] ?? $route_costing->base_fare;
+            $route_costing->cost_perkm = $validated['cost_perkm'] ?? $route_costing->cost_perkm;
             $route_costing->express = $validated['express'] ?? $route_costing->express;
             $route_costing->partner_id = auth()->user()->id;
             $route_costing->save();
