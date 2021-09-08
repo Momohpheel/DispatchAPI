@@ -1183,6 +1183,7 @@ class UserRepository implements UserRepositoryInterface{
                             //dropoff payment-status change to paid if true
                             $job = Dropoff::where('id', $dropoff->id)->first();
                             $job->payment_status = 'paid';
+                            $job->payment_type = 'card';
                             $job->save();
 
                             $this->transactionLog('Delivery Fees', $validated['customer_name']." paid for an order", (int)$dropoff->price , auth()->user()->id, 'user');
@@ -1238,6 +1239,7 @@ class UserRepository implements UserRepositoryInterface{
                                 //dropoff payment-status change to paid if true
                                 $job = Dropoff::where('id', $dropoff->id)->first();
                                 $job->payment_status = 'paid';
+                                $job->payment_type = 'card';
                                 $job->save();
 
                                 $this->transactionLog('Delivery Fees', $validated['customer_name']." paid for an order", $dropoff->price , auth()->user()->id, 'user');
@@ -1257,14 +1259,57 @@ class UserRepository implements UserRepositoryInterface{
                         $log = $this->paymentLog($validated);
 
 
-                    }else{
-                        return $this->error(true, "User doesn't have enough in his wallet!", 400);
                     }
+                }else if ($validated['type'] == 'payOrderwithCash'){
+                        $orders = Order::with('dropoff')->where('id', intval($validated['order_id']))->where('user_id', auth()->user()->id)->first();
+                        $user = User::find(auth()->user()->id);
+                        if ($validated['trans_status'] == 'success'){
+
+                            $partner = Partner::where('id',$orders->partner_id)->first();
+                            $partner->wallet = $partner->wallet + $validated['amount'];
+                            $partner->save();
+                            //increase partner's earninigs/wallet
+                            // foreach ($orders as $order){
 
 
-            }else{
-                return $this->error(true, "The transaction type is unknown!", 400);
-            }
+                                foreach ($orders->dropoff as $dropoff){
+                                    //increase rider and vehicle earnings
+                                    $rider = Rider::with('vehicle')->where('id', $dropoff->rider_id)->first();
+                                    $rider->earning = $rider->earning + $dropoff->price;
+                                    $rider->save();
+
+                                    $vehicle = Vehicle::find($rider->vehicle->id);
+                                    $vehicle->earning = $vehicle->earning +  $dropoff->price;
+                                    $vehicle->save();
+
+
+                                    //dropoff payment-status change to paid if true
+                                    $job = Dropoff::where('id', $dropoff->id)->first();
+                                    $job->payment_status = 'paid';
+                                    $job->payment_type = 'cash';
+                                    $job->save();
+
+                                    $this->transactionLog('Delivery Fees', $validated['customer_name']." paid for an order", (int)$dropoff->price , auth()->user()->id, 'user');
+                                }
+
+
+
+
+                            }
+
+                             //wallet history
+                             $this->walletLogs('wallet', $validated['amount']." was paid from with cash for a job", auth()->user()->id, 'user');
+                             //trnasaction history
+                             //$this->transactionLog('Delivery Fees', $validated['customer_name']." paid for an order", $request['amount'] , auth()->user()->id, 'user');
+                             //user history
+                            $log = $this->paymentLog($validated);
+
+
+
+
+                    }else{
+                        return $this->error(true, "The transaction type is unknown!", 400);
+                    }
 
 
 
