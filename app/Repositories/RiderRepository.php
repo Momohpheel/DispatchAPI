@@ -266,7 +266,7 @@ class RiderRepository implements RiderRepositoryInterface{
         try{
 
             //$rider = Rider::find(auth()->user()->id);
-            $orders = Dropoff::where('rider_id', auth()->user()->id)->where('payment_status', 'paid')->get();
+            $orders = Dropoff::with('order')->where('rider_id', auth()->user()->id)->where('payment_status', 'paid')->get();
             $data = [];
 
 
@@ -275,8 +275,10 @@ class RiderRepository implements RiderRepositoryInterface{
                     foreach ($orders as $order){
 
                             if ($order->status == 'pending'){
-
-                                $order['dropoff'] = $this->getOneDropoff($order->id);
+                                $id = $order->order->user_id;
+                                $user = User::find($id);
+                                $order['user'] = $user;
+                                //$order['dropoff'] = $this->getOneDropoff($order->id);
                                 // $order = Order::find($dro->id);
                                 // $dro['order'] = $order;
 
@@ -291,7 +293,10 @@ class RiderRepository implements RiderRepositoryInterface{
                     foreach ($orders as $order){
 
                             if ($order->status == 'delivered'){
-                                $order['dropoff'] = $this->getOneDropoff($order->id);
+                                $id = $order->order->user_id;
+                                $user = User::find($id);
+                                $order['user'] = $user;
+                                //$order['dropoff'] = $this->getOneDropoff($order->id);
                                 array_push($data, $order);
                             }
 
@@ -302,7 +307,10 @@ class RiderRepository implements RiderRepositoryInterface{
                 case 'pickedup':
                     foreach ($orders as $order){
                         if ($order->status == 'picked'){
-                            $order['dropoff'] = $this->getOneDropoff($order->id);
+                            $id = $order->order->user_id;
+                                $user = User::find($id);
+                                $order['user'] = $user;
+                            //$order['dropoff'] = $this->getOneDropoff($order->id);
                             array_push($data, $order);
                         }
                     }
