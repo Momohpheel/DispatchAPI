@@ -686,7 +686,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                         $order->rider_id = $validated['rider_id'];
                         $order->save();
 
-                        return $this->success(false, false,"Order has been successfully assigned to ". $rider->name, $order, 200);
+                        return $this->success(false,"Order has been successfully assigned to ". $rider->name, $order, 200);
                     }else{
                         return $this->error(true, "Order is ".$order->status, 400);
                     }
