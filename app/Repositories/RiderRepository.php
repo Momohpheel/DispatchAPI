@@ -86,7 +86,7 @@ class RiderRepository implements RiderRepositoryInterface{
             return $this->error(true, "Error getting rider profile", 400);
         }
     }
-    public function start_order(Request $request, $id){
+    public function start_order($id){
         try{
             $order = DropOff::where('id', $id)->where('rider_id', auth()->user()->id)->where('payment_status', 'paid')->first();
            if ($order){
