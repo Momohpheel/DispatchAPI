@@ -21,8 +21,8 @@ class RiderController extends Controller
         return $this->repository->login($request);
     }
 
-    public function start_order(Request $request, $id){
-        return $this->repository->start_order($request, $id);
+    public function start_order($id){
+        return $this->repository->start_order($id);
     }
 
     public function getOrders(Request $request){

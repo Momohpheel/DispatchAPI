@@ -93,8 +93,8 @@ class RiderRepository implements RiderRepositoryInterface{
 
             $order->start_time = now();
             $order->save();
-            return $this->success(false, "Rider has initiated order", $order, 200);
 
+            return true;
            } else{
                return $this->error(true, "it's either this order doesn't exist or no payment has been made", 400);
            }
@@ -108,7 +108,9 @@ class RiderRepository implements RiderRepositoryInterface{
             $order = DropOff::where('id', $id)->where('rider_id', auth()->user()->id)->first();
             $order->end_time = now();
             $order->save();
-            return $this->success(false, "Rider has completed order", $order, 200);
+
+            return true;
+            //return $this->success(false, "Rider has completed order", $order, 200);
         }catch(Exception $e){
             return $this->error(true, "Error" ,400);
         }
@@ -122,8 +124,18 @@ class RiderRepository implements RiderRepositoryInterface{
             ]);
 
             $dropoff = Dropoff::where('id', $id)->where('rider_id', auth()->user()->id)->where('payment_status', 'paid')->first();
-            $dropoff->status = $validated['status'];
-            $dropoff->save();
+            if ($validated['status'] == 'picked'){
+                $check = $this->start_order($id);
+            }else if  ($validated['status'] == 'delivered'){
+                $check = $this->end_order($id);
+            }else{
+                return $this->error(true, "Wrong status", 400);
+            }
+
+            if ($check){
+                $dropoff->status = $validated['status'];
+                $dropoff->save();
+            }
 
             return $this->success(false, "Dropoff status changed to ".$validated['status'] ,$dropoff, 200);
 

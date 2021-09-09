@@ -10,7 +10,7 @@ interface RiderRepositoryInterface{
 
     public function getProfile();
 
-    public function start_order(Request $request, $id);
+    public function start_order($id);
 
     public function end_order($id);
 

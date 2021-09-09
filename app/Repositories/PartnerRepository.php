@@ -678,7 +678,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
             ]);
 
             $order = DropOff::where('id', $validated['dropoff_id'])->where('partner_id', auth()->user()->id)->first();
-            $rider = Rider::where('id', $validated['rider_id'])->where('is_available', true)->where('partner_id', auth()->user()->id)->first();
+            $rider = Rider::with('vehicle')->where('id', $validated['rider_id'])->where('is_available', true)->where('partner_id', auth()->user()->id)->first();
             if ($order){
 
                 if ($rider->vehicle->type == $order->vehicle_type){
