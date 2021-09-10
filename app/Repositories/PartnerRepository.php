@@ -1046,7 +1046,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                             if ($order->status == 'pending'){
                                 $rider = Rider::find($order->rider_id);
                                 $r_order = Order::find($order->order_id);
-                                $user = User::find($r_order['user_id']);
+                                $user = User::find($r_order['partner_id']);
 
                                 $order['rider'] = $rider;
                                 $order['order'] = $r_order;
