@@ -157,7 +157,9 @@ class PartnerController extends Controller
     public function getOrderByStatus($status){
         return $this->repository->getOrderByStatus($status);
     }
-
+    public function pendingOrders(){
+        return $this->repository->pendingOrders();
+    }
 
     public function getOrderbyVehicle($id){
         return $this->repository->getOrderbyVehicle($id);

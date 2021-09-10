@@ -27,6 +27,7 @@ interface PartnerRepositoryInterface{
     public function disableVehicle($id);
 
     public function getVehicles();
+    public function pendingOrders();
 
     public function getVehicle($id);
 

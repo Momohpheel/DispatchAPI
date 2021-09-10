@@ -135,7 +135,7 @@ use Illuminate\Support\Facades\Route;
                 Route::get('/all', [App\Http\Controllers\PartnerController::class, 'getOrders']);
                 Route::get('/{id}', [App\Http\Controllers\PartnerController::class, 'getOneOrder']);
                 Route::get('/status/{status}', [App\Http\Controllers\PartnerController::class, 'getOrderByStatus']);
-
+                Route::get('/pending', [App\Http\Controllers\PartnerController::class, 'pendingOrders']);
             });
 
             Route::prefix('route')->group(function () {

@@ -1030,6 +1030,10 @@ class PartnerRepository implements PartnerRepositoryInterface{
         }
     }
 
+    public function pendingOrders(){
+        $orders = Dropoff::where('partner_id', auth()->user()->id)->where('status', 'pending')->get();
+        return $this->success(false, "Pending Orders", $orders, 200);
+    }
     public function getOrderByStatus($status){
 
         try{
