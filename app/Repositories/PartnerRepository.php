@@ -1046,12 +1046,12 @@ class PartnerRepository implements PartnerRepositoryInterface{
                             if ($order->status == 'pending'){
                                 $rider = Rider::find($order->rider_id);
                                 $r_order = Order::find($order->order_id);
-                                //$user = User::find($r_order->user_id);
+                                $user = User::find($r_order->user_id);
 
                                 $order['rider'] = $rider;
                                 $order['order'] = $r_order;
-                                //$order['user'] = $user;
-                                return $r_order->user_id;
+                                $order['user'] = $user;
+
                                 //$order['dropoff'] = $this->getOneDropoff($order->id);
                                 array_push($data, $order);
                             }
