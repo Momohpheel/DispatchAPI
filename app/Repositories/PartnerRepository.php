@@ -1044,7 +1044,15 @@ class PartnerRepository implements PartnerRepositoryInterface{
                     foreach ($orders as $order){
                         // foreach ($order->dropoff as $dro){
                             if ($order->status == 'pending'){
-                                $order['dropoff'] = $this->getOneDropoff($order->id);
+                                $rider = Rider::find($order->rider_id);
+                                $r_order = Order::find($order->order_id);
+                                $user = User::find($r_order->user_id);
+
+                                $order['rider'] = $rider;
+                                $order['order'] = $r_order;
+                                $order['user'] = $user;
+
+                                //$order['dropoff'] = $this->getOneDropoff($order->id);
                                 array_push($data, $order);
                             }
                         //}
