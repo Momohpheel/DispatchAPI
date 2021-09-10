@@ -1055,7 +1055,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                     foreach ($orders as $order){
                         $userId = $order->order->user_id ?? null;
                         $user = User::where('id', $userId)->first() ?? null;
-                            $orders['user'] = $user;
+                            $order['user'] = $user;
                     }
                     return $this->success(false, "Pending Orders", $orders, 200);
                     // foreach ($orders as $order){
@@ -1078,36 +1078,27 @@ class PartnerRepository implements PartnerRepositoryInterface{
                     // return $this->success(false, "Pending Orders", $data, 200);
                 case 'delivered':
                     foreach ($orders as $order){
-                        //foreach ($order->dropoff as $dro){
                             if ($order->status == 'delivered'){
-                                // $rider = Rider::find($order->rider_id);
-                                // $r_order = Order::find($order->order_id);
-                                // $vehicle = Vehicle::find($order['vehicle_id']);
                                 $user = User::find($order->order->user_id);
 
                                 $order['user'] = $user;
-                                //$order['dropoff'] = $this->getOneDropoff($order->id);
                                 array_push($data, $order);
                             }
-                        //}
+
                     }
 
                     return $this->success(false, "Delivered Orders", $data, 200);
 
                 case 'pickedup':
                     foreach ($orders as $order){
-                        //foreach ($order->dropoff as $dro){
-                            if ($order->status == 'picked'){
-                                // $rider = Rider::find($order->rider_id);
-                                // $r_order = Order::find($order->order_id);
-                                // $vehicle = Vehicle::find($order['vehicle_id']);
-                                $user = User::find($order->order->user_id);
 
+                            if ($order->status == 'picked'){
+                                $user = User::find($order->order->user_id);
                                 $order['user'] = $user;
-                                //$order['dropoff'] = $this->getOneDropoff($order->id);
+
                                 array_push($data, $order);
                             }
-                        //}
+
                     }
 
                     return $this->success(false, "Picked-Up Orders", $data, 200);
