@@ -1045,7 +1045,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
         try{
 
 
-            $orders = Dropoff::where('partner_id', auth()->user()->id)->get();
+            $orders = Dropoff::with(['order', 'rider', 'vehicle'])->where('partner_id', auth()->user()->id)->get();
             $data = [];
 
 
