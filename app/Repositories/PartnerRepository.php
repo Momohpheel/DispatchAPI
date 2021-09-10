@@ -1031,7 +1031,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
     }
 
     public function pendingOrders(){
-        $orders = Dropoff::with(['order', 'rider', 'vehicle'])->where('partner_id', auth()->user()->id)->where('status', 'pending')->paginate(10)->get();
+        $orders = Dropoff::with(['order', 'rider', 'vehicle'])->where('partner_id', auth()->user()->id)->where('status', 'pending')->paginate(10);
         foreach ($orders as $order){
             $userId = $order->order->user_id ?? null;
             $user = User::where('id', $userId)->first() ?? null;
@@ -1039,6 +1039,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
         }
         return $this->success(false, "Pending Orders", $orders, 200);
     }
+
     public function getOrderByStatus($status){
 
         try{
@@ -1050,32 +1051,39 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
             switch($status){
                 case 'pending':
+                    $orders = Dropoff::with(['order', 'rider', 'vehicle'])->where('partner_id', auth()->user()->id)->where('status', 'pending')->paginate(10);
                     foreach ($orders as $order){
-                        // foreach ($order->dropoff as $dro){
-                            if ($order->status == 'pending'){
-                                $rider = Rider::find($order->rider_id);
-                                $r_order = Order::find($order->order_id);
-                                $vehicle = Vehicle::find($order['vehicle_id']);
-
-                                $order['rider'] = $rider;
-                                $order['order'] = $r_order;
-                                $order['vehicle'] = $vehicle;
-
-                                //$order['dropoff'] = $this->getOneDropoff($order->id);
-                                array_push($data, $order);
-                            }
-                        //}
+                        $userId = $order->order->user_id ?? null;
+                        $user = User::where('id', $userId)->first() ?? null;
+                            $orders['user'] = $user;
                     }
+                    return $this->success(false, "Pending Orders", $orders, 200);
+                    // foreach ($orders as $order){
+                    //     // foreach ($order->dropoff as $dro){
+                    //         if ($order->status == 'pending'){
+                    //             $rider = Rider::find($order->rider_id);
+                    //             $r_order = Order::find($order->order_id);
+                    //             $vehicle = Vehicle::find($order['vehicle_id']);
 
-                    return $this->success(false, "Pending Orders", $data, 200);
+                    //             $order['rider'] = $rider;
+                    //             $order['order'] = $r_order;
+                    //             $order['vehicle'] = $vehicle;
+
+                    //             //$order['dropoff'] = $this->getOneDropoff($order->id);
+                    //             array_push($data, $order);
+                    //         }
+                    //     //}
+                    // }
+
+                    // return $this->success(false, "Pending Orders", $data, 200);
                 case 'delivered':
                     foreach ($orders as $order){
                         //foreach ($order->dropoff as $dro){
                             if ($order->status == 'delivered'){
-                                $rider = Rider::find($order->rider_id);
-                                $r_order = Order::find($order->order_id);
-                                $vehicle = Vehicle::find($order['vehicle_id']);
-                                $user = User::find($r_order->user_id);
+                                // $rider = Rider::find($order->rider_id);
+                                // $r_order = Order::find($order->order_id);
+                                // $vehicle = Vehicle::find($order['vehicle_id']);
+                                $user = User::find($order->order->user_id);
                                 $order['rider'] = $rider;
                                 $order['order'] = $r_order;
                                 $order['vehicle'] = $vehicle;
@@ -1092,10 +1100,10 @@ class PartnerRepository implements PartnerRepositoryInterface{
                     foreach ($orders as $order){
                         //foreach ($order->dropoff as $dro){
                             if ($order->status == 'picked'){
-                                $rider = Rider::find($order->rider_id);
-                                $r_order = Order::find($order->order_id);
-                                $vehicle = Vehicle::find($order['vehicle_id']);
-                                $user = User::find($r_order->user_id);
+                                // $rider = Rider::find($order->rider_id);
+                                // $r_order = Order::find($order->order_id);
+                                // $vehicle = Vehicle::find($order['vehicle_id']);
+                                $user = User::find($order->order->user_id);
                                 $order['rider'] = $rider;
                                 $order['order'] = $r_order;
                                 $order['vehicle'] = $vehicle;
