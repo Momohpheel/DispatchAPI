@@ -1051,7 +1051,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                                 $order['rider'] = $rider;
                                 $order['order'] = $r_order;
                                 //$order['user'] = $user;
-
+                                return $r_order->user_id;
                                 //$order['dropoff'] = $this->getOneDropoff($order->id);
                                 array_push($data, $order);
                             }
