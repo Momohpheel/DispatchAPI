@@ -1042,35 +1042,35 @@ class PartnerRepository implements PartnerRepositoryInterface{
             switch($status){
                 case 'pending':
                     foreach ($orders as $order){
-                        foreach ($order->dropoff as $dro){
-                            if ($dro->status == 'pending'){
-                                $dro['dropoff'] = $this->getOneDropoff($dro->id);
-                                array_push($data, $dro);
+                        // foreach ($order->dropoff as $dro){
+                            if ($order->status == 'pending'){
+                                $order['dropoff'] = $this->getOneDropoff($dro->id);
+                                array_push($data, $order);
                             }
-                        }
+                        //}
                     }
 
                     return $this->success(false, "Pending Orders", $data, 200);
                 case 'delivered':
                     foreach ($orders as $order){
-                        foreach ($order->dropoff as $dro){
-                            if ($dro->status == 'delivered'){
-                                $dro['dropoff'] = $this->getOneDropoff($dro->id);
-                                array_push($data, $dro);
+                        //foreach ($order->dropoff as $dro){
+                            if ($order->status == 'delivered'){
+                                $order['dropoff'] = $this->getOneDropoff($dro->id);
+                                array_push($data, $order);
                             }
-                        }
+                        //}
                     }
 
                     return $this->success(false, "Delivered Orders", $data, 200);
 
                 case 'pickedup':
                     foreach ($orders as $order){
-                        foreach ($order->dropoff as $dro){
-                            if ($dro->status == 'picked'){
-                                $dro['dropoff'] = $this->getOneDropoff($dro->id);
-                                array_push($data, $dro);
+                        //foreach ($order->dropoff as $dro){
+                            if ($order->status == 'picked'){
+                                $order['dropoff'] = $this->getOneDropoff($dro->id);
+                                array_push($data, $order);
                             }
-                        }
+                        //}
                     }
 
                     return $this->success(false, "Picked-Up Orders", $data, 200);
