@@ -1031,7 +1031,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
     }
 
     public function pendingOrders(){
-        $orders = Dropoff::with(['order', 'rider', 'vehicle'])->where('partner_id', auth()->user()->id)->where('status', 'pending')->paginate(10);
+        $orders = Dropoff::with(['order', 'rider', 'vehicle'])->where('partner_id', auth()->user()->id)->where('status', 'pending')->get();
         foreach ($orders as $order){
             $userId = $order->order->user_id ?? null;
             $user = User::where('id', $userId)->first() ?? null;
