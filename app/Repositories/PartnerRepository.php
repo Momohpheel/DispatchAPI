@@ -1044,7 +1044,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                     foreach ($orders as $order){
                         // foreach ($order->dropoff as $dro){
                             if ($order->status == 'pending'){
-                                $order['dropoff'] = $this->getOneDropoff($dro->id);
+                                $order['dropoff'] = $this->getOneDropoff($order->id);
                                 array_push($data, $order);
                             }
                         //}
@@ -1055,7 +1055,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                     foreach ($orders as $order){
                         //foreach ($order->dropoff as $dro){
                             if ($order->status == 'delivered'){
-                                $order['dropoff'] = $this->getOneDropoff($dro->id);
+                                $order['dropoff'] = $this->getOneDropoff($order->id);
                                 array_push($data, $order);
                             }
                         //}
@@ -1067,7 +1067,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                     foreach ($orders as $order){
                         //foreach ($order->dropoff as $dro){
                             if ($order->status == 'picked'){
-                                $order['dropoff'] = $this->getOneDropoff($dro->id);
+                                $order['dropoff'] = $this->getOneDropoff($order->id);
                                 array_push($data, $order);
                             }
                         //}
