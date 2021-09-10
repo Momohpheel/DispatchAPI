@@ -1084,9 +1084,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                                 // $r_order = Order::find($order->order_id);
                                 // $vehicle = Vehicle::find($order['vehicle_id']);
                                 $user = User::find($order->order->user_id);
-                                $order['rider'] = $rider;
-                                $order['order'] = $r_order;
-                                $order['vehicle'] = $vehicle;
+
                                 $order['user'] = $user;
                                 //$order['dropoff'] = $this->getOneDropoff($order->id);
                                 array_push($data, $order);
@@ -1104,9 +1102,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                                 // $r_order = Order::find($order->order_id);
                                 // $vehicle = Vehicle::find($order['vehicle_id']);
                                 $user = User::find($order->order->user_id);
-                                $order['rider'] = $rider;
-                                $order['order'] = $r_order;
-                                $order['vehicle'] = $vehicle;
+
                                 $order['user'] = $user;
                                 //$order['dropoff'] = $this->getOneDropoff($order->id);
                                 array_push($data, $order);
