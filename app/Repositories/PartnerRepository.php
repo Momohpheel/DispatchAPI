@@ -1035,50 +1035,52 @@ class PartnerRepository implements PartnerRepositoryInterface{
         try{
 
 
-            $orders = Dropoff::where('partner_id', auth()->user()->id)->get();
+            $orders = Order::with(['dropoff', 'user'])->where('partner_id', auth()->user()->id)->get();
             $data = [];
 
 
             switch($status){
                 case 'pending':
                     foreach ($orders as $order){
-                        // foreach ($order->dropoff as $dro){
-                            if ($order->status == 'pending'){
-                                $rider = Rider::find($order->rider_id);
-                                $r_order = Order::find($order->order_id);
-                                $user = User::find($r_order['partner_id']);
+                        foreach ($order->dropoff as $dro){
+                            if ($dro->status == 'pending'){
+                                $rider = Rider::find($dro->rider_id);
+                                $r_order = Order::find($dro->order_id);
+                                $vehicle = Vehicle::find($dro->vehicle_id);
+                                $user = $order->user;
 
-                                $order['rider'] = $rider;
-                                $order['order'] = $r_order;
-                                $order['user'] = $user;
+                                $dro['rider'] = $rider;
+                                $dro['order'] = $r_order;
+                               $dro['vehicle'] = $vehicle;
+                               $dro['user'] = $user;
 
                                 //$order['dropoff'] = $this->getOneDropoff($order->id);
-                                array_push($data, $order);
+                                array_push($data, $dro);
                             }
-                        //}
+                        }
                     }
 
                     return $this->success(false, "Pending Orders", $data, 200);
                 case 'delivered':
                     foreach ($orders as $order){
-                        //foreach ($order->dropoff as $dro){
-                            if ($order->status == 'delivered'){
-                                $order['dropoff'] = $this->getOneDropoff($order->id);
-                                array_push($data, $order);
+                        foreach ($order->dropoff as $dro){
+                            if ($dro->status == 'delivered'){
+                                $dro['dropoff'] = $this->getOneDropoff($dro->id);
+                                array_push($data, $dro);
                             }
-                        //}
+                        }
                     }
 
                     return $this->success(false, "Delivered Orders", $data, 200);
 
                 case 'pickedup':
                     foreach ($orders as $order){
-                        //foreach ($order->dropoff as $dro){
-                            if ($order->status == 'picked'){
-                                $order['dropoff'] = $this->getOneDropoff($order->id);
-                                array_push($data, $order);
+                        foreach ($order->dropoff as $dro){
+                            if ($dro->status == 'picked'){
+                                $dro['dropoff'] = $this->getOneDropoff($dro->id);
+                                array_push($data, $dro);
                             }
-                        //}
+                        }
                     }
 
                     return $this->success(false, "Picked-Up Orders", $data, 200);
