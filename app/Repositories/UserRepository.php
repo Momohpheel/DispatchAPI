@@ -1337,6 +1337,7 @@ class UserRepository implements UserRepositoryInterface{
         $payment->amount = $validated['amount'];
         $payment->origin_of_payment = $validated['origin_of_payment'];
         $payment->paystack_message = $validated['paystack_message'] ?? null;
+        $payment->user_id = auth()->user()->id;
         $payment->save();
 
         return $payment;

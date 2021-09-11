@@ -1058,24 +1058,6 @@ class PartnerRepository implements PartnerRepositoryInterface{
                             $order['user'] = $user;
                     }
                     return $this->success(false, "Pending Orders", $orders, 200);
-                    // foreach ($orders as $order){
-                    //     // foreach ($order->dropoff as $dro){
-                    //         if ($order->status == 'pending'){
-                    //             $rider = Rider::find($order->rider_id);
-                    //             $r_order = Order::find($order->order_id);
-                    //             $vehicle = Vehicle::find($order['vehicle_id']);
-
-                    //             $order['rider'] = $rider;
-                    //             $order['order'] = $r_order;
-                    //             $order['vehicle'] = $vehicle;
-
-                    //             //$order['dropoff'] = $this->getOneDropoff($order->id);
-                    //             array_push($data, $order);
-                    //         }
-                    //     //}
-                    // }
-
-                    // return $this->success(false, "Pending Orders", $data, 200);
                 case 'delivered':
                     foreach ($orders as $order){
                             if ($order->status == 'delivered'){
@@ -1139,10 +1121,11 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 $partner = Partner::where('id', auth()->user()->id)->first();
                 $partner->wallet = $partner->wallet + $request['amount'];
                 $partner->save();
+
                 //wallet history
-                $this->walletLogs('wallet', "You added ".$request['amount']." to your wallet", auth()->user()->id, 'partner');
+                $this->history('Fund Wallet', $partner->name." added ".$request['amount']." to her wallet", auth()->user()->id, 'partner');
                 //trnasaction history
-                $this->transactionLog('Funding Wallet', $partner->name. " added ".$request['amount']." to their wallet", $request['amount'] ,auth()->user()->id, 'partner');
+                $this->transactionLog('Funding Wallet', $partner->name. " added ".$request['amount']." to her wallet", $request['amount'] ,auth()->user()->id, 'partner');
                 //user history
 
                 $log = $this->paymentLog($request);
@@ -1169,17 +1152,17 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 'trans_description' => 'required',
                 'datetime' => 'required',
                 'trans_status' => 'required',
+                'order_id' => 'string',
+                'reference_num' => 'string',
 
-                'reference_num' => 'required',
 
-                'subscription_id' => 'string',
                 'type' => 'required',
                 'status' => 'required',
 
 
                 'amount' => 'required',
                 'origin_of_payment' => 'required',
-                'paystack_message' => 'required'
+                'paystack_message' => 'string'
             ]);
             $partner = Partner::find(auth()->user()->id);
 
@@ -1197,11 +1180,12 @@ class PartnerRepository implements PartnerRepositoryInterface{
                         $partner->save();
                     }
 
-                    //log transactions
-                    //$this->transactionLog('Delivery Fees', $validated['customer_name']." paid for an order", (int)$dropoff->price , auth()->user()->id, 'user');
-                    //$this->walletLogs('wallet', $validated['amount']." was paid from your card for a job", auth()->user()->id, 'user');
 
                     $log = $this->paymentLog($validated);
+
+                    //log transactions
+                    $this->transactionLog('Subscription', $validated['customer_name']." subscribed to ".$subs->name." plan", (int)$validated['amount'] , auth()->user()->id, 'partner');
+                    $this->history('Subscription', $validated['amount']." was paid from partner card for a subscription to". $subs->name." plan", auth()->user()->id, 'partner');
 
                     return $log;
 
@@ -1223,6 +1207,9 @@ class PartnerRepository implements PartnerRepositoryInterface{
                         $partner->save();
 
                         $log = $this->paymentLog($validated);
+
+                        $this->transactionLog('Subscription', $validated['customer_name']." subscribed to ".$subs->name." plan", (int)$validated['amount'] , auth()->user()->id, 'partner');
+                        $this->history('Subscription', $validated['amount']." was paid from partner wallet for a subscription to". $subs->name." plan", auth()->user()->id, 'partner');
 
                         return $log;
                     }else{
@@ -1247,6 +1234,9 @@ class PartnerRepository implements PartnerRepositoryInterface{
                     //$this->walletLogs('wallet', $validated['amount']." was paid from your card for a job", auth()->user()->id, 'user');
 
                     $log = $this->paymentLog($validated);
+                    $this->transactionLog('Top Partner', $partner->name." paid to be a Top Partner", (int)$validated['amount'] , auth()->user()->id, 'partner');
+                    $this->history('Top Partner', $validated['amount']." was paid from partner card to be a Top Partner", auth()->user()->id, 'partner');
+
 
                     return $log;
 
@@ -1263,6 +1253,8 @@ class PartnerRepository implements PartnerRepositoryInterface{
                         $partner->save();
 
                         $log = $this->paymentLog($validated);
+                        $this->transactionLog('Top Partner', $partner->name." paid to be a Top Partner", (int)$validated['amount'] , auth()->user()->id, 'partner');
+                        $this->history('Top Partner', $validated['amount']." was paid from partner wallet to be a Top Partner", auth()->user()->id, 'partner');
 
                         return $log;
                     }else{
@@ -1299,6 +1291,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
         $payment->amount = $validated['amount'];
         $payment->origin_of_payment = $validated['origin_of_payment'];
         $payment->paystack_message = $validated['paystack_message'];
+        $payment->partner_id = auth()->user()->id;
         $payment->save();
 
         return $payment;
