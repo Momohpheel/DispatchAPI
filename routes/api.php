@@ -149,6 +149,7 @@ use Illuminate\Support\Facades\Route;
             Route::post('ophours/add', [App\Http\Controllers\PartnerController::class, 'addOperatingHours']);
             Route::post('ophours/update/{id}', [App\Http\Controllers\PartnerController::class, 'updateOperatingHours']);
 
+            Route::post('payment/log', [App\Http\Controllers\PartnerController::class, 'payment']);
         });
 
     });

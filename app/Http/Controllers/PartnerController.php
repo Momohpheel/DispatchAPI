@@ -169,4 +169,7 @@ class PartnerController extends Controller
         return $this->repository->dashboard();
     }
 
+    public function payment(Request $request){
+        return $this->repository->payment($request);
+    }
 }
