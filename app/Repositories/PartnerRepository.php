@@ -1112,6 +1112,14 @@ class PartnerRepository implements PartnerRepositoryInterface{
             }
     }
 
+    public function subscription(){
+        try{
+            $subs = Subscription::all();
+            return $this->success(false, "Subscriptions", $subs, 200);
+        }catch(Exception $e){
+            return $this->error(true, "Error occured!", 400);
+        }
+    }
 
     public function fundWallet($request){
         try{

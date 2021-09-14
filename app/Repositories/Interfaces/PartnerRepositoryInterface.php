@@ -87,4 +87,6 @@ interface PartnerRepositoryInterface{
 
     public function payment(Request $request);
 
+    public function subscription();
+
 }

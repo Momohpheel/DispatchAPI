@@ -172,4 +172,8 @@ class PartnerController extends Controller
     public function payment(Request $request){
         return $this->repository->payment($request);
     }
+
+    public function subscription(){
+        return $this->repository->subscription();
+    }
 }

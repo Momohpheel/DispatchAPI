@@ -96,6 +96,7 @@ use Illuminate\Support\Facades\Route;
 
         Route::post('forgot-password', [App\Http\Controllers\User\AuthController::class, 'forgotPassword']);
         Route::post('reset-password/{token}', [App\Http\Controllers\User\AuthController::class, 'resetPassword']);
+        Route::get('subscription', [App\Http\Controllers\PartnerController::class, 'subscription']);
 
 
         Route::middleware(['auth:partner'])->group(function () {
