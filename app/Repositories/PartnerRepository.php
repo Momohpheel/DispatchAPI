@@ -662,7 +662,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
     public function getRider($id){
         try{
             $rider = Rider::with(['partner', 'vehicle'])->where('is_available', true)->where('partner_id', auth()->user()->id)->first();
-            $orders = DropOff::with('order')->where('rider_id', $id)->where('partner_id', auth()->user()->id)->get();
+            $orders = DropOff::where('rider_id', $id)->where('partner_id', auth()->user()->id)->get();
 
             $pending = [];
             $delivered = [];
