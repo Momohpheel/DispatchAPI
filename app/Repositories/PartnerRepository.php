@@ -1308,6 +1308,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
     }
 
     public function getTransactionHistory(){
+
            try{
                 $transLogs = TransactionLogs::where('partner_id', auth()->user()->id)->get();
 
@@ -1316,5 +1317,57 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 return $this->error(true, "Error occured!", 400);
             }
         }
+
+
+    public function todaysEarnings(){
+        try{
+            $todays_earning = 0;
+            $now = Carbon::now()->addHour();
+            $dropoffs = Dropoff::where('partner_id', auth()->user()->id)->where('payment_status', 'paid')->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->get();
+
+        if (isset($dropoffs)){
+            foreach ($dropoffs as $dropoff){
+                $todays_earning = $dropoff + $todays_earning;
+            }
+
+            $partner = Partner::find(auth()->user()->id);
+
+            $sub = Subscription::find($partner->subscription_id);
+            $sub_name = $sub->name;
+
+            if ($sub_name == 'Free'){
+                    $payout_charge = (2.5/100) * $todays_earning;
+                    $payout = $todays_earning - $payout_charge;
+            }else if ($sub_name == 'Business') {
+                $payout_charge = (2/100) * $todays_earning;
+                $payout = $todays_earning - $payout_charge;
+            } else if ($sub_name == 'Premium') {
+                $payout_charge = (1.75/100) * $todays_earning;
+                $payout = $todays_earning - $payout_charge;
+            } else if ($sub_name == 'Enterprise'){
+                $payout_charge = (1.5/100) * $todays_earning;
+                $payout = $todays_earning - $payout_charge;
+            }else{
+                $payout = null;
+            }
+
+            $data = [
+                'earnings' => $todays_earning,
+                'payout' => $payout
+            ];
+
+            return $this->success(false, "Partner's earnings and payout", $data , 200);
+        }else{
+            $data = [
+                'earnings' => 0,
+                'payout' => 0
+            ];
+            return $this->success(false, "Partner's earnings and payout", $data , 200);
+        }
+
+        }catch(Exception $e){
+            return $this->error(true, "Error occured!", 400);
+        }
     }
 
+}
