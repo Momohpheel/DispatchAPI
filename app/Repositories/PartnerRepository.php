@@ -662,6 +662,29 @@ class PartnerRepository implements PartnerRepositoryInterface{
     public function getRider($id){
         try{
             $rider = Rider::with(['partner', 'vehicle'])->where('is_available', true)->where('partner_id', auth()->user()->id)->first();
+            $orders = DropOff::with('order')->where('rider_id', $id)->where('partner_id', auth()->user()->id)->get();
+
+            $pending = [];
+            $delivered = [];
+            $cancelled = [];
+
+            foreach ($orders as $order){
+                if ($order->status == 'pending'){
+                    array_push($pending, $order);
+                }
+                if ($order->status == 'delivered'){
+                    array_push($delivered, $order);
+                }
+                if ($order->status == 'cancelled'){
+                    array_push($cancelled, $order);
+                }
+            }
+
+            $rider['count'] = [
+                'pending' => count($pending),
+                'delivered' => count($delivered),
+                'cancelled' => count($cancelled),
+            ];
 
             return $this->success(false, "Rider", $rider, 200);
         }catch(Exception $e){
@@ -702,6 +725,24 @@ class PartnerRepository implements PartnerRepositoryInterface{
             return $this->error(true, "Error assigning order to rider", 400);
         }
     }
+
+    // public function ridersEarningByTime(){
+    //     try{
+    //         $todays_earning = 0;
+    //         $now = Carbon::now()->addHour();
+    //         $dropoffs = Dropoff::where('partner_id', auth()->user()->id)->where('payment_status', 'paid')->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->get();
+
+    //     if (isset($dropoffs)){
+    //         foreach ($dropoffs as $dropoff){
+    //             $todays_earning = $dropoff + $todays_earning;
+    //         }
+
+    //     }
+
+    //     }catch(Exception $e){
+    //         return $this->error(true, "Error occured!", 400);
+    //     }
+    // }
 
 
 
@@ -945,8 +986,10 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
                 $data = [
                     'partner' => $partner,
-                    'count' => $this->count() //pickedup, vehicle,pending, delivered,
+                    'count' => $this->count(),  //pickedup, vehicle,pending, delivered,
+                    'earnings' => $this->todaysEarnings()
                 ];
+
                 return $this->success(false, "Dashboard", $data, 200);
             }else{
                 return $this->error(true, "No Partner found", 400);
@@ -1356,13 +1399,15 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 'payout' => $payout
             ];
 
-            return $this->success(false, "Partner's earnings and payout", $data , 200);
+            return $data;
+            //return $this->success(false, "Partner's earnings and payout", $data , 200);
         }else{
             $data = [
                 'earnings' => 0,
                 'payout' => 0
             ];
-            return $this->success(false, "Partner's earnings and payout", $data , 200);
+            return $data;
+            //return $this->success(false, "Partner's earnings and payout", $data , 200);
         }
 
         }catch(Exception $e){

@@ -176,4 +176,8 @@ class PartnerController extends Controller
     public function subscription(){
         return $this->repository->subscription();
     }
+
+    public function todaysEarnings(){
+        return $this->repository->todaysEarnings();
+    }
 }

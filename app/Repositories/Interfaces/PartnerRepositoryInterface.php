@@ -89,4 +89,6 @@ interface PartnerRepositoryInterface{
 
     public function subscription();
 
+    public function todaysEarnings();
+
 }
