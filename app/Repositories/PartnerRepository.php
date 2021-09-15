@@ -1046,13 +1046,13 @@ class PartnerRepository implements PartnerRepositoryInterface{
         try{
 
 
-            $orders = Dropoff::with(['order', 'rider', 'vehicle'])->where('partner_id', auth()->user()->id)->get();
+            $orders = Dropoff::with(['order', 'rider', 'vehicle'])->where('partner_id', auth()->user()->id)->latest()->get();
             $data = [];
 
 
             switch($status){
                 case 'pending':
-                    $orders = Dropoff::with(['order', 'rider', 'vehicle'])->where('partner_id', auth()->user()->id)->where('status', 'pending')->paginate(10);
+                    $orders = Dropoff::with(['order', 'rider', 'vehicle'])->where('partner_id', auth()->user()->id)->where('status', 'pending')->latest()->paginate(10);
                     foreach ($orders as $order){
                         $userId = $order->order->user_id ?? null;
                         $user = User::where('id', $userId)->first() ?? null;
