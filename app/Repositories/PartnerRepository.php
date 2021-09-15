@@ -1370,7 +1370,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
         if (isset($dropoffs)){
             foreach ($dropoffs as $dropoff){
-                $todays_earning = $dropoff + $todays_earning;
+                $todays_earning = (int)$dropoff->price + $todays_earning;
             }
 
             $partner = Partner::find(auth()->user()->id);
