@@ -375,8 +375,8 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
             $partner = Partner::with('subscription')->where('id',auth()->user()->id)->first();
             $vehicles = Vehicle::where('partner_id', $partner->id)->get();
-            //if ($partner->vehicle_count > 0 || $partner->vehicle_count == 'unlimited'){
-                if ($partner->subscription->vehicle_count > count($vehicles) || $partner->subscription->vehicle_count == 'unlimited'){
+            //if ($partner->vehicles_allowed > 0 || $partner->vehicles_allowed == 'unlimited'){
+                if ($partner->subscription->vehicles_allowed > count($vehicles) || $partner->subscription->vehicles_allowed == 'unlimited'){
                 $validated = $request->validate([
                     'name' => 'required|string',
                     'plate_number' => 'required|string',
@@ -397,8 +397,8 @@ class PartnerRepository implements PartnerRepositoryInterface{
                     $vehicle->save();
 
 
-                    if ($partner->vehicle_count != 'unlimited'){
-                        $partner->vehicle_count--;
+                    if ($partner->vehicles_allowed != 'unlimited'){
+                        $partner->vehicles_allowed--;
                         $partner->save();
                     }
 
@@ -854,17 +854,17 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 //check what type of subscription and input appropiately here
                 if ($subs->name == 'Free'){
                     $partner->order_count_per_day = 5;
-                    $partner->vehicle_count = 5;
+                    $partner->vehicles_allowed = 5;
                 }else if ($subs->name == 'Starter'){
                     $partner->order_count_per_day = 15;
-                    $partner->vehicle_count = 15;
+                    $partner->vehicles_allowed = 15;
                 }else if ($subs->name == 'Business'){
                     $partner->order_count_per_day = 25;
-                    $partner->vehicle_count = 25;
+                    $partner->vehicles_allowed = 25;
 
                 }else {
                     $partner->order_count_per_day = 'unlimited';
-                    $partner->vehicle_count = 'unlimited';
+                    $partner->vehicles_allowed = 'unlimited';
                 }
 
                 $partner->subscription_expiry_date = Carbon::now()->addDays(30);

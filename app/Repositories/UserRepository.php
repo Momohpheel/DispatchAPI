@@ -311,7 +311,7 @@ class UserRepository implements UserRepositoryInterface{
                         if ($partner->is_paused == false){
                             if ($partner->is_enabled == true){
                                 //if ($partner->order_count_per_day > 0){
-                                if ($partner->subscription->no_of_orders > count($todaysDropoff) || $partner->subscription->no_of_orders == 'unlimited'){
+                                if ($partner->subscription->orders_allowed > count($todaysDropoff) || $partner->subscription->orders_allowed == 'unlimited'){
 
                                         ///make order
                                         return $this->job($request, $id);
@@ -399,7 +399,7 @@ class UserRepository implements UserRepositoryInterface{
                         if ($partner->is_paused == false){
                             if ($partner->is_enabled == true){
 
-                                if ($partner->subscription->no_of_orders > count($todaysDropoff) || $partner->subscription->no_of_orders == 'unlimited'){
+                                if ($partner->subscription->orders_allowed > count($todaysDropoff) || $partner->subscription->orders_allowed == 'unlimited'){
 
                                     $data['partner'] = true;
                                     $data['pmessage'] = 'Partner is okay to continue';
@@ -473,7 +473,7 @@ class UserRepository implements UserRepositoryInterface{
         foreach($validated['dropoff'] as $dropoff ){
 
             $todaysDropoff = Dropoff::where('partner_id', $id)->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->get();
-            if ($partner->subscription->no_of_orders > count($todaysDropoff) || $partner->subscription->no_of_orders == 'unlimited'){
+            if ($partner->subscription->orders_allowed > count($todaysDropoff) || $partner->subscription->orders_allowed == 'unlimited'){
                 $newdropoff = new DropOff;
                 $newdropoff->d_address = $dropoff['d_address'];
                 $newdropoff->d_latitude = $dropoff['d_latitude'];
@@ -703,6 +703,9 @@ class UserRepository implements UserRepositoryInterface{
     }
 
 
+    public function cancelOrder($id){
+
+    }
 
 
     public function getUserHistory(){
