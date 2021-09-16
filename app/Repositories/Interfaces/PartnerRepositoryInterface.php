@@ -35,7 +35,7 @@ interface PartnerRepositoryInterface{
 
     public function updateRider(Request $request, $id);
 
-    public function ordersDoneByRider($id);
+    public function ordersDoneByRider(Request $request, $id);
 
     public function createRider(Request $request);
 

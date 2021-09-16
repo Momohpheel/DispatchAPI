@@ -90,8 +90,8 @@ class PartnerController extends Controller
         return $this->repository->updateRider($request, $id);
     }
 
-    public function ordersDoneByRider($id){
-        return $this->repository->ordersDoneByRider($id);
+    public function ordersDoneByRider(Request $request,$id){
+        return $this->repository->ordersDoneByRider($request, $id);
     }
 
     public function createRider(Request $request){

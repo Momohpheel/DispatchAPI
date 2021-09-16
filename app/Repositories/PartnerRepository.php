@@ -568,12 +568,30 @@ class PartnerRepository implements PartnerRepositoryInterface{
         }
     }
 
-    public function ordersDoneByRider($id){
+    public function ordersDoneByRider(Request $request, $id){
         try{
+            $validated = $request->validate([
+                'time' => 'string'
+            ]);
 
-            $orders = DropOff::with('order')->where('rider_id', $id)->where('partner_id', auth()->user()->id)->get();
+            $now = Carbon::now()->addHour();
 
-            return $this->success(false, "Orders done by the rider", $orders, 200);
+            switch($request->time){
+                case 'today':
+                    $orders = Dropoff::where('partner_id', auth()->user()->id)->where('rider_id', $id)->where('payment_status', 'paid')->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->latest()->get();
+                    return $this->success(false, "Orders done by the rider", $orders, 200);
+                case 'week':
+                    $orders = DB::select('SELECT * FROM drop_offs WHERE rider_id = ? AND payment_status = ? AND partner_id = ? AND created_at > DATE_SUB(NOW(), INTERVAL 1 WEEK) ORDER BY id DESC', [$id, 'paid', auth()->user()->id]);
+                    return $this->success(false, "Orders done by the rider", $orders, 200);
+                case 'month':
+                    $orders = DB::select('SELECT * FROM drop_offs WHERE rider_id = ? AND payment_status = ? AND partner_id = ? AND created_at > DATE_SUB(NOW(), INTERVAL 1 MONTH) ORDER BY id DESC', [$id, 'paid', auth()->user()->id]);
+                    return $this->success(false, "Orders done by the rider", $orders, 200);
+                default:
+                    $orders = Dropoff::where('partner_id', auth()->user()->id)->where('rider_id', $id)->where('payment_status', 'paid')->latest()->get();
+                    return $this->success(false, "Orders done by the rider", $orders, 200);
+            }
+
+
 
         }catch(Exception $e){
             return $this->error(true, "Error occured", 400);
@@ -726,23 +744,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
         }
     }
 
-    // public function ridersEarningByTime(){
-    //     try{
-    //         $todays_earning = 0;
-    //         $now = Carbon::now()->addHour();
-    //         $dropoffs = Dropoff::where('partner_id', auth()->user()->id)->where('payment_status', 'paid')->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->get();
 
-    //     if (isset($dropoffs)){
-    //         foreach ($dropoffs as $dropoff){
-    //             $todays_earning = $dropoff + $todays_earning;
-    //         }
-
-    //     }
-
-    //     }catch(Exception $e){
-    //         return $this->error(true, "Error occured!", 400);
-    //     }
-    // }
 
 
 
