@@ -24,7 +24,7 @@ interface UserRepositoryInterface{
 
     public function getOrder($id);
 
-    public function deleteDropOff($d_id);
+    public function cancelDropOff($d_id);
 
     public function checkVehiclesAvailablePerPartner($id);
 

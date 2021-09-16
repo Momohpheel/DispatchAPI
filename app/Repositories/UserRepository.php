@@ -674,7 +674,7 @@ class UserRepository implements UserRepositoryInterface{
 
     }
 
-    public function deleteDropOff($d_id){
+    public function cancelDropOff($d_id){
         //delete dropoff without touching the order and dropoff table,
         //deleting the pivot data row/column
         try{
@@ -686,11 +686,11 @@ class UserRepository implements UserRepositoryInterface{
                 $dropoff->save();
 
                   //increase order limit of partner by 1
-                $partner = Partner::find($dropoff->partner_id);
-                if ($partner->order_count_per_day != 'unlimited'){
-                    $partner->order_count_per_day++;
-                    $partner->save();
-                }
+                // $partner = Partner::find($dropoff->partner_id);
+                // if ($partner->order_count_per_day != 'unlimited'){
+                //     $partner->order_count_per_day++;
+                //     $partner->save();
+                // }
 
                 return $this->success(false, "DropOff declared cancelled!", [], 200);
             }else{
@@ -703,9 +703,20 @@ class UserRepository implements UserRepositoryInterface{
     }
 
 
-    public function cancelOrder($id){
+    // public function cancelOrder($id){
+    //     try{
+    //         $dropoff = Dropoff::with('order')->where('id', $id)->first();
 
-    }
+    //         if (isset($dropoff) && $dropoff->order->user_id == auth()->user()->id){
+    //             $dropoff->status = 'cancelled';
+    //             $dropoff->save();
+    //         }
+
+    //             return $this->success(false, "DropOff declared cancelled!", $dropoff, 200);
+    //     }catch(Exception $e){
+    //         return $this->error(true, "An error occured!", 400);
+    //     }
+    // }
 
 
     public function getUserHistory(){
