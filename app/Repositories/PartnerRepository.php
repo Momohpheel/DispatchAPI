@@ -1545,8 +1545,8 @@ class PartnerRepository implements PartnerRepositoryInterface{
             //return $this->success(false, "Partner's earnings and payout", $data , 200);
         }else{
             $data = [
-                'earnings' => 0,
-                'payout' => 0
+                'earnings' => 0.00,
+                'payout' => 0.00
             ];
             return $data;
             //return $this->success(false, "Partner's earnings and payout", $data , 200);
