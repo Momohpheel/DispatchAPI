@@ -579,10 +579,17 @@ class PartnerRepository implements PartnerRepositoryInterface{
             $orders_count = count($todaysDropoff);
             $vehicle_left = $partner->subscription->vehicles_allowed - $vehicles_count;
             $orders_left = $partner->subscription->orders_allowed - $orders_count;
+
+            $date = Carbon::parse($partner->subscription_expiry_date);
+            $now = Carbon::now();
+
+            $diff = $date->diffInDays($now);
+
             $data = [
                 'subscription_name' => $partner->subscription->name,
                 'vehicles_left' => $vehicle_left,
-                'orders_left' => $orders_left
+                'orders_left' => $orders_left,
+                'validity' => $diff
             ];
 
             return $this->success(false, "Subscription status ", $data, 200);
@@ -594,24 +601,49 @@ class PartnerRepository implements PartnerRepositoryInterface{
     public function ordersDoneByRider(Request $request, $id){
         try{
             $validated = $request->validate([
-                'time' => 'string'
+                'status' => 'string'
             ]);
 
-            $now = Carbon::now()->addHour();
+            $orders = Dropoff::with(['order', 'rider', 'vehicle'])->where('rider_id', $id)->where('partner_id', auth()->user()->id)->latest()->get();
+            $data = [];
 
-            switch($request->time){
-                case 'today':
-                    $orders = Dropoff::where('partner_id', auth()->user()->id)->where('rider_id', $id)->where('payment_status', 'paid')->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->latest()->get();
-                    return $this->success(false, "Orders done by the rider", $orders, 200);
-                case 'week':
-                    $orders = DB::select('SELECT * FROM drop_offs WHERE rider_id = ? AND payment_status = ? AND partner_id = ? AND created_at > DATE_SUB(NOW(), INTERVAL 1 WEEK) ORDER BY id DESC', [$id, 'paid', auth()->user()->id]);
-                    return $this->success(false, "Orders done by the rider", $orders, 200);
-                case 'month':
-                    $orders = DB::select('SELECT * FROM drop_offs WHERE rider_id = ? AND payment_status = ? AND partner_id = ? AND created_at > DATE_SUB(NOW(), INTERVAL 1 MONTH) ORDER BY id DESC', [$id, 'paid', auth()->user()->id]);
-                    return $this->success(false, "Orders done by the rider", $orders, 200);
+            switch($request->status){
+                case 'pending':
+                    $orders = Dropoff::with(['order', 'rider', 'vehicle'])->where('rider_id', $id)->where('partner_id', auth()->user()->id)->where('status', 'pending')->latest()->paginate(10);
+                    foreach ($orders as $order){
+                        $userId = $order->order->user_id ?? null;
+                        $user = User::where('id', $userId)->first() ?? null;
+                            $order['user'] = $user;
+                    }
+                    return $this->success(false, "Pending Orders", $orders, 200);
+                case 'delivered':
+                    foreach ($orders as $order){
+                            if ($order->status == 'delivered'){
+                                $user = User::find($order->order->user_id);
+
+                                $order['user'] = $user;
+                                array_push($data, $order);
+                            }
+
+                    }
+
+                    return $this->success(false, "Delivered Orders", $data, 200);
+
+                case 'pickedup':
+                    foreach ($orders as $order){
+
+                            if ($order->status == 'picked'){
+                                $user = User::find($order->order->user_id);
+                                $order['user'] = $user;
+
+                                array_push($data, $order);
+                            }
+
+                    }
+
+                    return $this->success(false, "Picked-Up Orders", $data, 200);
                 default:
-                    $orders = Dropoff::where('partner_id', auth()->user()->id)->where('rider_id', $id)->where('payment_status', 'paid')->latest()->get();
-                    return $this->success(false, "Orders done by the rider", $orders, 200);
+                    return $this->error(true, "Couldn't get order...", 400);
             }
 
 
