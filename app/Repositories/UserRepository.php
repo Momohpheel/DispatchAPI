@@ -291,7 +291,7 @@ class UserRepository implements UserRepositoryInterface{
             $day = $now->format('l');
             $c_time =  Carbon::now()->addHour();
 
-            $todaysDropoff = Dropoff::where('partner_id', $id)->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->get();
+            $todaysDropoff = Dropoff::where('partner_id', $id)->where('payment_status', '!=', 'cancelled')->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->get();
 
             //check if order is place within partner's operating hours
 
@@ -472,7 +472,7 @@ class UserRepository implements UserRepositoryInterface{
         //dd($validated['dropoff'][0]);
         foreach($validated['dropoff'] as $dropoff ){
 
-            $todaysDropoff = Dropoff::where('partner_id', $id)->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->get();
+            $todaysDropoff = Dropoff::where('partner_id', $id)->where('payment_status', '!=', 'cancelled')->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->get();
             if ($partner->subscription->orders_allowed > count($todaysDropoff) || $partner->subscription->orders_allowed == 'unlimited'){
                 $newdropoff = new DropOff;
                 $newdropoff->d_address = $dropoff['d_address'];

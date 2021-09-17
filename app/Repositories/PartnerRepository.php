@@ -568,6 +568,29 @@ class PartnerRepository implements PartnerRepositoryInterface{
         }
     }
 
+    public function subscriptionDetails(){
+        try{
+
+            $partner = Partner::with('subscription')->where('id',auth()->user()->id)->first();
+            $vehicles = Vehicle::where('partner_id', $partner->id)->get();
+            $todaysDropoff = Dropoff::where('partner_id', auth()->user()->id)->where('payment_status', '!=', 'cancelled')->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->get();
+            //vehicle left
+            $vehicles_count = count($vehicles);
+            $orders_count = count($todaysDropoff);
+            $vehicle_left = $partner->subscription->vehicles_allowed - $vehicles_count;
+            $orders_left = $partner->subscription->orders_allowed - $orders_count;
+            $data = [
+                'subscription_name' => $partner->subscription->name,
+                'vehicles_left' => $vehicle_left,
+                'orders_left' => $orders_left
+            ];
+
+            return $this->success(false, "Subscription status ", $data, 200);
+        }catch(Exception $e){
+            return $this->error(true, "Error occured", 400);
+        }
+    }
+
     public function ordersDoneByRider(Request $request, $id){
         try{
             $validated = $request->validate([
@@ -823,6 +846,16 @@ class PartnerRepository implements PartnerRepositoryInterface{
         }
     }
 
+    public function getRouteCost(){
+        try{
+            $route_costing = RouteCosting::where('partner_id', auth()->user()->id)->first();
+            return $this->success(false, "Route-Costing", $route_costing,200);
+
+        }catch(Exception $e){
+            return $this->error(true, "Error occured", 400);
+        }
+    }
+
     public function subscribe(Request $request){
         $validated = $request->validate([
             'subscription_id' => 'required',
@@ -927,6 +960,15 @@ class PartnerRepository implements PartnerRepositoryInterface{
         }
     }
 
+    public function getOperatingHour(){
+        try{
+            $operating_hours = OperatingHours::where('partner_id', auth()->user()->id)->get();
+            return $this->success(false, "Operating Hours", $operating_hours,200);
+
+        }catch(Exception $e){
+
+        }
+    }
 
     public function getPartnerHistory(){
         try{
@@ -1225,15 +1267,21 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
                 $partner = Partner::find(auth()->user()->id);
                 if ($validated['trans_status'] == 'success'){
-                    $subs = Subscription::find($validated['subscription_id']);
-                    if ($subs){
-                        $partner->subscription_id = $validated['subscription_id'];
-                        $partner->subscription_expiry_date = Carbon::now()->addDays(30);
-                        $partner->subscription_date = Carbon::now();
-                        $partner->subscription_status = 'paid';
-                        $partner->save();
-                    }
 
+                    if ($partner->subscription_id != 1 && $partner->subscription_status == 'not paid'){
+                        $subs = Subscription::find($validated['subscription_id']);
+                        if ($subs){
+                            $partner->subscription_id = $validated['subscription_id'];
+                            $partner->subscription_expiry_date = Carbon::now()->addDays(30);
+                            $partner->subscription_date = Carbon::now();
+                            $partner->subscription_status = 'paid';
+                            $partner->save();
+                        }
+                    }else{
+                        $partner->wallet = $partner->wallet + $validated['amount'];
+                        $partner->save();
+                        return $this->error(true, "You're already on a plan...your money has been added to your wallet", 400);
+                    }
 
                     $log = $this->paymentLog($validated);
 
@@ -1411,6 +1459,157 @@ class PartnerRepository implements PartnerRepositoryInterface{
             return $data;
             //return $this->success(false, "Partner's earnings and payout", $data , 200);
         }
+
+        }catch(Exception $e){
+            return $this->error(true, "Error occured!", 400);
+        }
+    }
+
+
+    public function VehicleEarnings(Request $request, $id){
+        try{
+            $validated = $request->validate([
+                'time' => 'string'
+            ]);
+
+            $now = Carbon::now()->addHour();
+            $earnings = 0;
+            switch($request->time){
+                case 'today':
+                    $orders = Dropoff::where('partner_id', auth()->user()->id)->where('vehicle_id', $id)->where('payment_status', 'paid')->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->latest()->get();
+                    foreach ($orders as $order) {
+                        # code...
+                        $earnings = $earninigs + $order->price;
+                    }
+
+                    return $this->success(false, "Today's earnings for vehicle", $earnings, 200);
+                case 'week':
+                    $orders = DB::select('SELECT * FROM drop_offs WHERE vehicle_id = ? AND payment_status = ? AND partner_id = ? AND created_at > DATE_SUB(NOW(), INTERVAL 1 WEEK) ORDER BY id DESC', [$id, 'paid', auth()->user()->id]);
+                    foreach ($orders as $order) {
+                        # code...
+                        $earnings = $earninigs + $order->price;
+                    }
+
+                    return $this->success(false, "This weeks earnings for vehicle", $earnings, 200);
+                    //return $this->success(false, "Orders done by the rider", $orders, 200);
+                case 'month':
+                    $orders = DB::select('SELECT * FROM drop_offs WHERE vehicle_id = ? AND payment_status = ? AND partner_id = ? AND created_at > DATE_SUB(NOW(), INTERVAL 1 MONTH) ORDER BY id DESC', [$id, 'paid', auth()->user()->id]);
+                    foreach ($orders as $order) {
+                        # code...
+                        $earnings = $earninigs + $order->price;
+                    }
+
+                    return $this->success(false, "This months earnings for vehicle", $earnings, 200);
+                    //return $this->success(false, "Orders done by the rider", $orders, 200);
+                default:
+                    $orders = Dropoff::where('partner_id', auth()->user()->id)->where('vehicle_id', $id)->where('payment_status', 'paid')->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->latest()->get();
+                    foreach ($orders as $order) {
+                        # code...
+                        $earnings = $earninigs + $order->price;
+                    }
+
+                    return $this->success(false, "Today's earnings for vehicle", $earnings, 200);
+            }
+        }catch(Exception $e){
+            return $this->error(true, "Error occured!", 400);
+        }
+
+    }
+    public function RiderEarnings(Request $request, $id){
+        try{
+            $validated = $request->validate([
+                'time' => 'string'
+            ]);
+
+            $now = Carbon::now()->addHour();
+            $earnings = 0;
+            switch($request->time){
+                case 'today':
+                    $orders = Dropoff::where('partner_id', auth()->user()->id)->where('rider_id', $id)->where('payment_status', 'paid')->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->latest()->get();
+                    foreach ($orders as $order) {
+                        # code...
+                        $earnings = $earninigs + $order->price;
+                    }
+
+                    return $this->success(false, "Today's earnings for rider", $earnings, 200);
+                case 'week':
+                    $orders = DB::select('SELECT * FROM drop_offs WHERE rider_id = ? AND payment_status = ? AND partner_id = ? AND created_at > DATE_SUB(NOW(), INTERVAL 1 WEEK) ORDER BY id DESC', [$id, 'paid', auth()->user()->id]);
+                    foreach ($orders as $order) {
+                        # code...
+                        $earnings = $earninigs + $order->price;
+                    }
+
+                    return $this->success(false, "This weeks earnings for vehicle", $earnings, 200);
+                    //return $this->success(false, "Orders done by the rider", $orders, 200);
+                case 'month':
+                    $orders = DB::select('SELECT * FROM drop_offs WHERE rider_id = ? AND payment_status = ? AND partner_id = ? AND created_at > DATE_SUB(NOW(), INTERVAL 1 MONTH) ORDER BY id DESC', [$id, 'paid', auth()->user()->id]);
+                    foreach ($orders as $order) {
+                        # code...
+                        $earnings = $earninigs + $order->price;
+                    }
+
+                    return $this->success(false, "This months earnings for vehicle", $earnings, 200);
+                    //return $this->success(false, "Orders done by the rider", $orders, 200);
+                default:
+                    $orders = Dropoff::where('partner_id', auth()->user()->id)->where('vehicle_id', $id)->where('payment_status', 'paid')->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->latest()->get();
+                    foreach ($orders as $order) {
+                        # code...
+                        $earnings = $earninigs + $order->price;
+                    }
+
+                    return $this->success(false, "Today's earnings for vehicle", $earnings, 200);
+            }
+        }catch(Exception $e){
+            return $this->error(true, "Error occured!", 400);
+        }
+
+    }
+
+    public function PartnerEarnings(Request $request){
+            try{
+                $validated = $request->validate([
+                    'time' => 'string'
+                ]);
+
+                $now = Carbon::now()->addHour();
+                $earnings = 0;
+                switch($request->time){
+                    case 'today':
+                        $orders = Dropoff::where('partner_id', auth()->user()->id)->where('payment_status', 'paid')->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->latest()->get();
+                        foreach ($orders as $order) {
+                            # code...
+                            $earnings = $earninigs + $order->price;
+                        }
+
+                        return $this->success(false, "Today's earnings for rider", $earnings, 200);
+                    case 'week':
+                        $orders = DB::select('SELECT * FROM drop_offs WHERE payment_status = ? AND partner_id = ? AND created_at > DATE_SUB(NOW(), INTERVAL 1 WEEK) ORDER BY id DESC', ['paid', auth()->user()->id]);
+                        foreach ($orders as $order) {
+                            # code...
+                            $earnings = $earninigs + $order->price;
+                        }
+
+                        return $this->success(false, "This weeks earnings for partner", $earnings, 200);
+                        //return $this->success(false, "Orders done by the rider", $orders, 200);
+                    case 'month':
+                        $orders = DB::select('SELECT * FROM drop_offs WHERE payment_status = ? AND partner_id = ? AND created_at > DATE_SUB(NOW(), INTERVAL 1 MONTH) ORDER BY id DESC', ['paid', auth()->user()->id]);
+                        foreach ($orders as $order) {
+                            # code...
+                            $earnings = $earninigs + $order->price;
+                        }
+
+                        return $this->success(false, "This months earnings for partner", $earnings, 200);
+                        //return $this->success(false, "Orders done by the rider", $orders, 200);
+                    default:
+                        $orders = Dropoff::where('partner_id', auth()->user()->id)->where('payment_status', 'paid')->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->latest()->get();
+                        foreach ($orders as $order) {
+                            # code...
+                            $earnings = $earninigs + $order->price;
+                        }
+
+                        return $this->success(false, "Today's earnings for partner", $earnings, 200);
+                }
+
 
         }catch(Exception $e){
             return $this->error(true, "Error occured!", 400);

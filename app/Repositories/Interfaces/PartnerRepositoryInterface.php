@@ -41,6 +41,21 @@ interface PartnerRepositoryInterface{
 
     public function allPartner();
 
+    public function subscriptionDetails();
+
+    public function getOperatingHour();
+
+
+    public function VehicleEarnings(Request $request, $id);
+
+    public function RiderEarnings(Request $request, $id);
+
+    public function PartnerEarnings(Request $request);
+
+
+
+    public function getRouteCost();
+
     public function allTopPartner();
 
     public function disableRider($id);

@@ -106,6 +106,8 @@ use Illuminate\Support\Facades\Route;
 
             Route::get('dashboard', [App\Http\Controllers\PartnerController::class, 'dashboard']);
 
+            Route::get('sub-details', [App\Http\Controllers\PartnerController::class, 'subscriptionDetails']);
+            Route::post('earnings/ {id}', [App\Http\Controllers\PartnerController::class, 'PartnerEarnings']);
 
             Route::prefix('profile')->group(function () {
                 Route::post('/', [App\Http\Controllers\PartnerController::class, 'profile']);
@@ -119,6 +121,7 @@ use Illuminate\Support\Facades\Route;
                 Route::get('/{id}', [App\Http\Controllers\PartnerController::class, 'getVehicle']);
                 Route::get('count/{id}', [App\Http\Controllers\PartnerController::class, 'countForVehicle']);
                 Route::get('orders', [App\Http\Controllers\PartnerController::class, 'getOrderbyVehicle']);
+                Route::post('earnings/ {id}', [App\Http\Controllers\PartnerController::class, 'VehicleEarnings']);
 
             });
 
@@ -131,6 +134,8 @@ use Illuminate\Support\Facades\Route;
                 Route::get('/', [App\Http\Controllers\PartnerController::class, 'getRiders']);
                 Route::get('/{id}', [App\Http\Controllers\PartnerController::class, 'getRider']);
                 Route::post('assign', [App\Http\Controllers\PartnerController::class, 'assignOrder']);
+                Route::post('earnings/ {id}', [App\Http\Controllers\PartnerController::class, 'RiderEarnings']);
+
             });
             Route::prefix('order')->group(function () {
                 Route::get('/all', [App\Http\Controllers\PartnerController::class, 'getOrders']);
@@ -142,6 +147,8 @@ use Illuminate\Support\Facades\Route;
             Route::prefix('route')->group(function () {
                 Route::post('/set', [App\Http\Controllers\PartnerController::class, 'setRouteCosting']);
                 Route::post('/update/{id}', [App\Http\Controllers\PartnerController::class, 'updateRouteCosting']);
+                Route::get('/', [App\Http\Controllers\PartnerController::class, 'getRouteCost']);
+
             });
 
             Route::get('count', [App\Http\Controllers\PartnerController::class, 'count']);
@@ -149,6 +156,7 @@ use Illuminate\Support\Facades\Route;
             Route::post('subscribe', [App\Http\Controllers\PartnerController::class, 'subscribe']);
             Route::post('ophours/add', [App\Http\Controllers\PartnerController::class, 'addOperatingHours']);
             Route::post('ophours/update/{id}', [App\Http\Controllers\PartnerController::class, 'updateOperatingHours']);
+            Route::get('ophours', [App\Http\Controllers\PartnerController::class, 'getOperatingHour']);
 
 
 

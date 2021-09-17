@@ -21,6 +21,19 @@ class PartnerController extends Controller
         return $this->repository->allPartner();
     }
 
+    public function subscriptionDetails(){
+        return $this->repository->subscriptionDetails();
+    }
+
+
+    public function getOperatingHour(){
+        return $this->repository->getOperatingHour();
+    }
+
+    public function getRouteCost(){
+        return $this->repository->getRouteCost();
+    }
+
     public function allTopPartner(){
         return $this->repository->allTopPartner();
     }
@@ -180,4 +193,17 @@ class PartnerController extends Controller
     public function todaysEarnings(){
         return $this->repository->todaysEarnings();
     }
+
+    public function VehicleEarnings(Request $request, $id){
+        return $this->repository->VehicleEarnings($request, $id);
+    }
+
+    public function RiderEarnings(Request $request, $id){
+        return $this->repository->RiderEarnings($request, $id);
+    }
+
+    public function PartnerEarnings(Request $request){
+        return $this->repository->PartnerEarnings($request, $id);
+    }
+
 }
