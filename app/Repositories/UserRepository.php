@@ -607,7 +607,7 @@ class UserRepository implements UserRepositoryInterface{
         json_encode($calculations);
 
         $order['calculation'] = $calculations;
-        $this->history('Jobs', auth()->user()->name." made an order", $calculations->total, auth()->user()->id, 'user');
+        $this->history('Jobs', auth()->user()->name." made an order", $calculations['total'], auth()->user()->id, 'user');
 
 
         return $this->success(false, "Order created! You are successfully paired with a rider", $order, 200);
