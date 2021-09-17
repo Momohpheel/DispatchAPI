@@ -1141,10 +1141,51 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
     public function getOrderbyVehicle($id){
         try{
-            $partner_id = auth()->user()->id;
-            $orders = DropOff::with('order')->where('partner_id', $partner_id)->where('vehicle_id', $id)->get();
+            $validated = $request->validate([
+                'status' => 'string'
+            ]);
 
-            return $this->success(false, "Orders", $orders, 200);
+            $orders = Dropoff::with(['order', 'rider', 'vehicle'])->where('vehicle_id', $id)->where('partner_id', auth()->user()->id)->latest()->get();
+            $data = [];
+
+            switch($request->status){
+                case 'pending':
+                    $orders = Dropoff::with(['order', 'rider', 'vehicle'])->where('vehicle_id', $id)->where('partner_id', auth()->user()->id)->where('status', 'pending')->latest()->paginate(10);
+                    foreach ($orders as $order){
+                        $userId = $order->order->user_id ?? null;
+                        $user = User::where('id', $userId)->first() ?? null;
+                            $order['user'] = $user;
+                    }
+                    return $this->success(false, "Pending Orders", $orders, 200);
+                case 'delivered':
+                    foreach ($orders as $order){
+                            if ($order->status == 'delivered'){
+                                $user = User::find($order->order->user_id);
+
+                                $order['user'] = $user;
+                                array_push($data, $order);
+                            }
+
+                    }
+
+                    return $this->success(false, "Delivered Orders", $data, 200);
+
+                case 'pickedup':
+                    foreach ($orders as $order){
+
+                            if ($order->status == 'picked'){
+                                $user = User::find($order->order->user_id);
+                                $order['user'] = $user;
+
+                                array_push($data, $order);
+                            }
+
+                    }
+
+                    return $this->success(false, "Picked-Up Orders", $data, 200);
+                default:
+                    return $this->error(true, "Couldn't get order...", 400);
+            }
         }catch(Exception $e){
             return $this->error(true, "Error fetching orders", 400);
         }
