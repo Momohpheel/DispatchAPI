@@ -598,7 +598,9 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
             $data = [
                 'subscription_name' => $partner->subscription->name,
+                'vehicles_count' => $vehicles_count,
                 'vehicles_left' => $vehicle_left,
+                'order_count' => $orders_count,
                 'orders_left' => $orders_left,
                 'validity' => $diff
             ];
