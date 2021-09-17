@@ -843,12 +843,17 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 'cost_perkm' => "required",
             ]);
 
-            $route_costing = new RouteCosting;
-            $route_costing->base_fare = $validated['base_fare'];
-            $route_costing->cost_perkm = $validated['cost_perkm'];
-            $route_costing->express = $validated['express'];
-            $route_costing->partner_id = auth()->user()->id;
-            $route_costing->save();
+            $cost = RouteCosting::where('partner_id', auth()->user()->id)->first();
+            if (!$cost){
+                $route_costing = new RouteCosting;
+                $route_costing->base_fare = $validated['base_fare'];
+                $route_costing->cost_perkm = $validated['cost_perkm'];
+                $route_costing->express = $validated['express'];
+                $route_costing->partner_id = auth()->user()->id;
+                $route_costing->save();
+            }else{
+                return $this->updateRouteCosting($request, $cost->id);
+            }
 
 
             return $this->success(false, "Route-Costing Added", $route_costing,200);
