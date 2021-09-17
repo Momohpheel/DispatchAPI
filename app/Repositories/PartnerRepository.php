@@ -577,8 +577,18 @@ class PartnerRepository implements PartnerRepositoryInterface{
             //vehicle left
             $vehicles_count = count($vehicles);
             $orders_count = count($todaysDropoff);
-            $vehicle_left = $partner->subscription->vehicles_allowed - $vehicles_count;
-            $orders_left = $partner->subscription->orders_allowed - $orders_count;
+            if ($partner->subscription->vehicles_allowed == 'unlimited'){
+                $vehicle_left = 'unlimited';
+            }else{
+                $vehicle_left = $partner->subscription->vehicles_allowed - $vehicles_count;
+            }
+
+            if ($partner->subscription->vehicles_allowed == 'unlimited'){
+                $vehicle_left = 'unlimited';
+            }else{
+                $orders_left = $partner->subscription->orders_allowed - $orders_count;
+            }
+
 
             $date = Carbon::parse($partner->subscription_expiry_date);
             $now = Carbon::now();
