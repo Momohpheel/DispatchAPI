@@ -585,7 +585,7 @@ class UserRepository implements UserRepositoryInterface{
 
                     //$order->dropoff()->attach($newdropoff);
 
-                    $this->history('Jobs', auth()->user()->name." ordered a dispatch from ".$order->o_address." to ". $newdropoff->d_address, auth()->user()->id, 'user');
+                    $this->history('Jobs', auth()->user()->name." ordered a dispatch from ".$order->o_address." to ". $newdropoff->d_address,$price, auth()->user()->id, 'user');
 
                     $partner = Partner::find($id);
                     //reduce partner order count
