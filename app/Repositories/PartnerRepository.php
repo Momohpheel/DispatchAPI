@@ -1056,7 +1056,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
             //manually check subscription expiry
 
 
-            $partner = Partner::find(auth()->user()->id);
+            $partner = Partner::with('subscription')->where('id',auth()->user()->id)->first();
 
             if (isset($partner)){
                 if ($partner->is_top_partner == true){
