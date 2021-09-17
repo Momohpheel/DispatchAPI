@@ -1061,7 +1061,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
             if (isset($partner)){
                 if ($partner->is_top_partner == true){
                     $now = Carbon::now()->addHour();
-                    if ($partner->top_partner_expiry_date == $now){
+                    if ($partner->top_partner_expiry_date == $now ){
                         $partner->is_top_partner = false;
                         $partner->top_partner_expiry_date = null;
                         $partner->save();
@@ -1359,7 +1359,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 $partner = Partner::find(auth()->user()->id);
                 if ($validated['trans_status'] == 'success'){
 
-                    if ($partner->subscription_id != 1 && $partner->subscription_status == 'not paid'){
+
                         $subs = Subscription::find($validated['subscription_id']);
                         if ($subs){
                             $partner->subscription_id = $validated['subscription_id'];
@@ -1368,11 +1368,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                             $partner->subscription_status = 'paid';
                             $partner->save();
                         }
-                    }else{
-                        $partner->wallet = $partner->wallet + $validated['amount'];
-                        $partner->save();
-                        return $this->error(true, "You're already on a plan...your money has been added to your wallet", 400);
-                    }
+
 
                     $log = $this->paymentLog($validated);
 
