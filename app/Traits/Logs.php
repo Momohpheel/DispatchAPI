@@ -53,11 +53,12 @@ trait Logs{
     }
 
 
-    public function history($type, $data, $id, $user){
+    public function history($type, $data, $price=null, $id, $user){
 
         $history = new History;
         $history->type = $type;
         $history->data = $data;
+        $history->price = $price;
         if ($user == 'user'){
             $history->user_id = $id;
         }else if ($user == 'rider'){

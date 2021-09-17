@@ -1292,7 +1292,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 $partner->save();
 
                 //wallet history
-                $this->history('Fund Wallet', $partner->name." added ".$request['amount']." to her wallet", auth()->user()->id, 'partner');
+                $this->history('Fund Wallet', $partner->name." added ".$request['amount']." to her wallet",$request['amount'], auth()->user()->id, 'partner');
                 //trnasaction history
                 $this->transactionLog('Funding Wallet', $partner->name. " added ".$request['amount']." to her wallet", $request['amount'] ,auth()->user()->id, 'partner');
                 //user history
@@ -1360,7 +1360,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
                     //log transactions
                     $this->transactionLog('Subscription', $validated['customer_name']." subscribed to ".$subs->name." plan", (int)$validated['amount'] , auth()->user()->id, 'partner');
-                    $this->history('Subscription', $validated['amount']." was paid from partner card for a subscription to". $subs->name." plan", auth()->user()->id, 'partner');
+                    $this->history('Subscription', "Payment was paid from partner card for a subscription to ". $subs->name." plan", (int)$validated['amount'], auth()->user()->id, 'partner');
 
                     //return $this->success(false, "Payment Successful", $log, 200);
 
@@ -1384,7 +1384,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                         $log = $this->paymentLog($validated);
 
                         $this->transactionLog('Subscription', $validated['customer_name']." subscribed to ".$subs->name." plan", (int)$validated['amount'] , auth()->user()->id, 'partner');
-                        $this->history('Subscription', $validated['amount']." was paid from partner wallet for a subscription to". $subs->name." plan", auth()->user()->id, 'partner');
+                        $this->history('Subscription', "Payment was paid from partner wallet for a subscription to ". $subs->name." plan", (int)$validated['amount'], auth()->user()->id, 'partner');
 
                        // return $this->success(false, "Payment Successful", $log, 200);
                     }else{
@@ -1410,7 +1410,8 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
                     $log = $this->paymentLog($validated);
                     $this->transactionLog('Top Partner', $partner->name." paid to be a Top Partner", (int)$validated['amount'] , auth()->user()->id, 'partner');
-                    $this->history('Top Partner', $validated['amount']." was paid from partner card to be a Top Partner", auth()->user()->id, 'partner');
+
+                    $this->history('Top Partner', "Payment was paid from partner card to be a Top Partner ", (int)$validated['amount'], auth()->user()->id, 'partner');
 
 
                     //return $this->success(false, "Payment Successful", $log, 200);
@@ -1429,7 +1430,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
                         $log = $this->paymentLog($validated);
                         $this->transactionLog('Top Partner', $partner->name." paid to be a Top Partner", (int)$validated['amount'] , auth()->user()->id, 'partner');
-                        $this->history('Top Partner', $validated['amount']." was paid from partner wallet to be a Top Partner", auth()->user()->id, 'partner');
+                        $this->history('Top Partner', "Payment was paid from partner wallet to be a Top Partner ", (int)$validated['amount'], auth()->user()->id, 'partner');
 
                         //return $this->success(false, "Payment Successful", $log, 200);
                     }else{
