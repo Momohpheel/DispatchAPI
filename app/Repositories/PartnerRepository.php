@@ -571,6 +571,8 @@ class PartnerRepository implements PartnerRepositoryInterface{
     public function subscriptionDetails(){
         try{
 
+            $now = Carbon::now()->addHour();
+
             $partner = Partner::with('subscription')->where('id',auth()->user()->id)->first();
             $vehicles = Vehicle::where('partner_id', $partner->id)->get();
             $todaysDropoff = Dropoff::where('partner_id', auth()->user()->id)->where('payment_status', '!=', 'cancelled')->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->get();
@@ -591,7 +593,6 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
 
             $date = Carbon::parse($partner->subscription_expiry_date);
-            $now = Carbon::now();
 
             $diff = $date->diffInDays($now);
 
