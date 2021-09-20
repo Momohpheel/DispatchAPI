@@ -61,11 +61,11 @@ class PartnerRepository implements PartnerRepositoryInterface{
         try{
             $validated = $request->validate([
                 "password" => "required|string",
-                "code_name" => "required|string",
+                'code_name' => "required|string",
                 'image' => "required|image|mimes:jpg,png,jpeg|max:2000",
                 'business_name' => 'required|string',
                 'business_phone' => 'required|string',
-                'business_email' => 'required|string',
+                'business_email' => 'required|string|email',
                 'business_bank_account' => 'required|string',
                 'business_bank_name' => 'required|string',
             ]);
@@ -400,10 +400,6 @@ class PartnerRepository implements PartnerRepositoryInterface{
                     $vehicle->save();
 
 
-                    if ($partner->vehicles_allowed != 'unlimited'){
-                        $partner->vehicles_allowed--;
-                        $partner->save();
-                    }
 
 
                     return $this->success(false, "vehicle registered", $vehicle, 200);
