@@ -21,6 +21,9 @@ class CreatePaymentsTable extends Migration
             $table->string('datetime')->nullable();
             $table->string('trans_status')->nullable();
             $table->foreignId('order_id')->constrained()->nullable();
+            $table->foreignId('user_id')->constrained()->nullable();
+            $table->foreignId('partner_id')->constrained()->nullable();
+            $table->foreignId('subscription_id')->constrained()->nullable();
             $table->string('reference_num')->nullable();
             $table->enum('status', ['success', 'failed'])->nullable();
             $table->string('amount')->nullable();

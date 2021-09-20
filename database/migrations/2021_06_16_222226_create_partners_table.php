@@ -19,7 +19,7 @@ class CreatePartnersTable extends Migration
             $table->string('email')->unique();
             $table->string('phone')->nullable();
 
-            $table->string('images')->nullable();
+            $table->string('image')->nullable();
             $table->string('description')->nullable();
             $table->string('bank_account')->nullable();
             $table->string('bank_name')->nullable();

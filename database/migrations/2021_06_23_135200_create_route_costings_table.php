@@ -15,14 +15,9 @@ class CreateRouteCostingsTable extends Migration
     {
         Schema::create('route_costings', function (Blueprint $table) {
             $table->id();
-            $table->string('fuel_cost')->nullable();
-            $table->string('bike_fund')->nullable();
-            $table->string('ops_fee')->nullable();
-            $table->string('easy_log')->nullable();
-            $table->string('easy_disp')->nullable();
+            $table->string('base_fare')->nullable();
+            $table->string('cost_perkm')->nullable();
             $table->string('express')->nullable();
-            $table->string('max_km')->nullable();
-            $table->string('min_km')->nullable();
             $table->foreignId('partner_id')->constrained();
             $table->timestamps();
         });

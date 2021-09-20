@@ -15,10 +15,12 @@ class CreateTransactionLogsTable extends Migration
     {
         Schema::create('transaction_logs', function (Blueprint $table) {
             $table->id();
-            $table->string('data')->nullable();
-            $table->string('type')->nullable();
+            $table->string('log_data')->nullable();
+            $table->string('log_type')->nullable();
+            $table->string('price')->nullable();
             $table->foreignId('user_id')->constrained()->nullable();
             $table->foreignId('rider_id')->constrained()->nullable();
+            $table->foreignId('order_id')->constrained()->nullable();
             $table->foreignId('partner_id')->constrained()->nullable();
             $table->timestamps();
         });
