@@ -1544,7 +1544,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
             }
 
             $data = [
-                'earnings' => number_format($todays_earning, 2),
+                'earnings' => number_format( (float) $todays_earning, 2, '.', ''),
                 'payout' => number_format($payout,2)
             ];
 
