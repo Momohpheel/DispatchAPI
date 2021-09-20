@@ -1083,7 +1083,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                         //$sub = Carbon::parse($partner->subscription_expiry_date);
                         if ($partner->subscription_expiry_date == $now){
                             $partner->subscription_id = 1;
-                            $partner->subscription_date = Carbon::now();
+                            $partner->subscription_date = Carbon::now()->toDateString();
                             $partner->subscription_expiry_date = Carbon::now()->addDays(30);
                             $partner->save();
                         }
@@ -1374,8 +1374,8 @@ class PartnerRepository implements PartnerRepositoryInterface{
                          $subs = Subscription::find($validated['subscription_id']);
                         if ($subs){
                             $partner->subscription_id = $validated['subscription_id'];
-                            $partner->subscription_expiry_date = Carbon::now()->addDays(30);
-                            $partner->subscription_date = Carbon::now();
+                            $partner->subscription_expiry_date = Carbon::now()->addDays(30)->toDateString();
+                            $partner->subscription_date = Carbon::now()->toDateString();
                             $partner->subscription_status = 'paid';
                             $partner->save();
                         }
