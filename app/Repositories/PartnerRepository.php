@@ -588,8 +588,8 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 $vehicle_left = $partner->subscription->vehicles_allowed - $vehicles_count;
             }
 
-            if ($partner->subscription->vehicles_allowed == 'unlimited'){
-                $vehicle_left = 'unlimited';
+            if ($partner->subscription->orders_allowed == 'unlimited'){
+                $orders_left = 'unlimited';
             }else{
                 $orders_left = $partner->subscription->orders_allowed - $orders_count;
             }
