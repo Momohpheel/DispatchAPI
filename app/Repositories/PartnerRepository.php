@@ -1519,7 +1519,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
         if ($dropoffs){
             foreach ($dropoffs as $dropoff){
-                $todays_earning = (float)$dropoff->price + $todays_earning;
+                $todays_earning = (int)$dropoff->price + $todays_earning;
             }
 
             $partner = Partner::find(auth()->user()->id);
@@ -1544,21 +1544,21 @@ class PartnerRepository implements PartnerRepositoryInterface{
             }
 
             $data = [
-                'earnings' => sprintf("%.2f", $todays_earning),
-                'payout' => sprintf("%.2f", $payout)
+                'earnings' => number_format($todays_earning, 2),
+                'payout' => number_format($payout,2)
             ];
 
             return $data;
             //return $this->success(false, "Partner's earnings and payout", $data , 200);
         }
-        // else{
-        //     $data = [
-        //         'earnings' => 0.00,
-        //         'payout' => 0.00
-        //     ];
-        //     return $data;
-        //     //return $this->success(false, "Partner's earnings and payout", $data , 200);
-        // }
+        else{
+            $data = [
+                'earnings' => 0.00,
+                'payout' => 0.00
+            ];
+            return $data;
+            //return $this->success(false, "Partner's earnings and payout", $data , 200);
+        }
 
         }catch(Exception $e){
             return $this->error(true, "Error occured!", 400);
