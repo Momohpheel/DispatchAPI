@@ -121,7 +121,7 @@ use Illuminate\Support\Facades\Route;
                 Route::get('/{id}', [App\Http\Controllers\PartnerController::class, 'getVehicle']);
                 Route::get('count/{id}', [App\Http\Controllers\PartnerController::class, 'countForVehicle']);
                 Route::get('orders', [App\Http\Controllers\PartnerController::class, 'getOrderbyVehicle']);
-                Route::post('earnings/ {id}', [App\Http\Controllers\PartnerController::class, 'VehicleEarnings']);
+                Route::post('earnings/{id}', [App\Http\Controllers\PartnerController::class, 'VehicleEarnings']);
 
             });
 
