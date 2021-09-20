@@ -1513,7 +1513,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
     public function todaysEarnings(){
         try{
-            $todays_earning = 0;
+            $todays_earning = 0.00;
             $now = Carbon::now()->addHour();
             $dropoffs = Dropoff::where('partner_id', auth()->user()->id)->where('payment_status', 'paid')->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->get();
 
@@ -1544,8 +1544,8 @@ class PartnerRepository implements PartnerRepositoryInterface{
             }
 
             $data = [
-                'earnings' => $todays_earning,
-                'payout' => $payout
+                'earnings' => (string)$todays_earning,
+                'payout' => (string)$payout
             ];
 
             return $data;
