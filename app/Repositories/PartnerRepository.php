@@ -680,7 +680,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 'phone' => 'required|string',
                 'password' => 'required|string|max:4',
                 'image' => 'required|image|mimes:png,jpeg,jpg|max:2000',
-                'vehicle_id' => 'required'
+                'vehicle_id' => 'string'
             ]);
 
 

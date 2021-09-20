@@ -17,6 +17,7 @@ class CreateHistoriesTable extends Migration
             $table->id();
             $table->string('type')->nullable();
             $table->string('data')->nullable();
+            $table->string('price')->nullable();
             $table->foreignId('user_id')->constrained()->nullable();
             $table->foreignId('rider_id')->constrained()->nullable();
             $table->foreignId('partner_id')->constrained()->nullable();
