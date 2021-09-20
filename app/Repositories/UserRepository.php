@@ -91,7 +91,7 @@ class UserRepository implements UserRepositoryInterface{
                     "image" => $user->image,
                     "access_token" => $access_token
                 ];
-                $this->history('Profile', $data['name']." created their profile", $data['id'], 'user');
+                $this->history('Profile', $data['name']." created their profile", null, $data['id'], 'user');
 
                 return $this->success(false, "User created", $data, 201);
             }else{
