@@ -91,7 +91,9 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 $partner->bank_name = $validated['business_bank_name'];
                 //$partner->image =   env('APP_URL') .'/storage/images/defaultPartner.png';
                 $partner->subscription_id = 1;
-                $partner->subscription_status = 'not paid';
+                $partner->subscription_date = Carbon::now();
+                $partner->subscription_expiry_date = Carbon::now()->addDays(30);
+                $partner->top_partner_expiry_date = Carbon::now()->addDays(30);                $partner->subscription_status = 'not paid';
                 $partner->order_count_per_day = 5;
                 $partner->save();
                 $access_token = $partner->createToken('authToken')->accessToken;
@@ -593,9 +595,12 @@ class PartnerRepository implements PartnerRepositoryInterface{
             }
 
 
-            $date = Carbon::parse($partner->subscription_expiry_date);
+            // $diff = 30;
+            // if ($partner->subscription_expiry_date != '0000-00-00'){
+                 $date = Carbon::parse($partner->subscription_expiry_date);
+                 $diff = $date->diffInDays($now);
+            //}
 
-            $diff = $date->diffInDays($now);
 
             $data = [
                 'subscription_name' => $partner->subscription->name,
@@ -1060,30 +1065,30 @@ class PartnerRepository implements PartnerRepositoryInterface{
             $partner = Partner::with('subscription')->where('id',auth()->user()->id)->first();
 
             if (isset($partner)){
-                if ($partner->is_top_partner != '0000-00-00 00:00:00'){
+
                     if ($partner->is_top_partner == true){
                         $now = Carbon::now()->addHour();
-                        $top = Carbon::parse($partner->top_partner_expiry_date);
-                        if ($top == $now ){
+                        //$top = Carbon::parse($partner->top_partner_expiry_date);
+                        if ($partner->top_partner_expiry_date == $now ){
                             $partner->is_top_partner = false;
-                            $partner->top_partner_expiry_date = '0000-00-00 00:00:00';
+                            $partner->top_partner_expiry_date = Carbon::now()->addDays(30);
                             $partner->save();
                         }
                     }
-                }
 
-                if ($partner->is_top_partner != '0000-00-00'){
+
+
                     if (isset($partner->subscription_expiry_date)){
                         $now = Carbon::now()->addHour();
-                        $sub = Carbon::parse($partner->subscription_expiry_date);
+                        //$sub = Carbon::parse($partner->subscription_expiry_date);
                         if ($partner->subscription_expiry_date == $now){
                             $partner->subscription_id = 1;
-                            $partner->subscription_date = '0000-00-00';
-                            $partner->subscription_expiry_date = '0000-00-00';
+                            $partner->subscription_date = Carbon::now();
+                            $partner->subscription_expiry_date = Carbon::now()->addDays(30);
                             $partner->save();
                         }
                     }
-                }
+
                 $data = [
                     'partner' => $partner,
                     'count' => $this->count(),  //pickedup, vehicle,pending, delivered,
