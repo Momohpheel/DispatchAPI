@@ -134,7 +134,7 @@ use Illuminate\Support\Facades\Route;
                 Route::get('/', [App\Http\Controllers\PartnerController::class, 'getRiders']);
                 Route::get('/{id}', [App\Http\Controllers\PartnerController::class, 'getRider']);
                 Route::post('assign', [App\Http\Controllers\PartnerController::class, 'assignOrder']);
-                Route::post('earnings/ {id}', [App\Http\Controllers\PartnerController::class, 'RiderEarnings']);
+                Route::post('earnings/{id}', [App\Http\Controllers\PartnerController::class, 'RiderEarnings']);
 
             });
             Route::prefix('order')->group(function () {
