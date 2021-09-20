@@ -91,6 +91,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 $partner->bank_name = $validated['business_bank_name'];
                 //$partner->image =   env('APP_URL') .'/storage/images/defaultPartner.png';
                 $partner->subscription_id = 1;
+                $partner->subscription_status = 'not paid';
                 $partner->order_count_per_day = 5;
                 $partner->save();
                 $access_token = $partner->createToken('authToken')->accessToken;
@@ -1359,8 +1360,8 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 $partner = Partner::find(auth()->user()->id);
                 if ($validated['trans_status'] == 'success'){
 
-                    if ($partner->subscription_id != 1 && $partner->subscription_status == 'paid'){
-                        $subs = Subscription::find($validated['subscription_id']);
+                    // if ($partner->subscription_id != 1 && $partner->subscription_status == 'paid'){
+                    //     $subs = Subscription::find($validated['subscription_id']);
                         if ($subs){
                             $partner->subscription_id = $validated['subscription_id'];
                             $partner->subscription_expiry_date = Carbon::now()->addDays(30);
@@ -1368,11 +1369,11 @@ class PartnerRepository implements PartnerRepositoryInterface{
                             $partner->subscription_status = 'paid';
                             $partner->save();
                         }
-                    }else{
-                        $partner->wallet = $partner->wallet + $validated['amount'];
-                        $partner->save();
-                        return $this->error(true, "You're already on a plan...your money has been added to your wallet", 400);
-                    }
+                    // }else{
+                    //     $partner->wallet = $partner->wallet + $validated['amount'];
+                    //     $partner->save();
+                    //     return $this->error(true, "You're already on a plan...your money has been added to your wallet", 400);
+                    // }
 
                     $log = $this->paymentLog($validated);
 
