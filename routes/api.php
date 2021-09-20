@@ -107,7 +107,7 @@ use Illuminate\Support\Facades\Route;
             Route::get('dashboard', [App\Http\Controllers\PartnerController::class, 'dashboard']);
 
             Route::get('sub-details', [App\Http\Controllers\PartnerController::class, 'subscriptionDetails']);
-            Route::post('earnings/ {id}', [App\Http\Controllers\PartnerController::class, 'PartnerEarnings']);
+            Route::post('earnings', [App\Http\Controllers\PartnerController::class, 'PartnerEarnings']);
 
             Route::prefix('profile')->group(function () {
                 Route::post('/', [App\Http\Controllers\PartnerController::class, 'profile']);
