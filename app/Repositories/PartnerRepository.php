@@ -1371,7 +1371,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 if ($validated['trans_status'] == 'success'){
 
                     // if ($partner->subscription_id != 1 && $partner->subscription_status == 'paid'){
-                    //     $subs = Subscription::find($validated['subscription_id']);
+                         $subs = Subscription::find($validated['subscription_id']);
                         if ($subs){
                             $partner->subscription_id = $validated['subscription_id'];
                             $partner->subscription_expiry_date = Carbon::now()->addDays(30);

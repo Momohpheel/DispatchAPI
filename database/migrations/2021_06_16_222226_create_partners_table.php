@@ -38,7 +38,7 @@ class CreatePartnersTable extends Migration
             $table->boolean('is_enabled')->default(true);
             $table->boolean('is_paused')->default(false);
             $table->boolean('is_top_partner')->default(false);
-            $table->date('top_partner_pay_date')->nullable();
+            $table->date('top_partner_expiry_date')->nullable();
             $table->timestamps();
         });
     }
