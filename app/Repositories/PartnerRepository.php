@@ -702,7 +702,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 $rider->name = $validated['name'];
                 $rider->phone = $validated['phone'];
                 $rider->workname = $validated['workname'];
-                $rider->vehicle_id = $validated['vehicle_id'];
+                $rider->vehicle_id = $validated['vehicle_id'] ?? null;
                 $rider->image = env('APP_URL') .'/storage/images/'.$image_to_store; //$validated['image'];
                 $rider->password = Hash::make($validated['password']);
                 $rider->rating = 0;
