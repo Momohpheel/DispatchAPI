@@ -33,6 +33,7 @@ class CreatePartnersTable extends Migration
             $table->date('subscription_date')->nullable();
             $table->date('subscription_expiry_date')->nullable();
             $table->integer('order_count_per_day')->nullable();
+            $table->integer('vehicle_count')->nullable();
             $table->integer('rating')->nullable();
             $table->boolean('is_enabled')->default(true);
             $table->boolean('is_paused')->default(false);
