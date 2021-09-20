@@ -1517,7 +1517,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
             $now = Carbon::now()->addHour();
             $dropoffs = Dropoff::where('partner_id', auth()->user()->id)->where('payment_status', 'paid')->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->get();
 
-        if (isset($dropoffs)){
+        if (!empty($dropoffs)){
             foreach ($dropoffs as $dropoff){
                 $todays_earning = (int)$dropoff->price + $todays_earning;
             }
