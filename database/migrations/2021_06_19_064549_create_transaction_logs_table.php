@@ -31,6 +31,10 @@ class CreateTransactionLogsTable extends Migration
      */
     public function down()
     {
+        DB::statement('SET FOREIGN_KEY_CHECKS = 0');
         Schema::dropIfExists('transaction_logs');
+        DB::statement('SET FOREIGN_KEY_CHECKS = 1');
+
+        //Schema::dropIfExists('transaction_logs');
     }
 }
