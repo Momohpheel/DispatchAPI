@@ -1544,8 +1544,8 @@ class PartnerRepository implements PartnerRepositoryInterface{
             }
 
             $data = [
-                'earnings' => floatval($todays_earning),
-                'payout' => floatval($payout)
+                'earnings' => sprintf("%.2f", $todays_earning),
+                'payout' => sprintf("%.2f", $payout)
             ];
 
             return $data;
