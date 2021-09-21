@@ -1582,7 +1582,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                         $earnings = $earninigs + $order->price;
                     }
 
-                    return $this->success(false, "Today's earnings for vehicle", $earnings, 200);
+                    return $this->success(false, "Today's earnings for vehicle", number_format( (float) $earninigs, 2, '.', ''), 200);
                 case 'week':
                     $orders = DB::select('SELECT * FROM drop_offs WHERE vehicle_id = ? AND payment_status = ? AND partner_id = ? AND created_at > DATE_SUB(NOW(), INTERVAL 1 WEEK) ORDER BY id DESC', [$id, 'paid', auth()->user()->id]);
                     foreach ($orders as $order) {
@@ -1590,7 +1590,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                         $earnings = $earninigs + $order->price;
                     }
 
-                    return $this->success(false, "This weeks earnings for vehicle", $earnings, 200);
+                    return $this->success(false, "This weeks earnings for vehicle",number_format( (float) $earninigs, 2, '.', ''), 200);
                     //return $this->success(false, "Orders done by the rider", $orders, 200);
                 case 'month':
                     $orders = DB::select('SELECT * FROM drop_offs WHERE vehicle_id = ? AND payment_status = ? AND partner_id = ? AND created_at > DATE_SUB(NOW(), INTERVAL 1 MONTH) ORDER BY id DESC', [$id, 'paid', auth()->user()->id]);
@@ -1599,7 +1599,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                         $earnings = $earninigs + $order->price;
                     }
 
-                    return $this->success(false, "This months earnings for vehicle", $earnings, 200);
+                    return $this->success(false, "This months earnings for vehicle", number_format( (float) $earninigs, 2, '.', ''), 200);
                     //return $this->success(false, "Orders done by the rider", $orders, 200);
                 default:
                     $orders = Dropoff::where('partner_id', auth()->user()->id)->where('vehicle_id', $id)->where('payment_status', 'paid')->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->latest()->get();
@@ -1608,7 +1608,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                         $earnings = $earninigs + $order->price;
                     }
 
-                    return $this->success(false, "Today's earnings for vehicle", $earnings, 200);
+                    return $this->success(false, "Today's earnings for vehicle",number_format( (float) $earninigs, 2, '.', ''), 200);
             }
         }catch(Exception $e){
             return $this->error(true, "Error occured!", 400);
@@ -1631,7 +1631,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                         $earnings = $earninigs + $order->price;
                     }
 
-                    return $this->success(false, "Today's earnings for rider", $earnings, 200);
+                    return $this->success(false, "Today's earnings for rider", number_format( (float) $earninigs, 2, '.', ''), 200);
                 case 'week':
                     $orders = DB::select('SELECT * FROM drop_offs WHERE rider_id = ? AND payment_status = ? AND partner_id = ? AND created_at > DATE_SUB(NOW(), INTERVAL 1 WEEK) ORDER BY id DESC', [$id, 'paid', auth()->user()->id]);
                     foreach ($orders as $order) {
@@ -1639,7 +1639,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                         $earnings = $earninigs + $order->price;
                     }
 
-                    return $this->success(false, "This weeks earnings for vehicle", $earnings, 200);
+                    return $this->success(false, "This weeks earnings for vehicle", number_format( (float) $earninigs, 2, '.', ''), 200);
                     //return $this->success(false, "Orders done by the rider", $orders, 200);
                 case 'month':
                     $orders = DB::select('SELECT * FROM drop_offs WHERE rider_id = ? AND payment_status = ? AND partner_id = ? AND created_at > DATE_SUB(NOW(), INTERVAL 1 MONTH) ORDER BY id DESC', [$id, 'paid', auth()->user()->id]);
@@ -1648,7 +1648,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                         $earnings = $earninigs + $order->price;
                     }
 
-                    return $this->success(false, "This months earnings for vehicle", $earnings, 200);
+                    return $this->success(false, "This months earnings for vehicle", number_format( (float) $earninigs, 2, '.', ''), 200);
                     //return $this->success(false, "Orders done by the rider", $orders, 200);
                 default:
                     $orders = Dropoff::where('partner_id', auth()->user()->id)->where('vehicle_id', $id)->where('payment_status', 'paid')->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->latest()->get();
@@ -1657,7 +1657,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                         $earnings = $earninigs + $order->price;
                     }
 
-                    return $this->success(false, "Today's earnings for vehicle", $earnings, 200);
+                    return $this->success(false, "Today's earnings for vehicle", number_format( (float) $earninigs, 2, '.', ''), 200);
             }
         }catch(Exception $e){
             return $this->error(true, "Error occured!", 400);
@@ -1681,7 +1681,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                             $earnings = $earninigs + $order->price;
                         }
 
-                        return $this->success(false, "Today's earnings for rider", $earnings, 200);
+                        return $this->success(false, "Today's earnings for rider", number_format( (float) $earninigs, 2, '.', ''), 200);
                     case 'week':
                         $orders = DB::select('SELECT * FROM drop_offs WHERE payment_status = ? AND partner_id = ? AND created_at > DATE_SUB(NOW(), INTERVAL 1 WEEK) ORDER BY id DESC', ['paid', auth()->user()->id]);
                         foreach ($orders as $order) {
@@ -1689,7 +1689,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                             $earnings = $earninigs + $order->price;
                         }
 
-                        return $this->success(false, "This weeks earnings for partner", $earnings, 200);
+                        return $this->success(false, "This weeks earnings for partner", number_format( (float) $earninigs, 2, '.', ''), 200);
                         //return $this->success(false, "Orders done by the rider", $orders, 200);
                     case 'month':
                         $orders = DB::select('SELECT * FROM drop_offs WHERE payment_status = ? AND partner_id = ? AND created_at > DATE_SUB(NOW(), INTERVAL 1 MONTH) ORDER BY id DESC', ['paid', auth()->user()->id]);
@@ -1698,7 +1698,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                             $earnings = $earninigs + $order->price;
                         }
 
-                        return $this->success(false, "This months earnings for partner", $earnings, 200);
+                        return $this->success(false, "This months earnings for partner", number_format( (float) $earninigs, 2, '.', ''), 200);
                         //return $this->success(false, "Orders done by the rider", $orders, 200);
                     default:
                         $orders = Dropoff::where('partner_id', auth()->user()->id)->where('payment_status', 'paid')->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->latest()->get();
@@ -1707,7 +1707,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                             $earnings = $earninigs + $order->price;
                         }
 
-                        return $this->success(false, "Today's earnings for partner", $earnings, 200);
+                        return $this->success(false, "Today's earnings for partner", number_format( (float) $earninigs, 2, '.', ''), 200);
                 }
 
 
