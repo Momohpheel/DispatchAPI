@@ -203,7 +203,7 @@ class PartnerController extends Controller
     }
 
     public function PartnerEarnings(Request $request){
-        return $this->repository->PartnerEarnings($request, $id);
+        return $this->repository->PartnerEarnings($request);
     }
 
 }
