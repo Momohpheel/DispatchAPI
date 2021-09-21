@@ -754,7 +754,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
             $pending = [];
             $delivered = [];
-            $cancelled = [];
+            $picked = [];
 
             foreach ($orders as $order){
                 if ($order->status == 'pending'){
@@ -763,15 +763,15 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 if ($order->status == 'delivered'){
                     array_push($delivered, $order);
                 }
-                if ($order->status == 'cancelled'){
-                    array_push($cancelled, $order);
+                if ($order->status == 'picked'){
+                    array_push($picked, $order);
                 }
             }
 
             $rider['count'] = [
                 'pending' => count($pending),
                 'delivered' => count($delivered),
-                'cancelled' => count($cancelled),
+                'picked' => count($picked),
             ];
 
             return $this->success(false, "Rider", $rider, 200);
