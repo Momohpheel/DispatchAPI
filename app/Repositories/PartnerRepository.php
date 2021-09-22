@@ -789,6 +789,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
         try{
             $rider = Rider::with(['partner', 'vehicle'])->where('is_available', true)->where('partner_id', auth()->user()->id)->first();
             //$orders = DropOff::where('rider_id', $id)->where('partner_id', auth()->user()->id)->get();
+            $earnings = 0;
             $now = Carbon::now()->addHour();
             $orders = Dropoff::where('partner_id', auth()->user()->id)->where('rider_id', $id)->where('payment_status', 'paid')->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->latest()->get();
             $pending = [];
@@ -799,6 +800,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
             $rider['pickedOrders'] = [];
 
             foreach ($orders as $order){
+                $earnings = $earnings + $order->price;
                 if ($order->status == 'pending'){
                     //array_push($rider['pendingOrders'], $order);
                     //$this->getOneDropoff($order->id)
@@ -822,6 +824,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 'delivered' => count($delivered),
                 'picked' => count($picked),
             ];
+            $rider['todays_earnings'] = $earnings;
 
             return $this->success(false, "Rider", $rider, 200);
         }catch(Exception $e){
