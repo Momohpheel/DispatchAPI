@@ -797,15 +797,15 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
             foreach ($orders as $order){
                 if ($order->status == 'pending'){
-                    //$rider['pendingOrders'] = $order; //$this->getOneDropoff($order->id)
+                    $rider['pendingOrders'] = $order; //$this->getOneDropoff($order->id)
                     array_push($pending, $order);
                 }
                 if ($order->status == 'delivered'){
-                    //$rider['deliveredOrders'] = $order;//$this->getOneDropoff($order->id)
+                    $rider['deliveredOrders'] = $order;//$this->getOneDropoff($order->id)
                     array_push($delivered, $order);
                 }
                 if ($order->status == 'picked'){
-                   // $rider['pickedOrders'] = $order;//$this->getOneDropoff($order->id)
+                   $rider['pickedOrders'] = $order;//$this->getOneDropoff($order->id)
                     array_push($picked, $order);
                 }
             }
