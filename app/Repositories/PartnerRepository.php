@@ -747,7 +747,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
     public function allPlateNumbers(){
         try{
-            $vehicles = Vehicle::with('rider')->where('id', $validated['vehicle_id'])->where('is_enabled', true)->where('is_removed', false)->get();
+            $vehicles = Vehicle::with('rider')->where('is_enabled', true)->where('is_removed', false)->get();
             $data = [];
             foreach ($vehicles as $vehicle){
                 if ($vehicle->rider == null){
