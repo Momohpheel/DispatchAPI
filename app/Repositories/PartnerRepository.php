@@ -848,7 +848,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                     'picked' => count($picked),
                 ];
 
-                $rider['todays_earning'] = $earnings;
+                $rider['todays_earning'] = number_format( (float) $earnings, 2, '.', '');
             }
 
 
@@ -933,7 +933,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 'delivered' => count($delivered),
                 'picked' => count($picked),
             ];
-            $rider['todays_earnings'] = $earnings;
+            $rider['todays_earnings'] = number_format( (float) $earnings, 2, '.', '');
 
             return $this->success(false, "Rider", $rider, 200);
         }catch(Exception $e){
@@ -1706,7 +1706,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
             $data = [
                 'earnings' => number_format( (float) $todays_earning, 2, '.', ''),
-                'payout' => number_format($payout,2)
+                'payout' =>  number_format( (float) $payout, 2, '.', '')
             ];
 
             return $data;
