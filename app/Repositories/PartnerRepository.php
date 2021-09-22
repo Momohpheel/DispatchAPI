@@ -800,17 +800,17 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
             foreach ($orders as $order){
                 if ($order->status == 'pending'){
-                    array_push( $rider['pendingOrders'], $order);
+                    array_push($rider['pendingOrders'], $order);
                     //$this->getOneDropoff($order->id)
                     array_push($pending, $order);
                 }
                 if ($order->status == 'delivered'){
-                    array_push( $rider['deliveredOrders'], $order);
+                    array_push($rider['deliveredOrders'], $order);
                     //$rider['deliveredOrders'] = $order;//$this->getOneDropoff($order->id)
                     array_push($delivered, $order);
                 }
                 if ($order->status == 'picked'){
-                    array_push( $rider['pickedOrders'], $order);
+                    array_push($rider['pickedOrders'], $order);
                    //$rider['pickedOrders'] = $order;//$this->getOneDropoff($order->id)
                     array_push($picked, $order);
                 }
