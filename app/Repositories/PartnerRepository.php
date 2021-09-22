@@ -817,6 +817,42 @@ class PartnerRepository implements PartnerRepositoryInterface{
         try{
             $riders = Rider::with(['partner', 'vehicle'])->where('is_dismissed', false)->where('partner_id', auth()->user()->id)->get();
 
+            $earnings = 0;
+            $now = Carbon::now()->addHour();
+
+            $pending = [];
+            $delivered = [];
+            $picked = [];
+
+            foreach ($riders as $rider) {
+                $orders = Dropoff::where('partner_id', auth()->user()->id)->where('vehicle_id', $vehicle->id)->where('payment_status', 'paid')->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->latest()->get();
+                foreach ($orders as $order){
+                    $earnings = $earnings + $order->price;
+                    if ($order->status == 'pending'){
+
+                        array_push($pending, $order);
+                    }
+                    if ($order->status == 'delivered'){
+
+                        array_push($delivered, $order);
+                    }
+                    if ($order->status == 'picked'){
+
+                        array_push($picked, $order);
+                    }
+                }
+
+                $rider['count'] = [
+                    'pending' => count($pending),
+                    'delivered' => count($delivered),
+                    'picked' => count($picked),
+                ];
+
+                $rider['todays_earning'] = $earnings;
+            }
+
+
+
             return $this->success(false, "Riders", $riders, 200);
         }catch(Exception $e){
             return $this->error(true, "Error fetching riders", 400);
