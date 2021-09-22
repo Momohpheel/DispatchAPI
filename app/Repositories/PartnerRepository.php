@@ -768,7 +768,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 'phone' => 'required|string',
                 'password' => 'required|string|max:4',
                 'image' => 'required|image|mimes:png,jpeg,jpg|max:2000',
-                'vehicle_id' => 'required|string'
+                'plate_number' => 'required|string'
             ]);
 
 
@@ -785,7 +785,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
             $id = auth()->user()->id;
             $partner = Partner::find($id);
             $rider = Rider::where('workname', $validated['workname'])->where('phone', $validated['phone'])->where('partner_id', $id)->first();
-            $vehicle = Vehicle::where('id', $validated['vehicle_id'])->where('is_enabled', true)->where('is_removed', false)->first();
+            $vehicle = Vehicle::where('plate_number', $validated['plate_number'])->where('is_enabled', true)->where('is_removed', false)->first();
             if ($vehicle){
                 if (!$rider){
 
