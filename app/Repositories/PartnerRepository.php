@@ -517,10 +517,14 @@ class PartnerRepository implements PartnerRepositoryInterface{
         try{
             $partner_id = auth()->user()->id;
             $rider = Rider::where('id', $id)->where('partner_id', $partner_id)->first();
-            $rider->is_dismissed = true;
-            $rider->save();
+            if ($rider){
+                $rider->is_dismissed = true;
+                $rider->save();
+            }else{
+                return $this->error(true, "Rider doesn't exist", 400);
+            }
 
-            return $this->success(false, "Rider has been disabled", $rider, 200);
+            return $this->success(false, "Rider has been dismissed", $rider, 200);
         }catch(Exception $e){
             return $this->error(true, "Error disabling rider", 400);
         }
