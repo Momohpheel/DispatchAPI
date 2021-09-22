@@ -738,7 +738,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
     public function getRiders(){
         try{
-            $riders = Rider::with(['partner', 'vehicle'])->where('is_available', true)->where('partner_id', auth()->user()->id)->get();
+            $riders = Rider::with(['partner', 'vehicle'])->where('is_dismissed', false)->where('partner_id', auth()->user()->id)->get();
 
             return $this->success(false, "Riders", $riders, 200);
         }catch(Exception $e){
@@ -747,26 +747,65 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
     }
 
+    // public function getRider($id){
+    //     try{
+    //         $rider = Rider::with(['partner', 'vehicle'])->where('is_available', true)->where('partner_id', auth()->user()->id)->first();
+    //         $orders = DropOff::where('rider_id', $id)->where('partner_id', auth()->user()->id)->get();
+    //         $pending = [];
+    //         $delivered = [];
+    //         $picked = [];
+
+    //         foreach ($orders as $order){
+    //             if ($order->status == 'pending'){
+    //                 array_push($pending, $order);
+    //             }
+    //             if ($order->status == 'delivered'){
+    //                 array_push($delivered, $order);
+    //             }
+    //             if ($order->status == 'picked'){
+    //                 array_push($picked, $order);
+    //             }
+    //         }
+
+    //         $rider['count'] = [
+    //             'pending' => count($pending),
+    //             'delivered' => count($delivered),
+    //             'picked' => count($picked),
+    //         ];
+
+    //         return $this->success(false, "Rider", $rider, 200);
+    //     }catch(Exception $e){
+    //         return $this->error(true, "Error fetching riders", 400);
+    //     }
+
+    // }
+
+
     public function getRider($id){
         try{
             $rider = Rider::with(['partner', 'vehicle'])->where('is_available', true)->where('partner_id', auth()->user()->id)->first();
-            $orders = DropOff::where('rider_id', $id)->where('partner_id', auth()->user()->id)->get();
-
+            //$orders = DropOff::where('rider_id', $id)->where('partner_id', auth()->user()->id)->get();
+            $now = Carbon::now()->addHour();
+            $orders = Dropoff::where('partner_id', auth()->user()->id)->where('rider_id', $id)->where('payment_status', 'paid')->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->latest()->get();
             $pending = [];
             $delivered = [];
             $picked = [];
 
             foreach ($orders as $order){
                 if ($order->status == 'pending'){
+                    $rider['pendingOrders'] = $order; //$this->getOneDropoff($order->id)
                     array_push($pending, $order);
                 }
                 if ($order->status == 'delivered'){
+                    $rider['deliveredOrders'] = $order;//$this->getOneDropoff($order->id)
                     array_push($delivered, $order);
                 }
                 if ($order->status == 'picked'){
+                    $rider['pickedOrders'] = $order;//$this->getOneDropoff($order->id)
                     array_push($picked, $order);
                 }
             }
+
 
             $rider['count'] = [
                 'pending' => count($pending),
