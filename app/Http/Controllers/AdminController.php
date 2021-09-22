@@ -47,6 +47,10 @@ class AdminController extends Controller
         return $this->repository->getVehicles($id);
     }
 
+    public function usersOrders($id){
+        return $this->repository->usersOrders($id);
+    }
+
     public function ridersOrders($id){
         return $this->repository->ridersOrders($id);
     }

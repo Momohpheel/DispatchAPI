@@ -185,6 +185,8 @@ use Illuminate\Support\Facades\Route;
             Route::get('order', [App\Http\Controllers\AdminController::class, 'allOrders']);
 
             Route::get('user/{id}', [App\Http\Controllers\AdminController::class, 'oneUser']);
+            Route::get('user/order/{id}', [App\Http\Controllers\AdminController::class, 'usersOrders']);
+
             Route::get('partner/{id}', [App\Http\Controllers\AdminController::class, 'onePartner']);
             Route::get('order/{id}', [App\Http\Controllers\AdminController::class, 'oneOrder']);
 

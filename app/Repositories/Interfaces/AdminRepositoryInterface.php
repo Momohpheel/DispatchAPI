@@ -36,6 +36,8 @@ interface AdminRepositoryInterface{
 
     public function getVehicles($id);
 
+    public function usersOrders($id);
+
     // public function allTransactions();
 
     // public function transactionByPartner();

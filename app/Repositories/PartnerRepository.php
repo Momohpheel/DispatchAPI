@@ -483,6 +483,14 @@ class PartnerRepository implements PartnerRepositoryInterface{
             $id = auth()->user()->id;
             $vehicles = Vehicle::with(['partner', 'rider'])->where('partner_id', $id)->get();
 
+            foreach ($vehicles as $vehicle) {
+                $orders = Dropoff::where('partner_id', auth()->user()->id)->where('vehicle_id', $vehicle->id)->where('payment_status', 'paid')->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->latest()->get();
+                foreach ($orders as $order){
+                    $earnings =  $earnings + $order->price;
+                    $vehicle['todays_earning'] = $earnings;
+                }
+            }
+
             return $this->success(false, "Vehicles fetched", $vehicles, 200);
 
         }catch(Exception $e){
@@ -494,6 +502,44 @@ class PartnerRepository implements PartnerRepositoryInterface{
         try{
             $pid = auth()->user()->id;
             $vehicle = Vehicle::with(['partner', 'rider'])->where('id', $id)->where('partner_id', $pid)->first();
+
+
+            $earnings = 0;
+            $now = Carbon::now()->addHour();
+            $orders = Dropoff::where('partner_id', auth()->user()->id)->where('vehicle_id', $id)->where('payment_status', 'paid')->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->latest()->get();
+            $pending = [];
+            $delivered = [];
+            $picked = [];
+            $vehicle['pendingOrders'] = [];
+            $vehicle['deliveredOrders'] = [];
+            $vehicle['pickedOrders'] = [];
+
+            foreach ($orders as $order){
+                $earnings = $earnings + $order->price;
+                if ($order->status == 'pending'){
+                    //array_push($vehicle['pendingOrders'], $order);
+                    //$this->getOneDropoff($order->id)
+                    array_push($pending, $order);
+                }
+                if ($order->status == 'delivered'){
+                    //array_push($vehicle['deliveredOrders'], $order);
+                    //$vehicle['deliveredOrders'] = $order;//$this->getOneDropoff($order->id)
+                    array_push($delivered, $order);
+                }
+                if ($order->status == 'picked'){
+                    //array_push($vehicle['pickedOrders'], $order);
+                   //$vehicle['pickedOrders'] = $order;//$this->getOneDropoff($order->id)
+                    array_push($picked, $order);
+                }
+            }
+
+
+            $vehicle['count'] = [
+                'pending' => count($pending),
+                'delivered' => count($delivered),
+                'picked' => count($picked),
+            ];
+            $vehicle['todays_earnings'] = $earnings;
 
             return $this->success(false, "Vehicle fetched", $vehicle, 200);
 

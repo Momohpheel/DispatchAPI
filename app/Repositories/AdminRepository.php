@@ -151,7 +151,7 @@ class AdminRepository implements AdminRepositoryInterface{
 
     public function allPartners(){
         try{
-            $partners = Partner::all();
+            $partners = Partner::with('subscription')->get();
 
             return $this->success(false, "All Partners", $partners, 200);
         }catch(Exception $e){
@@ -345,6 +345,38 @@ class AdminRepository implements AdminRepositoryInterface{
         try{
             $partner = Partner::where('id', $id)->first();
 
+            $now = Carbon::now()->addHour();
+
+            $vehicles = Vehicle::where('partner_id', $partner->id)->get();
+            $todaysDropoff = Dropoff::where('partner_id', auth()->user()->id)->where('payment_status', '!=', 'cancelled')->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->get();
+            //vehicle left
+            $vehicles_count = count($vehicles);
+            $orders_count = count($todaysDropoff);
+            if ($partner->subscription->vehicles_allowed == 'unlimited'){
+                $vehicle_left = 'unlimited';
+            }else{
+                $vehicle_left = $partner->subscription->vehicles_allowed - $vehicles_count;
+            }
+
+            if ($partner->subscription->orders_allowed == 'unlimited'){
+                $orders_left = 'unlimited';
+            }else{
+                $orders_left = $partner->subscription->orders_allowed - $orders_count;
+            }
+                 $date = Carbon::parse($partner->subscription_expiry_date);
+                 $diff = $date->diffInDays($now);
+
+
+
+
+                 $partner['subscription_name'] = $partner->subscription->name;
+                 $partner['vehicles_count'] = $vehicles_count;
+                 $partner['vehicles_left'] = (string)$vehicle_left;
+                 $partner['order_count'] = $orders_count;
+                 $partner['orders_left'] = (string)$orders_left;
+                 $partner['subscription_validity'] = $diff;
+
+
             return $this->success(false, "Partner", $partner, 200);
 
 
@@ -358,6 +390,23 @@ class AdminRepository implements AdminRepositoryInterface{
         try{
             $user = User::where('id', $id)->first();
 
+
+            $orders = Dropoff::where('user_id', $id)->latest()->get();
+            $delivered = [];
+
+            foreach ($orders as $order){
+
+                if ($order->status == 'delivered'){
+                    array_push($delivered, $order);
+                }
+
+            }
+
+            $user['delivered_orders_count'] = count($delivered);
+            $user['all_orders_count'] = count($orders);
+
+
+
             return $this->success(false, "User", $user, 200);
 
 
@@ -366,4 +415,72 @@ class AdminRepository implements AdminRepositoryInterface{
         }
     }
 
+    public function usersOrders($id){
+        try{
+            $dropoff = Dropoff::with(['order', 'rider', 'vehicle'])->where('id', $id)->latest()->first();
+
+            $user = User::where('id', $dropoff->order->user_id)->first();
+            $dropoff['user'] = $user;
+            if (isset($dropoff)){
+                return $this->success(false, "User's Orders", $dropoff, 200);
+                // return $dropoff;
+            }else{
+                return $this->error(true, "No dropoff found", 400);
+            }
+        }catch(Exception $e){
+            return $this->error(true, "Error: ".$e->getMessage(), 400);
+        }
+    }
+
+    public function createPartner(Request $request){
+        try{
+
+            $validated = $request->validate([
+                "password" => "required|string",
+                'code_name' => "required|string",
+                'image' => "required|image|mimes:jpg,png,jpeg|max:2000",
+                'business_name' => 'required|string',
+                'business_phone' => 'required|string',
+                'business_email' => 'required|string|email',
+                'business_bank_account' => 'required|string',
+                'business_bank_name' => 'required|string',
+            ]);
+
+            $partner = Partner::where('code_name', $validated['code_name'])->where('name', $validated['business_name'])->first();
+            if (!$partner){
+                if ($request->hasFile('image')){
+                    $image_name = $validated['image']->getClientOriginalName();
+                    $image_name_withoutextensions =  pathinfo($image_name, PATHINFO_FILENAME);
+                    $name = str_replace(" ", "", $image_name_withoutextensions);
+                    $image_extension = $validated['image']->getClientOriginalExtension();
+                    $image_to_store = $name . '_' . time() . '.' . $image_extension;
+                    $path = $validated['image']->storeAs('public/images', trim($image_to_store));
+                }
+                $partner = new Partner;
+                $partner->name = $validated['business_name'];
+                $partner->phone = $validated['business_phone'];
+                $partner->email = $validated['business_email'];
+                $partner->code_name = $validated['code_name'];
+                $partner->password = Hash::make($validated['password']);
+                $partner->image =  env('APP_URL') .'/storage/images/'.$image_to_store;
+                $partner->bank_account = $validated['business_bank_account'];
+                $partner->bank_name = $validated['business_bank_name'];
+                //$partner->image =   env('APP_URL') .'/storage/images/defaultPartner.png';
+                $partner->subscription_id = 1;
+                $partner->subscription_date = Carbon::now();
+                $partner->subscription_expiry_date = Carbon::now()->addDays(30);
+                $partner->top_partner_expiry_date = Carbon::now()->addDays(30);                $partner->subscription_status = 'not paid';
+                $partner->order_count_per_day = 5;
+                $partner->save();
+                $access_token = $partner->createToken('authToken')->accessToken;
+
+                $partner['access_token'] = $access_token;
+                return $this->success(false,"Partner registered", $partner, 200);
+            }else{
+                return $this->error(true, "Partner exists", 400);
+            }
+        }catch(Exception $e){
+            return $this->error(true, "Error: ".$e->getMessage(), 400);
+        }
+    }
 }
