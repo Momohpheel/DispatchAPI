@@ -515,7 +515,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
     */
     public function dismissRider($id){
         try{
-            $partner_id = 1; //auth()->user()->id
+            $partner_id = auth()->user()->id;
             $rider = Rider::where('id', $id)->where('partner_id', $partner_id)->first();
             $rider->is_dismissed = true;
             $rider->save();
