@@ -483,4 +483,9 @@ class AdminRepository implements AdminRepositoryInterface{
             return $this->error(true, "Error: ".$e->getMessage(), 400);
         }
     }
+
+    public function hashId($id){
+        $text = 'OrderID';
+
+    }
 }
