@@ -794,6 +794,9 @@ class PartnerRepository implements PartnerRepositoryInterface{
             $pending = [];
             $delivered = [];
             $picked = [];
+            $rider['pendingOrders'] = [];
+            $rider['deliveredOrders'] = [];
+            $rider['pickedOrders'] = [];
 
             foreach ($orders as $order){
                 if ($order->status == 'pending'){

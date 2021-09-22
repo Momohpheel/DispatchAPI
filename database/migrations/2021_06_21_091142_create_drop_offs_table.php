@@ -32,6 +32,7 @@ class CreateDropOffsTable extends Migration
             $table->string('price')->nullable();
             $table->string('discount')->nullable();
             $table->enum('payment_status', ['paid', 'not paid'])->nullable();
+            $table->enum('payment_type', ['card', 'cash'])->nullable();
             $table->enum('status', ['pending', 'picked', 'cancelled', 'delivered', 'failed']);
             $table->timestamps();
         });
