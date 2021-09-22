@@ -825,7 +825,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
             $picked = [];
 
             foreach ($riders as $rider) {
-                $orders = Dropoff::where('partner_id', auth()->user()->id)->where('vehicle_id', $vehicle->id)->where('payment_status', 'paid')->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->latest()->get();
+                $orders = Dropoff::where('partner_id', auth()->user()->id)->where('rider_id', $rider->id)->where('payment_status', 'paid')->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->latest()->get();
                 foreach ($orders as $order){
                     $earnings = $earnings + $order->price;
                     if ($order->status == 'pending'){
