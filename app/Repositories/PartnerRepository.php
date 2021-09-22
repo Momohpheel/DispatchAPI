@@ -482,7 +482,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
         try{
             $id = auth()->user()->id;
             $vehicles = Vehicle::with(['partner', 'rider'])->where('partner_id', $id)->get();
-
+            $now = Carbon::now()->addHour();
             $earnings = 0;
             foreach ($vehicles as $vehicle) {
                 $orders = Dropoff::where('partner_id', auth()->user()->id)->where('vehicle_id', $vehicle->id)->where('payment_status', 'paid')->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->latest()->get();
