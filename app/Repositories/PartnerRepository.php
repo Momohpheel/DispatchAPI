@@ -488,9 +488,11 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 $orders = Dropoff::where('partner_id', auth()->user()->id)->where('vehicle_id', $vehicle->id)->where('payment_status', 'paid')->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->latest()->get();
                 foreach ($orders as $order){
                     $earnings =  $earnings + $order->price;
-                    $vehicle['todays_earning'] = $earnings;
+
                 }
             }
+
+            $vehicle['todays_earning'] = $earnings;
 
             return $this->success(false, "Vehicles fetched", $vehicles, 200);
 
