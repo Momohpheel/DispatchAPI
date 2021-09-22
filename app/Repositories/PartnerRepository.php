@@ -745,6 +745,21 @@ class PartnerRepository implements PartnerRepositoryInterface{
         }
     }
 
+    public function allPlateNumbers(){
+        try{
+            $vehicles = Vehicle::with('rider')->where('id', $validated['vehicle_id'])->where('is_enabled', true)->where('is_removed', false)->get();
+            $data = [];
+            foreach ($vehicles as $vehicle){
+                if ($vehicle->rider == null){
+                    array_push($data, $vehicle->plate_number);
+                }
+            }
+            return $this->success(false, "All Plate numbers", $data, 200);
+
+        }catch(Exception $e){
+            return $this->error(true, "Error", 400);
+        }
+    }
     public function createRider(Request $request){
         try{
             $validated = $request->validate([
@@ -753,7 +768,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 'phone' => 'required|string',
                 'password' => 'required|string|max:4',
                 'image' => 'required|image|mimes:png,jpeg,jpg|max:2000',
-                'vehicle_id' => 'string'
+                'vehicle_id' => 'required|string'
             ]);
 
 
@@ -770,22 +785,28 @@ class PartnerRepository implements PartnerRepositoryInterface{
             $id = auth()->user()->id;
             $partner = Partner::find($id);
             $rider = Rider::where('workname', $validated['workname'])->where('phone', $validated['phone'])->where('partner_id', $id)->first();
-            if (!$rider){
-                $rider = new Rider;
-                $rider->name = $validated['name'];
-                $rider->phone = $validated['phone'];
-                $rider->workname = $validated['workname'];
-                $rider->vehicle_id = $validated['vehicle_id'] ?? null;
-                $rider->image = env('APP_URL') .'/storage/images/'.$image_to_store; //$validated['image'];
-                $rider->password = Hash::make($validated['password']);
-                $rider->rating = 0;
-                $rider->partner_id = auth()->user()->id;
-                $rider->save();
+            $vehicle = Vehicle::where('id', $validated['vehicle_id'])->where('is_enabled', true)->where('is_removed', false)->first();
+            if ($vehicle){
+                if (!$rider){
 
-                return $this->success(false, "Rider registered", $rider, 200);
-            }else{
-                return $this->error(true, "Rider with given workname or phone number exists", 400);
-            }
+                    $rider = new Rider;
+                    $rider->name = $validated['name'];
+                    $rider->phone = $validated['phone'];
+                    $rider->workname = $validated['workname'];
+                    $rider->vehicle_id = $vehicle->id;
+                    $rider->image = env('APP_URL') .'/storage/images/'.$image_to_store; //$validated['image'];
+                    $rider->password = Hash::make($validated['password']);
+                    $rider->rating = 0;
+                    $rider->partner_id = auth()->user()->id;
+                    $rider->save();
+
+                    return $this->success(false, "Rider registered", $rider, 200);
+                }else{
+                    return $this->error(true, "Rider with given workname or phone number exists", 400);
+                }
+        }else{
+            return $this->error(true, "Vehicle doesnt exist", 400);
+        }
         }catch(Exception $e){
             return $this->error(true, "Error creating rider", 400);
         }

@@ -45,7 +45,7 @@ interface PartnerRepositoryInterface{
 
     public function getOperatingHour();
 
-
+    public function allPlateNumbers();
     public function VehicleEarnings(Request $request, $id);
 
     public function RiderEarnings(Request $request, $id);

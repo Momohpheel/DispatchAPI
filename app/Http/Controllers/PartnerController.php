@@ -202,6 +202,9 @@ class PartnerController extends Controller
         return $this->repository->RiderEarnings($request, $id);
     }
 
+    public function allPlateNumbers(){
+        return $this->repository->allPlateNumbers();
+    }
     public function PartnerEarnings(Request $request){
         return $this->repository->PartnerEarnings($request);
     }
