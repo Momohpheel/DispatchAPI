@@ -244,10 +244,15 @@ class UserRepository implements UserRepositoryInterface{
 
             $check_user = User::where('id', auth()->user()->id)->first();
             if ($check_user){
-                $check_user->name = $validated['name'] ?? $check_user->name;
-                $check_user->phone = $validated['phone'] ?? $check_user->phone;
-                $check_user->email = $validated['email'] ?? $check_user->email;
-                $check_user->save();
+                $userCheckEmail = User::where('email', $request->email)->where('phone', $request->phone)->where('id', '!=', auth()->user()->id)->first();
+                if (!$userCheckEmail){
+                    $check_user->name = $validated['name'] ?? $check_user->name;
+                    $check_user->phone = $validated['phone'] ?? $check_user->phone;
+                    $check_user->email = $validated['email'] ?? $check_user->email;
+                    $check_user->save();
+                }else{
+                    return $this->error(true, "Email has been used by another user!", 400);
+                }
 
                 return $this->success(false, "user profile updated", $check_user, 200);
             }else{
@@ -617,8 +622,8 @@ class UserRepository implements UserRepositoryInterface{
 
     public function getAllOrders($id){
         try{
-            $id = auth()->user()->id;
-            $orders = Order::with('dropoff')->where('partner_id', $id)->where('user_id', $id)->latest()->get();
+            $user = auth()->user()->id;
+            $orders = Order::with('dropoff')->where('partner_id', $id)->where('user_id', $user)->latest()->get();
 
             return $this->success(false, "User Order History", $orders, 200);
 
