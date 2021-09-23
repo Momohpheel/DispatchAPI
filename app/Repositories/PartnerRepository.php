@@ -1924,7 +1924,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
     public function getPayoutLog(){
         try{
-            $payoutLog = paymentLog::where('partner_id', auth()->user()->id)->get();
+            $payoutLog = payoutLog::where('partner_id', auth()->user()->id)->get();
 
             return $this->success(false, "Partner Payout Log", $payoutLog, 200);
         }catch(Exception $e){
