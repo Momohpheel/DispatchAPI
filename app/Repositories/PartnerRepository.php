@@ -61,11 +61,11 @@ class PartnerRepository implements PartnerRepositoryInterface{
         try{
             $validated = $request->validate([
                 "password" => "required|string",
-                'code_name' => "required|string",
+                'code_name' => "required|string|unique:partners",
                 'image' => "required|image|mimes:jpg,png,jpeg|max:2000",
                 'business_name' => 'required|string',
                 'business_phone' => 'required|string',
-                'business_email' => 'required|string|email',
+                'business_email' => 'required|string|email|unique:partners',
                 'business_bank_account' => 'required|string',
                 'business_bank_name' => 'required|string',
             ]);
@@ -150,7 +150,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
     public function forgotPassword(Request $request){
         try{
             $request->validate([
-                'email' => 'required|email|exists:users',
+                'email' => 'required|email|exists:partners',
             ]);
 
             $token = Str::random(64);
@@ -175,10 +175,15 @@ class PartnerRepository implements PartnerRepositoryInterface{
         try{
 
             $request->validate([
-                'email' => 'required|email|exists:users',
+                'email' => 'required|email|exists:partners',
                 'password' => 'required|string|min:6|confirmed',
                 'password_confirmation' => 'required'
             ]);
+
+
+            if ($validator['password'] != $validator['password_confirmation']) {
+                return back()->with('error', 'Passwords do not match');
+            }
 
             $updatePassword = DB::table('password_resets')
                                 ->where([
@@ -187,16 +192,19 @@ class PartnerRepository implements PartnerRepositoryInterface{
                                 ])
                                 ->first();
 
-            if(!$updatePassword){
-                return $this->error(true, "Invalid token!", 400);
-            }
 
-            $user = User::where('email', $request->email)
+                                if(!$updatePassword){
+                                    //return $this->error(true, "Invalid token!", 400);
+                                    return redirect('/user/reset-password/error');
+                                }
+
+            $user = Partner::where('email', $request->email)
                         ->update(['password' => Hash::make($request->password)]);
 
             DB::table('password_resets')->where(['email'=> $request->email])->delete();
 
-            return $this->success("Reset Password Successfull...", $user, 200);
+            return redirect('/user/reset-password/success');
+            //return $this->success("Reset Password Successfull...", $user, 200);
 
         }catch(Exception $e){
             return $this->error(true, "Error Occured: $e->getMessage()", 400);
@@ -343,7 +351,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
     public function getProfile(){
         try{
             $partner_id = auth()->user()->id;
-            $partner = Partner::find($partner_id);
+            $partner = Partner::with('subscription')->where('id', $partner_id)->first();
 
             $data = [
                 'name' => $partner->name,
@@ -353,9 +361,9 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 'code_name' => $partner->code_name,
                 'earnings' => $partner->earnings,
                 'subscription_date' => $partner->subscription_date,
-                'subscription_type' => $partner->subscription()->name,
+                'subscription_type' => $partner->subscription->name,
                 'subscription_expiry_date' => $partner->subscription_expiry_date,
-                'order_count_per_day' => $partner->order_count_per_day
+                // 'order_count_per_day' => $partner->order_count_per_day
 
             ];
 
@@ -396,10 +404,9 @@ class PartnerRepository implements PartnerRepositoryInterface{
                     $vehicle->color = $validated['color'];
                     $vehicle->model = $validated['model'];
                     $vehicle->partner_id = $id;
+                    $vehicle->earning = 0;
                     $vehicle->type = $validated['type'];
                     $vehicle->save();
-
-
 
 
                     return $this->success(false, "vehicle registered", $vehicle, 200);
@@ -432,19 +439,19 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
 
                 if ($vehicle){
-                    if ($vehicle_exists_somewhere){
-                        return $this->error(true, "Vehicle already belongs to partner", 400);
-                    }else{
+                    // if ($vehicle_exists_somewhere){
+                    //     return $this->error(true, "Vehicle already belongs to partner", 400);
+                    // }else{
                         $vehicle->name = $validated['name'] ?? $vehicle->name;
                         $vehicle->plate_number = $validated['plate_number'] ?? $vehicle->plate_number;
                         $vehicle->color = $validated['color'] ?? $vehicle->color;
                         $vehicle->model = $validated['model'] ?? $vehicle->model;
                         $vehicle->type = $validated['type'] ?? $vehicle->type;
-                        $vehicle->partner_id = $id ?? $vehicle->partner_id; //auth()->user()->id;
+                        $vehicle->partner_id = $partner_id ?? $vehicle->partner_id; //auth()->user()->id;
                         $vehicle->save();
 
                         return $this->success(false, "vehicle updated", $vehicle, 200);
-                    }
+                    // }
                 }else{
                     return $this->error(true, "vehicle doesn't exists", 400);
                 }
@@ -607,8 +614,8 @@ class PartnerRepository implements PartnerRepositoryInterface{
         try{
             $validated = $request->validate([
                 'name' => 'string',
-                'workname' => 'string',
-                'phone' => 'string',
+                'workname' => 'string|exists:riders',
+                'phone' => 'string|exists:riders|max:11',
                 'pin' => 'string|max:4',
                 'image' => 'image|mimes:png,jpeg,jpg|max:2000',
                 'vehicle_id' => 'string'
@@ -696,12 +703,12 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 'status' => 'string'
             ]);
 
-            $orders = Dropoff::with(['order', 'rider', 'vehicle'])->where('rider_id', $id)->where('partner_id', auth()->user()->id)->latest()->get();
+            $orders = Dropoff::with(['order', 'rider', 'vehicle'])->where('rider_id', $id)->where('payment_status', 'paid')->where('partner_id', auth()->user()->id)->latest()->get();
             $data = [];
 
             switch($request->status){
                 case 'pending':
-                    $orders = Dropoff::with(['order', 'rider', 'vehicle'])->where('rider_id', $id)->where('partner_id', auth()->user()->id)->where('status', 'pending')->latest()->paginate(10);
+                    $orders = Dropoff::with(['order', 'rider', 'vehicle'])->where('rider_id', $id)->where('payment_status', 'paid')->where('partner_id', auth()->user()->id)->where('status', 'pending')->latest()->paginate(10);
                     foreach ($orders as $order){
                         $userId = $order->order->user_id ?? null;
                         $user = User::where('id', $userId)->first() ?? null;
@@ -768,7 +775,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
         try{
             $validated = $request->validate([
                 'name' => 'required|string',
-                'workname' => 'required|string',
+                'workname' => 'required|string|unique:riders',
                 'phone' => 'required|string',
                 'password' => 'required|string|max:4',
                 'image' => 'required|image|mimes:png,jpeg,jpg|max:2000',
@@ -798,6 +805,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                     $rider->phone = $validated['phone'];
                     $rider->workname = $validated['workname'];
                     $rider->vehicle_id = $vehicle->id;
+                    $rider->earning = 0;
                     $rider->image = env('APP_URL') .'/storage/images/'.$image_to_store; //$validated['image'];
                     $rider->password = Hash::make($validated['password']);
                     $rider->rating = 0;
@@ -1208,10 +1216,20 @@ class PartnerRepository implements PartnerRepositoryInterface{
         }
     }
 
+
     public function getPartnerHistory(){
         try{
-            $id = auth()->user()->id;
-            $history = History::where('partner_id', $id)->get();
+            //$id = auth()->user()->id;
+            //$history = History::where('partner_id', $id)->get();
+            $orders = Dropoff::with(['order', 'rider', 'vehicle'])->where('partner_id', auth()->user()->id)->where('status', 'delivered')->latest()->get();
+            foreach ($orders as $order){
+                    $user = User::find($order->order->user_id);
+
+                    $order['user'] = $user;
+            }
+
+        return $this->success(false, "Partner History", $orders, 200);
+
 
             return $this->success(false, "Partner history", $history, 200);
 
