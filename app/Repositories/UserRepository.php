@@ -105,6 +105,8 @@ class UserRepository implements UserRepositoryInterface{
 
     public function login(Request $request){
         try{
+
+            return Carbon::now();
             $validated = $request->validate([
                 'email' => "required|string",
                 "password" => "required|string"
@@ -292,9 +294,9 @@ class UserRepository implements UserRepositoryInterface{
             }
             //check if the subscription has been paid for
 
-            $now = Carbon::now()->addHour();
+            $now = Carbon::now();
             $day = $now->format('l');
-            $c_time =  Carbon::now()->addHour();
+            $c_time =  Carbon::now();
 
             $todaysDropoff = Dropoff::where('partner_id', $id)->where('payment_status', '!=', 'cancelled')->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->get();
 
@@ -383,9 +385,9 @@ class UserRepository implements UserRepositoryInterface{
             }
 
 
-            $now = Carbon::now()->addHour();
+            $now = Carbon::now();
             $day = $now->format('l');
-            $c_time =  Carbon::now()->addHour();
+            $c_time =  Carbon::now();
 
 
             $todaysDropoff = Dropoff::where('partner_id', $id)->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->get();
@@ -471,7 +473,7 @@ class UserRepository implements UserRepositoryInterface{
         $totals = 0;
         $discounts = 0;
         $partner = Partner::find($id);
-        $now = Carbon::now()->addHour();
+        $now = Carbon::now();
         //pair with rider who is under the partner
         //and is not disabled or dismissed and nearby
         //dd($validated['dropoff'][0]);
