@@ -1096,9 +1096,11 @@ class PartnerRepository implements PartnerRepositoryInterface{
     public function getRouteCost(){
         try{
             $route_costing = RouteCosting::where('partner_id', auth()->user()->id)->first();
-
+            if ($route_costing){
                 return $this->success(false, "Route-Costing", $route_costing,200);
-
+            }else{
+                return $this->success(false, "Route-Costing", ["error"=>"empty"],200);
+            }
         }catch(Exception $e){
             return $this->error(true, "Error occured", 400);
         }
