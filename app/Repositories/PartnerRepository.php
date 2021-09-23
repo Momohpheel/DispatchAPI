@@ -1437,13 +1437,13 @@ class PartnerRepository implements PartnerRepositoryInterface{
         try{
 
 
-            $orders = Dropoff::with(['order', 'rider', 'vehicle'])->where('partner_id', auth()->user()->id)->latest()->get();
+            $orders = Dropoff::with(['order', 'rider', 'vehicle'])->where('partner_id', auth()->user()->id)->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->latest()->get();
             $data = [];
 
-
+            $now = Carbon::now();
             switch($status){
                 case 'pending':
-                    $orders = Dropoff::with(['order', 'rider', 'vehicle'])->where('partner_id', auth()->user()->id)->where('status', 'pending')->latest()->paginate(10);
+                    $orders = Dropoff::with(['order', 'rider', 'vehicle'])->where('partner_id', auth()->user()->id)->where('status', 'pending')->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->latest()->paginate(10);
                     foreach ($orders as $order){
                         $userId = $order->order->user_id ?? null;
                         $user = User::where('id', $userId)->first() ?? null;
