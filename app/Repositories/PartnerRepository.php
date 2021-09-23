@@ -16,6 +16,7 @@ use App\Models\DropOff;
 use App\Models\Vehicle;
 use App\Models\Payment;
 use App\Models\Address;
+use App\Models\payoutLog;
 use App\Traits\Logs;
 use App\Repositories\Interfaces\PartnerRepositoryInterface;
 use DB;
@@ -1306,7 +1307,8 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
     public function count(){
         $id = auth()->user()->id;
-        $dropoffs = Dropoff::with('order')->where('partner_id', $id)->get();
+        $now = Carbon::now();
+        $dropoffs = Dropoff::with('order')->where('partner_id', $id)->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->get();
         $vehicles = Vehicle::where('partner_id', $id)->get();
         $pending = [];
         $delivered = [];
@@ -1920,4 +1922,13 @@ class PartnerRepository implements PartnerRepositoryInterface{
         }
     }
 
+    public function getPayoutLog(){
+        try{
+            $payoutLog = paymentLog::where('partner_id', auth()->user()->id)->get();
+
+            return $this->success(false, "Partner Payout Log", $payoutLog, 200);
+        }catch(Exception $e){
+            return $this->error(true, "Error!", 400);
+        }
+    }
 }

@@ -162,6 +162,7 @@ use Illuminate\Support\Facades\Route;
 
 
             Route::post('payment/log', [App\Http\Controllers\PartnerController::class, 'payment']);
+            Route::get('payout', [App\Http\Controllers\PartnerController::class, 'getPayoutLog']);
         });
 
     });

@@ -52,7 +52,7 @@ interface PartnerRepositoryInterface{
 
     public function PartnerEarnings(Request $request);
 
-
+    public function getPayoutLog();
 
     public function getRouteCost();
 
