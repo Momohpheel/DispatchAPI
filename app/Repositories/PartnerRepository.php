@@ -751,7 +751,11 @@ class PartnerRepository implements PartnerRepositoryInterface{
             $data = [];
             foreach ($vehicles as $vehicle){
                 if ($vehicle->rider == null){
-                    array_push($data, $vehicle->plate_number);
+                    $plates = [
+                        'plate' => $vehicle->plate_number,
+                        'type' => $vehicle->type
+                    ];
+                    array_push($data, $plates);
                 }
             }
             return $this->success(false, "All Plate numbers", $data, 200);

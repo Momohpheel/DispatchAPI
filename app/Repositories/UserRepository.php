@@ -64,8 +64,8 @@ class UserRepository implements UserRepositoryInterface{
 
             $validated = $request->validate([
                 'name' => "required|string",
-                'phone' => "required|string",
-                'email' => "required|string",
+                'phone' => "required|string|max:11",
+                'email' => "required|string|unique:users",
                 "password" => "required|string"
             ]);
 

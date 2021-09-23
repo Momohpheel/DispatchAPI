@@ -48,6 +48,9 @@
                         </div>
 
                         <div class="form-group row">
+                            @if($error)
+                                <p style="color: red">Passwords do not match</p>
+                            @endif
                             <label for="password-confirm" class="col-md-4 col-form-label text-md-right">{{ __('Confirm Password') }}</label>
 
                             <div class="col-md-6">

@@ -469,13 +469,12 @@ class AdminRepository implements AdminRepositoryInterface{
                 $partner->subscription_id = 1;
                 $partner->subscription_date = Carbon::now();
                 $partner->subscription_expiry_date = Carbon::now()->addDays(30);
-                $partner->top_partner_expiry_date = Carbon::now()->addDays(30);                $partner->subscription_status = 'not paid';
+                $partner->top_partner_expiry_date = Carbon::now()->addDays(30);
+                $partner->subscription_status = 'not paid';
                 $partner->order_count_per_day = 5;
                 $partner->save();
-                $access_token = $partner->createToken('authToken')->accessToken;
 
-                $partner['access_token'] = $access_token;
-                return $this->success(false,"Partner registered", $partner, 200);
+                return $this->success(false,"Partner created", $partner, 200);
             }else{
                 return $this->error(true, "Partner exists", 400);
             }
@@ -484,6 +483,22 @@ class AdminRepository implements AdminRepositoryInterface{
         }
     }
 
+    public function makeTopPartner($id){
+        try{
+            $partner = Partner::find($id);
+            if ($partner){
+                $partner->is_top_partner = true;
+                $partner->top_partner_expiry_date = Carbon::now()->addDays(30);
+                $partner->save();
+
+                return $this->success(false,"Top Partner created", $partner, 200);
+            }else{
+                return $this->error(true, "Couldn't make partner a TopPartner", 400);
+            }
+        }catch(Exception $e){
+            return $this->error(true, "Error: ".$e->getMessage(), 400);
+        }
+    }
     public function hashId($id){
         $text = 'OrderID';
 
