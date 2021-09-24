@@ -1246,8 +1246,18 @@ class PartnerRepository implements PartnerRepositoryInterface{
         return $this->success(false, "Partner History", $orders, 200);
 
 
-            return $this->success(false, "Partner history", $history, 200);
 
+
+        }catch(Exception $e){
+            return $this->error(true, "Couldn't find partner history", 400);
+        }
+    }
+
+    public function getPaymentHistory(){
+        try{
+
+            $history = History::where('partner_id', auth()->user()->id)->get();
+            return $this->success(false, "Partner payment history", $history, 200);
         }catch(Exception $e){
             return $this->error(true, "Couldn't find partner history", 400);
         }

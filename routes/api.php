@@ -160,7 +160,7 @@ use Illuminate\Support\Facades\Route;
             Route::get('ophours', [App\Http\Controllers\PartnerController::class, 'getOperatingHour']);
 
 
-
+            Route::get('payment/history', [App\Http\Controllers\PartnerController::class, 'getPaymentHistory']);
             Route::post('payment/log', [App\Http\Controllers\PartnerController::class, 'payment']);
             Route::get('payout', [App\Http\Controllers\PartnerController::class, 'getPayoutLog']);
         });

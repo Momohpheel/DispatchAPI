@@ -202,6 +202,10 @@ class PartnerController extends Controller
         return $this->repository->RiderEarnings($request, $id);
     }
 
+    public function getPaymentHistory(){
+        return $this->repository->getPaymentHistory();
+    }
+
     public function getPayoutLog(){
         return $this->repository->getPayoutLog();
     }
