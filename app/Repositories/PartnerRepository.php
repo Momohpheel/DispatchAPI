@@ -1099,7 +1099,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
             if ($route_costing){
                 return $this->success(false, "Route-Costing", $route_costing,200);
             }else{
-                return $this->success(true, "No route cost found",$route_costing, 400);
+                return $this->success(true, "No route cost found",$route_costing, 200);
             }
         }catch(Exception $e){
             return $this->error(true, "Error occured", 400);
