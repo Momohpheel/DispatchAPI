@@ -1097,6 +1097,11 @@ class PartnerRepository implements PartnerRepositoryInterface{
         try{
             $route_costing = RouteCosting::where('partner_id', auth()->user()->id)->first();
             if ($route_costing){
+                $route_costing = [
+                    'base_fare' => $route_costing->base_fare,
+                    'cost_perkm' => $route_costing->cost_perkm,
+                    'express' => $route_costing->express,
+                ];
                 return $this->success(false, "Route-Costing", $route_costing,200);
             }else{
 
