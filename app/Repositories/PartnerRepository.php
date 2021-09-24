@@ -1101,9 +1101,9 @@ class PartnerRepository implements PartnerRepositoryInterface{
             }else{
 
                 $route_costing = [
-                    'base_fare' => 0,
-                    'cost_perkm' => 0,
-                    'express' => 0,
+                    'base_fare' => "0",
+                    'cost_perkm' => "0",
+                    'express' => "0",
                 ];
                 return $this->success(true, "No route cost found",$route_costing, 200);
             }
