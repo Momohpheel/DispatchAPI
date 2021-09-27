@@ -175,7 +175,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
     public function resetPassword(Request $request, $token){
         try{
 
-            $request->validate([
+            $validator = $request->validate([
                 'email' => 'required|email|exists:partners',
                 'password' => 'required|string|min:6|confirmed',
                 'password_confirmation' => 'required'
