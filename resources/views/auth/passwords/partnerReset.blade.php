@@ -8,7 +8,7 @@
                 <div class="card-header">{{ __('Reset Password') }}</div>
 
                 <div class="card-body">
-                    <form method="POST" action="{{env('APP_URL')}}/api/auth/user/reset-password/{{$_GET['token']}}">
+                    <form method="POST" action="{{env('APP_URL')}}/api/partner/reset-password/{{$_GET['token']}}">
                         @csrf
 
                         {{-- <input type="text" name="token" value="{{ $_GET['token'] }}"> --}}

@@ -162,7 +162,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
                 'created_at' => Carbon::now()
               ]);
 
-            Mail::to($request->email)->send(new ForgotPassword($token));
+            Mail::to($request->email)->send(new PartnerForgotPassword($token));
 
             return $this->success(false, "Email to reset password has been sent...", [], 200);
 

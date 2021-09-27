@@ -17,12 +17,17 @@ Route::get('/user/reset-password', function () {
     return view('auth.passwords.reset');
 });
 
+Route::get('/partner/reset-password', function () {
+    return view('auth.passwords.partnerReset');
+});
+
+
 Route::get('/user/reset-password/success', function () {
-    return view('auth.register');
+    return view('auth.success');
 });
 
 Route::get('/user/reset-password/error', function () {
-    return view('auth.login');
+    return view('auth.error');
 });
 
 Route::get('/', [App\Http\Controllers\UserController::class, 'home']);
