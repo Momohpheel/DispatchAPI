@@ -152,7 +152,7 @@ class UserRepository implements UserRepositoryInterface{
 
            Mail::to($request->email)->send(new ForgotPassword($token));
 
-            return $this->success("Email to reset password has been sent...", [], 200);
+            return $this->success(false, "Email to reset password has been sent...", [], 200);
 
         }catch(Exception $e){
             return $this->error(true, "Error Occured: $e->getMessage()", 400);
