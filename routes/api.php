@@ -94,8 +94,8 @@ use Illuminate\Support\Facades\Route;
         Route::get('all', [App\Http\Controllers\PartnerController::class, 'allPartner']);
         Route::get('top/all', [App\Http\Controllers\PartnerController::class, 'allTopPartner']);
 
-        Route::post('forgot-password', [App\Http\Controllers\User\AuthController::class, 'forgotPassword']);
-        Route::post('reset-password/{token}', [App\Http\Controllers\User\AuthController::class, 'resetPassword']);
+        Route::post('forgot-password', [App\Http\Controllers\PartnerController::class, 'forgotPassword']);
+        Route::post('reset-password/{token}', [App\Http\Controllers\PartnerController::class, 'resetPassword']);
         Route::get('subscription', [App\Http\Controllers\PartnerController::class, 'subscription']);
 
 
