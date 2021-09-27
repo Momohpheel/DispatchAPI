@@ -99,7 +99,7 @@ interface PartnerRepositoryInterface{
 
     public function forgotPassword(Request $request);
 
-    public function resetPassword($token);
+    public function resetPassword(Request $request, $token);
 
     public function payment(Request $request);
 

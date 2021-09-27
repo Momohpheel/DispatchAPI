@@ -50,8 +50,8 @@ class PartnerController extends Controller
         return $this->repository->forgotPassword($request);
     }
 
-    public function resetPassword($token){
-        return $this->repository->resetPassword($token);
+    public function resetPassword(Request $request, $token){
+        return $this->repository->resetPassword($request, $token);
     }
 
     public function kyc(){

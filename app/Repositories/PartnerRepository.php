@@ -172,7 +172,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
     }
 
 
-    public function resetPassword($token){
+    public function resetPassword(Request $request, $token){
         try{
 
             $request->validate([
