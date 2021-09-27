@@ -1460,7 +1460,7 @@ class PartnerRepository implements PartnerRepositoryInterface{
 
         try{
 
-
+            $now = Carbon::now()->addHour();
             $orders = Dropoff::with(['order', 'rider', 'vehicle'])->where('partner_id', auth()->user()->id)->where('created_at', 'LIKE',$now->format('Y-m-d').'%')->latest()->get();
             $data = [];
 
