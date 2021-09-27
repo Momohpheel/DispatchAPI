@@ -22,7 +22,7 @@ use App\Repositories\Interfaces\PartnerRepositoryInterface;
 use DB;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\VerifyEmail;
-use App\Mail\ForgotPassword;
+use App\Mail\PartnerForgotPassword;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 
